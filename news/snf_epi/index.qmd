@@ -1,0 +1,26 @@
+---
+title: "New SNSF project!"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2025-02-09
+categories: ["Projects"]
+image: SNF_logo_standard_office_color_pos_e.png
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+In March 2024, my colleagues [Lorenz Hilfiker](https://www.geography.unibe.ch/ueber_uns/personen/dr_hilfiker_lorenz/index_ger.html), [Matthias Templ](https://www.fhnw.ch/de/personen/matthias-templ) and I submitted a project proposal to the second [Health and Wellbeing Call](https://www.snf.ch/en/ustwcin8DxoxxHGc/funding/projects-on-health-and-wellbeing) by the Swiss National Science Foundation (SNSF). In November 2024 we got the exciting news that our project will be funded by the SNSF! The funds (CHF 391'938) will allow us to hire a full-time PhD student. In addition, Lorenz will join Matthias and me at Fachhochschule Nordwestschweiz (FHNW) sometime in 2025, starting in a part-time position.
+
+Over the course of the next 4 years, Lorenz, Matthias, the PhD student and I will be investigating new methods for detecting the source of an epidemic spread on contact networks. Methods for identifying the origin of an epidemic based on contact data (often in the form of so-called contact networks) have been researched for about 15 years. Many of these studies examine simplified problems in small contact networks, making them difficult to apply directly in practice. Therefore, our project pursues the following two overarching goals:
+
+-   We aim to develop scalable methods that can be applied to large contact networks.
+
+-   We seek to create methods that can be used in realistic problem contexts, which are characterized by uncertainty about various parameters.
+
+The application of these methods is not limited to pandemics affecting the human population but also extends to various agricultural livestock industries, where contact data are often readily available due to regulatory requirements.
+
+We hope that the methods developed over the course of the project become part of the toolbox for preventing future pandemics, whether in the human or veterinary sector. We are certainly excited to get this project started!

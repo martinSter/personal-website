@@ -1,0 +1,13 @@
+---
+title: "About"
+about:
+    template: trestles
+    links:
+        - icon: linkedin
+          text: LinkedIn
+          url: https://www.linkedin.com/in/martin-sterchi-553336263/
+image: me1.jpeg
+comments: false
+---
+
+Coming soon...
