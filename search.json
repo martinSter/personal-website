@@ -1,10 +1,10 @@
 [
   {
-    "objectID": "publications/index.html",
-    "href": "publications/index.html",
-    "title": "Publications",
+    "objectID": "about/index.html",
+    "href": "about/index.html",
+    "title": "About",
     "section": "",
-    "text": "2025\nBla…\n\n\n2024\ndf\n\n\n2023\ndf"
+    "text": "Coming soon…"
   },
   {
     "objectID": "index.html",
@@ -14,18 +14,11 @@
     "text": "New SNSF project!\n\n\n\n\n\n\nProjects\n\n\n\n\n\n\n\n\n\nFeb 9, 2025\n\n\nMartin Sterchi\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "blog/index.html",
-    "href": "blog/index.html",
-    "title": "Blog",
+    "objectID": "publications/index.html",
+    "href": "publications/index.html",
+    "title": "Publications",
     "section": "",
-    "text": "Coming soon…"
-  },
-  {
-    "objectID": "about/index.html",
-    "href": "about/index.html",
-    "title": "About",
-    "section": "",
-    "text": "Coming soon…"
+    "text": "2025\nBla…\n\n\n2024\ndf\n\n\n2023\ndf"
   },
   {
     "objectID": "code/index.html",
@@ -40,5 +33,12 @@
     "title": "New SNSF project!",
     "section": "",
     "text": "In March 2024, my colleagues Lorenz Hilfiker, Matthias Templ and I submitted a project proposal to the second Health and Wellbeing Call by the Swiss National Science Foundation (SNSF). In November 2024 we got the exciting news that our project will be funded by the SNSF! The funds (CHF 391’938) will allow us to hire a full-time PhD student. In addition, Lorenz will join Matthias and me at Fachhochschule Nordwestschweiz (FHNW) sometime in 2025, starting in a part-time position.\nOver the course of the next 4 years, Lorenz, Matthias, the PhD student and I will be investigating new methods for detecting the source of an epidemic spread on contact networks. Methods for identifying the origin of an epidemic based on contact data (often in the form of so-called contact networks) have been researched for about 15 years. Many of these studies examine simplified problems in small contact networks, making them difficult to apply directly in practice. Therefore, our project pursues the following two overarching goals:\n\nWe aim to develop scalable methods that can be applied to large contact networks.\nWe seek to create methods that can be used in realistic problem contexts, which are characterized by uncertainty about various parameters.\n\nThe application of these methods is not limited to pandemics affecting the human population but also extends to various agricultural livestock industries, where contact data are often readily available due to regulatory requirements.\nWe hope that the methods developed over the course of the project become part of the toolbox for preventing future pandemics, whether in the human or veterinary sector. We are certainly excited to get this project started!"
+  },
+  {
+    "objectID": "blog/index.html",
+    "href": "blog/index.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Coming soon…"
   }
 ]
