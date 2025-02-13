@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>Martin Sterchi</title>
-<link>https://martinSter.github.io/personal-website/</link>
-<atom:link href="https://martinSter.github.io/personal-website/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://martinsterchi.ch/</link>
+<atom:link href="https://martinsterchi.ch/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.40</generator>
 <lastBuildDate>Sun, 09 Feb 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>New SNSF project!</title>
   <dc:creator>Martin Sterchi</dc:creator>
-  <link>https://martinSter.github.io/personal-website/news/snf_epi/</link>
+  <link>https://martinsterchi.ch/news/snf_epi/</link>
   <description><![CDATA[ 
 
 
@@ -33,9 +33,9 @@
 
  ]]></description>
   <category>Projects</category>
-  <guid>https://martinSter.github.io/personal-website/news/snf_epi/</guid>
+  <guid>https://martinsterchi.ch/news/snf_epi/</guid>
   <pubDate>Sun, 09 Feb 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinSter.github.io/personal-website/news/snf_epi/SNF_logo_standard_office_color_pos_e.png" medium="image" type="image/png" height="33" width="144"/>
+  <media:content url="https://martinsterchi.ch/news/snf_epi/SNF_logo_standard_office_color_pos_e.png" medium="image" type="image/png" height="33" width="144"/>
 </item>
 </channel>
 </rss>
