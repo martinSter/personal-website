@@ -11,12 +11,12 @@
     "href": "index.html",
     "title": "News",
     "section": "",
-    "text": "NetSci 2025, here we come.\n\n\n\n\n\n\nConferences\n\n\n\n\n\n\n\n\n\nFeb 14, 2025\n\n\nMartin Sterchi\n\n\n\n\n\n\n\n\n\n\n\n\nNew SNSF project!\n\n\n\n\n\n\nProjects\n\n\n\n\n\n\n\n\n\nFeb 9, 2025\n\n\nMartin Sterchi\n\n\n\n\n\n\nNo matching items"
+    "text": "NetSci 2025, here we come\n\n\n\n\n\n\nConferences\n\n\n\n\n\n\n\n\n\nFeb 14, 2025\n\n\nMartin Sterchi\n\n\n\n\n\n\n\n\n\n\n\n\nNew SNSF project\n\n\n\n\n\n\nProjects\n\n\n\n\n\n\n\n\n\nFeb 9, 2025\n\n\nMartin Sterchi\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "news/snf_epi/index.html",
     "href": "news/snf_epi/index.html",
-    "title": "New SNSF project!",
+    "title": "New SNSF project",
     "section": "",
     "text": "In March 2024, my colleagues Lorenz Hilfiker, Matthias Templ, and I submitted a project proposal to the Swiss National Science Foundation’s (SNSF) second Health and Wellbeing Call.\nIn November 2024, we received the exciting news that our project has been awarded funding! With a grant of CHF 391,938, we will be able to hire a full-time PhD student to support our research. Additionally, Lorenz will join Matthias and me at Fachhochschule Nordwestschweiz (FHNW) in 2025, starting in a part-time position.\nOver the next four years, our team—including the PhD student—will work on developing new methods to trace the origins of epidemic outbreaks in contact networks. While researchers have been exploring epidemic source detection for about 15 years, many existing studies focus on simplified models and small networks, limiting their practical applications. Our project aims to address these challenges by pursuing two key goals:\n\nScalability: Developing methods that can be applied to large-scale contact networks.\nReal-world applicability: Designing techniques that account for uncertainty in key parameters, making them more suitable for practical use.\n\nOur research is not limited to human pandemics—it also has significant applications in the agricultural and livestock industries, where regulatory requirements often ensure the availability of contact data.\nUltimately, we hope our methods will become valuable tools for preventing future outbreaks, whether in human or veterinary health. We are thrilled to embark on this journey and look forward to the discoveries ahead!"
   },
@@ -37,7 +37,7 @@
   {
     "objectID": "news/netsci25/index.html",
     "href": "news/netsci25/index.html",
-    "title": "NetSci 2025, here we come.",
+    "title": "NetSci 2025, here we come",
     "section": "",
     "text": "My colleague Lorenz Hilfiker and I are excited to have been accepted for a poster presentation at NetSci2025! We look forward to traveling to Maastricht (NL) this June to share our work with experts in the field.\nOur research explores the potential of Graph Neural Networks (GNNs) for epidemic source detection—identifying the origin of an outbreak given a contact network and the epidemic states of all nodes.\nOur (still preliminary) findings suggest that GNNs may not yet live up to their promise, as they are consistently outperformed by more traditional source detection methods. However, we have only explored a small region of the GNN design space so far, so it is too early to rule them out as a valuable tool for this problem.\nIf you’re interested, check out our abstract below—and stay tuned for a full paper on this topic!"
   },

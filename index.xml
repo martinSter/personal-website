@@ -12,7 +12,7 @@
 <generator>quarto-1.6.40</generator>
 <lastBuildDate>Fri, 14 Feb 2025 00:00:00 GMT</lastBuildDate>
 <item>
-  <title>NetSci 2025, here we come.</title>
+  <title>NetSci 2025, here we come</title>
   <dc:creator>Martin Sterchi</dc:creator>
   <link>https://martinsterchi.ch/news/netsci25/</link>
   <description><![CDATA[ 
@@ -24,7 +24,7 @@
 <p>Our research explores the potential of Graph Neural Networks (GNNs) for epidemic source detection—identifying the origin of an outbreak given a contact network and the epidemic states of all nodes.</p>
 <p>Our (still preliminary) findings suggest that GNNs may not yet live up to their promise, as they are consistently outperformed by more traditional source detection methods. However, we have only explored a small region of the GNN design space so far, so it is too early to rule them out as a valuable tool for this problem.</p>
 <p>If you’re interested, check out our abstract below—and stay tuned for a full paper on this topic!</p>
-<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="800px" height="500px">
+<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="800px" height="350px">
 
 
 
@@ -35,7 +35,7 @@
   <media:content url="https://martinsterchi.ch/news/netsci25/abstract.png" medium="image" type="image/png" height="89" width="144"/>
 </item>
 <item>
-  <title>New SNSF project!</title>
+  <title>New SNSF project</title>
   <dc:creator>Martin Sterchi</dc:creator>
   <link>https://martinsterchi.ch/news/snf_epi/</link>
   <description><![CDATA[ 
