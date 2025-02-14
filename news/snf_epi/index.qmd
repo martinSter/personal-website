@@ -1,5 +1,5 @@
 ---
-title: "New SNSF project!"
+title: "New SNSF project"
 author:
   - name: Martin Sterchi
     email: martin.sterchi@fhnw.ch
@@ -13,7 +13,7 @@ format:
 google-scholar: false
 ---
 
-In March 2024, my colleagues [Lorenz Hilfiker](https://www.geography.unibe.ch/ueber_uns/personen/dr_hilfiker_lorenz/index_ger.html), [Matthias Templ](https://www.fhnw.ch/de/personen/matthias-templ), and I submitted a project proposal to the Swiss National Science Foundation’s (SNSF) second [Health and Wellbeing Call](https://www.snf.ch/en/ustwcin8DxoxxHGc/funding/projects-on-health-and-wellbeing). 
+In March 2024, my colleagues [Lorenz Hilfiker](https://www.geography.unibe.ch/ueber_uns/personen/dr_hilfiker_lorenz/index_ger.html), [Matthias Templ](https://www.fhnw.ch/de/personen/matthias-templ), and I submitted a project proposal to the Swiss National Science Foundation’s (SNSF) second [Health and Wellbeing Call](https://www.snf.ch/en/ustwcin8DxoxxHGc/funding/projects-on-health-and-wellbeing).
 
 In November 2024, we received the exciting news that our project has been awarded funding! With a grant of CHF 391,938, we will be able to hire a full-time PhD student to support our research. Additionally, Lorenz will join Matthias and me at Fachhochschule Nordwestschweiz (FHNW) in 2025, starting in a part-time position.
 
