@@ -67,6 +67,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../styles.css">
 </head>
@@ -119,8 +148,14 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#shiny-apps" id="toc-shiny-apps" class="nav-link active" data-scroll-target="#shiny-apps">Shiny Apps</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -144,9 +179,32 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Coming soon…</p>
+<section id="shiny-apps" class="level3">
+<h3 class="anchored" data-anchor-id="shiny-apps">Shiny Apps</h3>
+<p>As part of my Postdoc employment with <a href="https://www.psychologie.uzh.ch/de/bereiche/meth/methoden/team/carolinstrobl.html">Prof.&nbsp;Dr.&nbsp;Carolin Strobl</a> at the University of Zurich, I developed two Shiny apps to help psychology students understand the assumptions of (simple) linear regression models. In the process, I explored base R’s plotting capabilities and learned how to manipulate an impressive number of plot elements using only base R.</p>
+<p>The <a href="https://psychmeth.shinyapps.io/Regression-NVFehler/">first app</a> visually demonstrates how the distribution of predictors (<span class="math inline">\(x_i\)</span>) and error terms (<span class="math inline">\(\epsilon_i\)</span>) influence both the marginal and conditional distributions of the dependent variable (<span class="math inline">\(y_i\)</span>). The key takeaway we attempt to convey to students is that linear regression models impose distributional assumptions on the error terms (<span class="math inline">\(\epsilon_i\)</span>), not directly on <span class="math inline">\(y_i\)</span>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://psychmeth.shinyapps.io/Regression-NVFehler/"><img src="app1.PNG" class="img-fluid figure-img" width="500" alt="Key figure in the first app"></a></p>
+<figcaption>Key figure in the first app</figcaption>
+</figure>
+</div>
+<p>The <a href="https://psychmeth.shinyapps.io/Regressionsannahmen_app/">second app</a> is more comprehensive and illustrates the five key assumptions of linear regression, as typically taught in statistics courses for psychology students (at least at the University of Zurich). The core idea is to explore each assumption by:</p>
+<ul>
+<li>Demonstrating how it may be violated and what that visually looks like.</li>
+<li>Showing the consequences of a violation.</li>
+<li>Presenting possible remedies to address the violation of the assumption.</li>
+</ul>
+<p>For example, consider the assumption of homoscedasticity. The app first provides a visual representation of how a violation appears in typical regression plots. A small simulation experiment then reveals that, when this assumption is violated, the coverage probability of 95% confidence intervals drops to 85%. Finally, two potential remedies are introduced: robust standard errors and weighted least squares. The app allows the user to test the effect of those remedies.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="https://psychmeth.shinyapps.io/Regressionsannahmen_app/"><img src="app2.PNG" class="img-fluid figure-img" width="400" alt="Residuals vs.&nbsp;fitted values in case of heteroscedasticity"></a></p>
+<figcaption>Residuals vs.&nbsp;fitted values in case of heteroscedasticity</figcaption>
+</figure>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
