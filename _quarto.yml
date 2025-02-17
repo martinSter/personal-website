@@ -11,6 +11,8 @@ website:
         text: Home
       - href: about
         text: About
+      - href: teaching
+        text: Teaching
       - href: publications
         text: Publications
       - href: blog
