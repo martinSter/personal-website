@@ -1,5 +1,12 @@
 [
   {
+    "objectID": "about/index.html",
+    "href": "about/index.html",
+    "title": "About",
+    "section": "",
+    "text": "I am a lecturer at the School of Business at the University of Applied Sciences and Arts Northwestern Switzerland, or short FHNW. Additionally, I hold a part-time Postdoctoral position at the Chair of Psychological Methods, Evaluation and Statistics at the University of Zurich, led by Prof. Dr. Carolin Strobl.\nI have a background in economics, having studied at the Universities of Fribourg and Zurich, and hold a PhD in Computer Science from the University of Zurich. My doctoral research, titled Computational Approaches to Epidemic Prevention on Contact Networks, focused on developing methods to mitigate the spread of a disease when at least partial knowledge of the underlying contact network is available.\nAt FHNW I teach the following modules (more info):\n\nMachine Learning: This course is designed for business students, emphasizing the practical application of ML to real-world problems. We primarily use the tidymodels framework, building on students’ prior knowledge of R.\nApplied Data Science: Currently, this week-long intensive course focuses on teaching students data visualization skills in R using ggplot2.\nBusiness Analytics: In this core module, I introduce students to programming in R and guide them through the fundamentals of linear regression.\n\nMy research interests are as follows:\n\nDynamical processes on networks: My primary research interest lies in epidemic processes, which was the focus of my PhD and remains a central theme in my current work.\nMonte Carlo simulations: For many problems, analytical solutions do not exist, and as a computer scientist, I am not reluctant to use simulations to find approximate solutions.\nGraph Neural Networks: Network science has not escaped the Deep Learning revolution—and naturally, GNNs have caught my attention. Specifically, I am curious if GNNs can help address the challenge of source detection.\nExplainability: Recently, I have begun exploring model explainability, primarily through visualizations—another passion of mine. I plan to further investigate this topic, particularly in the context of models on networks.\n\nI enjoy implementing Machine Learning algorithms from scratch to deepen my understanding at the implementation level. Moreover, I can spend hours refining data visualizations—whether in base R, ggplot2, or matplotlib—striving for a balance of aesthetics, clarity, and engagement.\nI live in Switzerland together with my partner and our two adorable—yet incredibly demanding—cats.\n\n\n\nTwo bundles of joy"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "News",
@@ -19,6 +26,13 @@
     "title": "Code",
     "section": "",
     "text": "Shiny Apps\nAs part of my Postdoc employment with Prof. Dr. Carolin Strobl at the University of Zurich, I developed two Shiny apps to help psychology students understand the assumptions of (simple) linear regression models. In the process, I explored base R’s plotting capabilities and learned a great deal about how to make visually appealing plots using only base R.\nThe first app visually demonstrates how the distribution of predictors (\\(x_i\\)) and error terms (\\(\\epsilon_i\\)) influence both the marginal and conditional distributions of the dependent variable (\\(y_i\\)). The key takeaway we attempt to convey to students is that linear regression models impose distributional assumptions on the error terms (\\(\\epsilon_i\\)), not directly on \\(y_i\\).\n\n\n\nKey figure in the first app\n\n\nThe second app is more comprehensive and illustrates the five key assumptions of linear regression, as typically taught in statistics courses for psychology students (at least at the University of Zurich). The core idea is to explore each assumption by:\n\nDemonstrating how it may be violated and what that visually looks like.\nShowing the consequences of a violation.\nPresenting possible remedies to address the violation of the assumption.\n\nFor example, consider the assumption of homoscedasticity. The app first provides a visual representation of how a violation appears in typical regression plots. A small simulation experiment then reveals that, when this assumption is violated, the coverage probability of 95% confidence intervals drops to 85%. Finally, two potential remedies are introduced: robust standard errors and weighted least squares. The app allows the user to test the effect of those remedies.\n\n\n\nResiduals vs. fitted values in case of heteroscedasticity"
+  },
+  {
+    "objectID": "teaching/index.html",
+    "href": "teaching/index.html",
+    "title": "Teaching",
+    "section": "",
+    "text": "Machine Learning\nComing soon"
   },
   {
     "objectID": "publications/index.html",
