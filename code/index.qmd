@@ -4,9 +4,7 @@ title: "Code"
 
 ### Shiny Apps
 
-As part of my Postdoc employment with [Prof. Dr. Carolin Strobl](https://www.psychologie.uzh.ch/de/bereiche/meth/methoden/team/carolinstrobl.html) at the University of Zurich, I developed two Shiny apps to help psychology students understand the assumptions of (simple) linear regression models. In the process, I explored base R’s plotting capabilities and learned how to manipulate an impressive number of plot elements using only base R.
-
-
+As part of my Postdoc employment with [Prof. Dr. Carolin Strobl](https://www.psychologie.uzh.ch/de/bereiche/meth/methoden/team/carolinstrobl.html) at the University of Zurich, I developed two Shiny apps to help psychology students understand the assumptions of (simple) linear regression models. In the process, I explored base R’s plotting capabilities and learned a great deal about how to make visually appealing plots using only base R.
 
 The [first app](https://psychmeth.shinyapps.io/Regression-NVFehler/) visually demonstrates how the distribution of predictors ($x_i$) and error terms ($\epsilon_i$) influence both the marginal and conditional distributions of the dependent variable ($y_i$). The key takeaway we attempt to convey to students is that linear regression models impose distributional assumptions on the error terms ($\epsilon_i$), not directly on $y_i$.
 
