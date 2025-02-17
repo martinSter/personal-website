@@ -2,4 +2,22 @@
 title: "Code"
 ---
 
-Coming soon...
+### Shiny Apps
+
+As part of my Postdoc employment with [Prof. Dr. Carolin Strobl](https://www.psychologie.uzh.ch/de/bereiche/meth/methoden/team/carolinstrobl.html) at the University of Zurich, I developed two Shiny apps to help psychology students understand the assumptions of (simple) linear regression models. In the process, I explored base R’s plotting capabilities and learned how to manipulate an impressive number of plot elements using only base R.
+
+
+
+The [first app](https://psychmeth.shinyapps.io/Regression-NVFehler/) visually demonstrates how the distribution of predictors ($x_i$) and error terms ($\epsilon_i$) influence both the marginal and conditional distributions of the dependent variable ($y_i$). The key takeaway we attempt to convey to students is that linear regression models impose distributional assumptions on the error terms ($\epsilon_i$), not directly on $y_i$.
+
+[![Key figure in the first app](app1.PNG){width=500}](https://psychmeth.shinyapps.io/Regression-NVFehler/)
+
+The [second app](https://psychmeth.shinyapps.io/Regressionsannahmen_app/) is more comprehensive and illustrates the five key assumptions of linear regression, as typically taught in statistics courses for psychology students (at least at the University of Zurich). The core idea is to explore each assumption by:
+
+* Demonstrating how it may be violated and what that visually looks like.
+* Showing the consequences of a violation.
+* Presenting possible remedies to address the violation of the assumption.
+
+For example, consider the assumption of homoscedasticity. The app first provides a visual representation of how a violation appears in typical regression plots. A small simulation experiment then reveals that, when this assumption is violated, the coverage probability of 95% confidence intervals drops to 85%. Finally, two potential remedies are introduced: robust standard errors and weighted least squares. The app allows the user to test the effect of those remedies.
+
+[![Residuals vs. fitted values in case of heteroscedasticity](app2.PNG){width=400}](https://psychmeth.shinyapps.io/Regressionsannahmen_app/)

@@ -10,4 +10,21 @@ image: me1.jpeg
 comments: false
 ---
 
-Coming soon...
+<!-- I am an economist by training (Universities of Fribourg and Zurich in Switzerland)  -->
+
+
+<!-- and I devoured every Stats class during my studies.  -->
+
+<!-- Postdoc -->
+
+
+
+<!-- This interest in Statistics and Quantitative Methods in general was at some point paired with a curiosity of computational methods and programming. Somewhat naturally -->
+
+<!-- work -->
+
+<!-- research and interests -->
+
+<!-- teaching -->
+
+<!-- Personal life -->
