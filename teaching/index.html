@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.40">
+<meta name="generator" content="quarto-1.6.41">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,7 +35,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-48ffa3e5b9d089919c6712c39e5b00f2.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-451bda125b6978eb303d19663050f82c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -129,6 +129,8 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#machine-learning" id="toc-machine-learning" class="nav-link active" data-scroll-target="#machine-learning">Machine Learning</a></li>
+  <li><a href="#applied-data-science" id="toc-applied-data-science" class="nav-link" data-scroll-target="#applied-data-science">Applied Data Science</a></li>
+  <li><a href="#business-analytics" id="toc-business-analytics" class="nav-link" data-scroll-target="#business-analytics">Business Analytics</a></li>
   </ul>
 </nav>
     </div>
@@ -154,9 +156,62 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<p>My teaching at the University of Applied Sciences and Arts Northwestern Switzerland (FHNW) centers around three key modules, outlined below.</p>
 <section id="machine-learning" class="level3">
 <h3 class="anchored" data-anchor-id="machine-learning">Machine Learning</h3>
-<p>Coming soon</p>
+<p>This module is one of four within the <strong>Managerial Data Science</strong> specialization, available to both Business and International Management students at FHNW during the final year of their Bachelor’s studies.</p>
+<p>Many students in this specialization have little to no prior programming experience and only a modest background in mathematics and statistics. Teaching a subject rooted in advanced concepts from both fields might seem daunting in this context. However, I view it as an exciting challenge. Over the years, several key decisions have proven particularly effective.</p>
+<p>The first was to clearly position this module as <em>applied</em> Machine Learning. Our primary goal is to solve real-world problems using off-the-shelf models and algorithms. Every topic is introduced through practical examples—preferably from a business context—and accompanied by R code to demonstrate each model or technique.</p>
+<p>The second decision was to avoid making this a no-math course. Instead, we explore mathematical concepts when they provide deeper insights into a model’s inner workings or enhance intuitive understanding. I believe that even students with a minimal math background can grasp complex topics if they are broken down into <em>univariate</em> or <em>bivariate</em> examples, where visualization is straightforward and the (linear) algebra remains simple.</p>
+<p>Finally, I adopted a <em>flipped classroom</em> approach. Based on my experience, students learn best when they can explore new topics at their own pace, in a setting of their choice. To support this, I developed interactive online tutorials using the <code>learnr</code> package, featuring text, Shiny apps, visualizations, <code>R</code> code snippets, and occasional multiple-choice questions. In-class sessions are then dedicated to deepening the material, working through exercises together, and addressing questions or areas of particular interest.</p>
+<p>Below are two visualizations I created to help clarify topics that students often find challenging.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Linear_Log_Skalen.png" class="img-fluid figure-img" width="550"></p>
+<figcaption>How R transforms a linear scale into a log scale.</figcaption>
+</figure>
+</div>
+<p>The first illustrates the effect of using a log scale (base 10) versus a linear scale in R. It shows how three values (10, 500, and 100,000) are represented differently when plotted on a log scale. The figure should be interpreted from bottom to top.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="conv1.png" class="img-fluid figure-img" width="650"></p>
+<figcaption>How a simple convolution filter works on a simplified MNIST image.</figcaption>
+</figure>
+</div>
+<p>The second visualization explains how a simple convolution filter operates using a simplified (binary) MNIST image of a handwritten digit. I manually designed an image of the number 7 to clearly highlight the pixel-level computations during the convolution process.</p>
+</section>
+<section id="applied-data-science" class="level3">
+<h3 class="anchored" data-anchor-id="applied-data-science">Applied Data Science</h3>
+<p>The current topic of the <em>Applied Data Science</em> course (a week-long intensive course) is data visualization. This elective course is offered annually in November. In the course, we use the <code>tidyverse</code> framework, with a particular focus on the <code>ggplot2</code> package to create visualizations.</p>
+<p>To demonstrate the key principles of high-quality visualization, I wrote a bunch of code to generate engaging plots, all based on real data from the Swiss canton of Basel-Landschaft. This data is available on the canton’s <a href="https://data.bl.ch/pages/welcome/">open government data portal</a>. The goal was to walk students through the essential steps of creating effective visualizations using a practical case study.</p>
+<p>Some results from this case study are shown below. The first figure is a scatterplot illustrating the relationship between two quantitative variables—tax rates and land prices—and demonstrates how additional information can be integrated into the plot using point color and size.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Plot1.png" class="img-fluid figure-img" width="650"></p>
+<figcaption>Visualizing the relationship between two quantitative variables.</figcaption>
+</figure>
+</div>
+<p>The second figure presents CO2 emissions (in tons per capita) across all communities in the canton. This figure serves as an example of geographic visualization using a choropleth map.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Plot3.png" class="img-fluid figure-img" width="650"></p>
+<figcaption>Visualizing a quantitative variable geographically.</figcaption>
+</figure>
+</div>
+<p>Finally, the third figure showcases how to visualize time series data. Here, we display the daily measurements of nitrogen dioxide and ozone concentrations, as recorded by the monitoring station in Sissach-Bützenen.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Plot4.png" class="img-fluid figure-img" width="650"></p>
+<figcaption>Visualizing two time series.</figcaption>
+</figure>
+</div>
+</section>
+<section id="business-analytics" class="level3">
+<h3 class="anchored" data-anchor-id="business-analytics">Business Analytics</h3>
+<p>Coming soon…</p>
+<!-- Business Analytics (BA) is part of a core module called *Empirische Methoden und Business Analytics* that all Business students at FHNW have to take. -->
+<!-- The focus of the BA part is twofold. The first part gets the students started working with `R` and RStudio. We learn what vectors, factors, and dataframes are and how data can be imported. Then we learn how to manipulate the basic data structures and how to index into them. Finally, the students learn how to compute simple descriptive statistics and how the base `R`'s plotting facilities work. -->
+<!-- The second part introduces the basics of simple and multiple linear regression. For example, we intuitively learn how the least-squares coefficiencts can be derived and how the coefficient of determination can be used for model comparison. For multiple linear regression, we  -->
 
 
 </section>
