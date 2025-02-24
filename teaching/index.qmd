@@ -44,17 +44,16 @@ Finally, the third figure showcases how to visualize time series data. Here, we 
 
 ![Visualizing two time series.](Plot4.png){width="650"}
 
-
 ### Business Analytics
 
-Coming soon...
+Business Analytics (BA) is one of two components of the core module *Empirische Methoden und Business Analytics*, which is mandatory for all Business students at FHNW.
 
-<!-- Business Analytics (BA) is part of a core module called *Empirische Methoden und Business Analytics* that all Business students at FHNW have to take. -->
+The BA section is structured around two main areas of focus:
 
-<!-- The focus of the BA part is twofold. The first part gets the students started working with `R` and RStudio. We learn what vectors, factors, and dataframes are and how data can be imported. Then we learn how to manipulate the basic data structures and how to index into them. Finally, the students learn how to compute simple descriptive statistics and how the base `R`'s plotting facilities work. -->
+1. Introduction to R and Data Handling:
+Students begin by working with `R` and RStudio, gaining a basic understanding of key data structures such as vectors, factors, and data frames. They learn how to import data, manipulate these basic structures, and apply indexing. The course also covers the calculation of simple descriptive statistics and introduces `R`’s base plotting capabilities for data visualization.
 
-<!-- The second part introduces the basics of simple and multiple linear regression. For example, we intuitively learn how the least-squares coefficiencts can be derived and how the coefficient of determination can be used for model comparison. For multiple linear regression, we  -->
+2. Fundamentals of Linear Regression:
+The second part of the course delves into simple and multiple linear regression. Students explore the intuition behind least-squares coefficients and learn how the coefficient of determination can be used for model evaluation and comparison. In the context of multiple linear regression, the course covers topics such as dummy encoding for categorical variables and the use of interaction terms, among other techniques.
 
-
-
-
+This structure ensures that students not only develop a basic technical proficiency in data analysis using `R` but also gain a solid understanding of essential statistical modeling concepts.
