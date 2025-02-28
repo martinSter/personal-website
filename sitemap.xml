@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://martinsterchi.ch/about/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.316Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.318Z</lastmod>
+    <loc>https://martinsterchi.ch/blog/sbb_nw/index.html</loc>
+    <lastmod>2025-02-28T16:46:23.983Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/news/snf_epi/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.320Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/code/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.318Z</lastmod>
+    <lastmod>2025-02-28T16:46:23.991Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/teaching/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.331Z</lastmod>
+    <lastmod>2025-02-28T16:46:24.003Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/about/index.html</loc>
+    <lastmod>2025-02-28T16:46:23.982Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/publications/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.320Z</lastmod>
+    <lastmod>2025-02-28T16:46:23.992Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/index.html</loc>
+    <lastmod>2025-02-28T16:46:23.990Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/code/index.html</loc>
+    <lastmod>2025-02-28T16:46:23.990Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/news/netsci25/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.319Z</lastmod>
+    <lastmod>2025-02-28T16:46:23.991Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/blog/index.html</loc>
-    <lastmod>2025-02-24T13:40:57.317Z</lastmod>
+    <lastmod>2025-02-28T16:46:23.983Z</lastmod>
   </url>
 </urlset>

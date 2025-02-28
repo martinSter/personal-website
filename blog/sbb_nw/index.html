@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Martin Sterchi">
+<meta name="dcterms.date" content="2025-02-28">
+
+<title>SBB Network Analysis - Part 1 – Martin Sterchi</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9407edd59bb309057f71c3e93333e4e4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Martin Sterchi</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../teaching"> 
+<span class="menu-text">Teaching</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publications"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../code"> 
+<span class="menu-text">Code</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#data-sources" id="toc-data-sources" class="nav-link active" data-scroll-target="#data-sources">Data sources</a></li>
+  <li><a href="#load-and-preprocess-ist-daten" id="toc-load-and-preprocess-ist-daten" class="nav-link" data-scroll-target="#load-and-preprocess-ist-daten">Load and preprocess “Ist-Daten”</a></li>
+  <li><a href="#load-and-preprocess-dienststellen-daten" id="toc-load-and-preprocess-dienststellen-daten" class="nav-link" data-scroll-target="#load-and-preprocess-dienststellen-daten">Load and preprocess “Dienststellen-Daten”</a></li>
+  <li><a href="#combine-the-two-datasets" id="toc-combine-the-two-datasets" class="nav-link" data-scroll-target="#combine-the-two-datasets">Combine the two datasets</a></li>
+  <li><a href="#convert-it-to-a-network" id="toc-convert-it-to-a-network" class="nav-link" data-scroll-target="#convert-it-to-a-network">Convert it to a network</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">SBB Network Analysis - Part 1</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Networks</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Martin Sterchi <a href="mailto:martin.sterchi@fhnw.ch" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 28, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>For quite some time I have been wondering if there are some interesting Swiss data that would serve as the basis for some fun network analysis. As a fan of public transportation and a long-time owner of a Swiss train pass (“GA”), the answer should have been obvious much sooner: the <strong>Swiss public transport network</strong>.</p>
+<p>I wanted to create a (static) network in which <em>each node corresponds to a train station</em> and <em>each directed edge between any two nodes, A and B, means there is at least one train going nonstop from A to B</em>. Ideally, the edge would also be attributed with some weight representing the importance of the edge (e.g., how many trains go nonstop from A to B on a given day).</p>
+<p>The structure of this post is as follows. I will first introduce the two datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis.</p>
+<p>This is the first part of a series that will cover all kinds of fun network analysis based on the Swiss railway network.</p>
+<section id="data-sources" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources">Data sources</h3>
+<p>It was not that obvious how a network with nodes and edges following the definitions given above could be constructed based on data from the Swiss Federal Railways (abbreviated by the German speakers in Switzerland as <strong>SBB</strong>). With some help from SBB Experts and the <a href="https://data.sbb.ch/pages/home/">SBB Open Data Plattform</a>, I finally found the right data.</p>
+<p>The first dataset is called “<strong>Ist-Daten</strong>” and, for a given day, contains all regular stops of all trains in Switzerland with their planned and effective arrival and departure times. From this data, we can infer all nonstop stretches of any train in Switzerland.</p>
+<p>Note that the “Ist-Daten” not only contain the data for trains but also for all other public transport (buses, trams, and even boats). To keep things simple we will focus on the train network.</p>
+<p>The second dataset is the “<strong>Dienststellen-Daten</strong>” which basically allows to add node attributes such as the geographic coordinates of a node (i.e., a train station).</p>
+</section>
+<section id="load-and-preprocess-ist-daten" class="level3">
+<h3 class="anchored" data-anchor-id="load-and-preprocess-ist-daten">Load and preprocess “Ist-Daten”</h3>
+<p>Here, we will load and preprocess the “Ist-Daten” from which we can derive the edges of our network. First, I import some Python libraries and print their version number for better reproducibility of this code.</p>
+<div id="f7381e15" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Check versions of libraries.</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"NumPy version:"</span>, np.__version__)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Pandas version:"</span>, pd.__version__)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure there is no limit on the number of columns shown.</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>NumPy version: 1.26.4
+Pandas version: 2.1.4</code></pre>
+</div>
+</div>
+<p>Let’s now load the data. You can see in the filename that I downloaded the “Ist-Daten” from the SBB portal for June 6, 2023. You can get the data for any day you want <a href="https://data.sbb.ch/explore/dataset/ist-daten-sbb/information/">here</a>.</p>
+<div id="a1fe77af" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'2023-06-06_istdaten.csv'</span>, sep<span class="op">=</span><span class="st">";"</span>, low_memory<span class="op">=</span><span class="va">False</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To get a feeling for the data, let’s check the number of rows and columns.</p>
+<div id="ffdd56a2" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows and columns</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(2309817, 21)</code></pre>
+</div>
+</div>
+<p>Ok, it’s actually a pretty big dataset: it has over 2.3 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.</p>
+<div id="f3816566" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing values per column</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df.isna().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>BETRIEBSTAG                  0
+FAHRT_BEZEICHNER             0
+BETREIBER_ID                 0
+BETREIBER_ABK                0
+BETREIBER_NAME               0
+PRODUKT_ID                 233
+LINIEN_ID                    0
+LINIEN_TEXT                  0
+UMLAUF_ID              1196819
+VERKEHRSMITTEL_TEXT          0
+ZUSATZFAHRT_TF               0
+FAELLT_AUS_TF                0
+BPUIC                        0
+HALTESTELLEN_NAME       158400
+ANKUNFTSZEIT            138774
+AN_PROGNOSE             164786
+AN_PROGNOSE_STATUS      138560
+ABFAHRTSZEIT            138604
+AB_PROGNOSE             165447
+AB_PROGNOSE_STATUS      138351
+DURCHFAHRT_TF                0
+dtype: int64</code></pre>
+</div>
+</div>
+<p>We can see that some columns contain many missing values. The only one I worry about for now is the column <code>PRODUKT_ID</code>. If you look through these rows (I don’t show that here), you can see that they should all be of type “Zug” (train). Thus, we impute accordingly:</p>
+<div id="76816d9b" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute 'Zug'</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">"PRODUKT_ID"</span>].isna(), <span class="st">"PRODUKT_ID"</span>] <span class="op">=</span> <span class="st">'Zug'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>There are quite a few date-timestamp columns that are not yet in the proper format. Thus, we now convert them to datetime formats:</p>
+<div id="d703efc5" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert BETRIEBSTAG to date format</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'BETRIEBSTAG'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'BETRIEBSTAG'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'ANKUNFTSZEIT'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'ANKUNFTSZEIT'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AN_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AN_PROGNOSE'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M:%S"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'ABFAHRTSZEIT'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'ABFAHRTSZEIT'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M"</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AB_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AB_PROGNOSE'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M:%S"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now is a good time to finally have a look at the dataframe:</p>
+<div id="75d1fe52" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's look at first few rows</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BETRIEBSTAG</th>
+<th data-quarto-table-cell-role="th">FAHRT_BEZEICHNER</th>
+<th data-quarto-table-cell-role="th">BETREIBER_ID</th>
+<th data-quarto-table-cell-role="th">BETREIBER_ABK</th>
+<th data-quarto-table-cell-role="th">BETREIBER_NAME</th>
+<th data-quarto-table-cell-role="th">PRODUKT_ID</th>
+<th data-quarto-table-cell-role="th">LINIEN_ID</th>
+<th data-quarto-table-cell-role="th">LINIEN_TEXT</th>
+<th data-quarto-table-cell-role="th">UMLAUF_ID</th>
+<th data-quarto-table-cell-role="th">VERKEHRSMITTEL_TEXT</th>
+<th data-quarto-table-cell-role="th">ZUSATZFAHRT_TF</th>
+<th data-quarto-table-cell-role="th">FAELLT_AUS_TF</th>
+<th data-quarto-table-cell-role="th">BPUIC</th>
+<th data-quarto-table-cell-role="th">HALTESTELLEN_NAME</th>
+<th data-quarto-table-cell-role="th">ANKUNFTSZEIT</th>
+<th data-quarto-table-cell-role="th">AN_PROGNOSE</th>
+<th data-quarto-table-cell-role="th">AN_PROGNOSE_STATUS</th>
+<th data-quarto-table-cell-role="th">ABFAHRTSZEIT</th>
+<th data-quarto-table-cell-role="th">AB_PROGNOSE</th>
+<th data-quarto-table-cell-role="th">AB_PROGNOSE_STATUS</th>
+<th data-quarto-table-cell-role="th">DURCHFAHRT_TF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2023-06-06</td>
+<td>80:800631:17230:000</td>
+<td>80:800631</td>
+<td>DB</td>
+<td>DB Regio AG Baden-Württemberg</td>
+<td>Zug</td>
+<td>17230</td>
+<td>RB</td>
+<td>NaN</td>
+<td>RB</td>
+<td>False</td>
+<td>False</td>
+<td>8500090</td>
+<td>Basel Bad Bf</td>
+<td>2023-06-06 04:59:00</td>
+<td>2023-06-06 04:59:00</td>
+<td>PROGNOSE</td>
+<td>NaT</td>
+<td>NaT</td>
+<td>NaN</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2023-06-06</td>
+<td>80:800631:17233:000</td>
+<td>80:800631</td>
+<td>DB</td>
+<td>DB Regio AG Baden-Württemberg</td>
+<td>Zug</td>
+<td>17233</td>
+<td>RB</td>
+<td>NaN</td>
+<td>RB</td>
+<td>False</td>
+<td>False</td>
+<td>8500090</td>
+<td>Basel Bad Bf</td>
+<td>NaT</td>
+<td>NaT</td>
+<td>NaN</td>
+<td>2023-06-06 06:07:00</td>
+<td>2023-06-06 06:07:00</td>
+<td>PROGNOSE</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>2023-06-06</td>
+<td>80:800631:17234:000</td>
+<td>80:800631</td>
+<td>DB</td>
+<td>DB Regio AG Baden-Württemberg</td>
+<td>Zug</td>
+<td>17234</td>
+<td>RB</td>
+<td>NaN</td>
+<td>RB</td>
+<td>False</td>
+<td>False</td>
+<td>8500090</td>
+<td>Basel Bad Bf</td>
+<td>2023-06-06 05:56:00</td>
+<td>2023-06-06 05:58:00</td>
+<td>PROGNOSE</td>
+<td>NaT</td>
+<td>NaT</td>
+<td>NaN</td>
+<td>False</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>2023-06-06</td>
+<td>80:800631:17235:000</td>
+<td>80:800631</td>
+<td>DB</td>
+<td>DB Regio AG Baden-Württemberg</td>
+<td>Zug</td>
+<td>17235</td>
+<td>RB</td>
+<td>NaN</td>
+<td>RB</td>
+<td>False</td>
+<td>False</td>
+<td>8500090</td>
+<td>Basel Bad Bf</td>
+<td>NaT</td>
+<td>NaT</td>
+<td>NaN</td>
+<td>2023-06-06 06:43:00</td>
+<td>2023-06-06 06:43:00</td>
+<td>PROGNOSE</td>
+<td>False</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>2023-06-06</td>
+<td>80:800631:17236:000</td>
+<td>80:800631</td>
+<td>DB</td>
+<td>DB Regio AG Baden-Württemberg</td>
+<td>Zug</td>
+<td>17236</td>
+<td>RB</td>
+<td>NaN</td>
+<td>RB</td>
+<td>False</td>
+<td>False</td>
+<td>8500090</td>
+<td>Basel Bad Bf</td>
+<td>2023-06-06 06:33:00</td>
+<td>2023-06-06 06:34:00</td>
+<td>PROGNOSE</td>
+<td>NaT</td>
+<td>NaT</td>
+<td>NaN</td>
+<td>False</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>But what do all these columns mean? I have browsed the metadata a bit and found the following explanations (that I hopefully accurately reproduce in English):</p>
+<ul>
+<li><code>BETRIEBSTAG</code>: Simply the day on which the data were recorded.</li>
+<li><code>FAHRT_BEZEICHNER</code>: This is some elaborate identifier in the format [UIC-Countrycode]:[GO-Number]:[VM-Number]:[Extended Reference].</li>
+<li><code>BETREIBER_ID</code>: [UIC-Countrycode]:[GO-Number]. GO is short for “Geschäftsorganisation”. For foreign organizations it is not a GO-Number but a TU-Number with TU meaning “Transportunternehmen”. It is basically an ID for the company running that particular train.</li>
+<li><code>BETREIBER_ABK</code>: The abbreviation for the company running the train.</li>
+<li><code>BETREIBER_NAME</code>: The full name of the company running the train.</li>
+<li><code>PRODUKT_ID</code>: Type of public transport.</li>
+<li><code>LINIEN_ID</code>: The ID for the route of that train.</li>
+<li><code>LINIEN_TEXT</code>: The public ID for the route of that train.</li>
+<li><code>UMLAUF_ID</code>: An ID for a “Umlauf” which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.</li>
+<li><code>ZUSATZFAHRT_TF</code>: Is true if it is an extraordinary (not usually scheduled) trip.</li>
+<li><code>FAELLT_AUS_TF</code>: Is true if the trip is cancelled.</li>
+<li><code>BPUIC</code>: The ID of the station.</li>
+<li><code>HALTESTELLEN_NAME</code>: The name of the station.</li>
+<li><code>ANKUNFTSZEIT</code>: Planned time of arrival at the station.</li>
+<li><code>AN_PROGNOSE</code>: Prediction of time of arrival at the station.</li>
+<li><code>AN_PROGNOSE_STATUS</code>: Status of that prediction. Possible values are: “UNBEKANNT”, “leer”, “PROGNOSE”, “GESCHAETZT”, “REAL”. If the value of that column is “REAL”, it means that the predicted time of arrival is the time the train actually arrived at the station.</li>
+<li><code>ABFAHRTSZEIT</code>, <code>AB_PROGNOSE</code>, <code>AB_PROGNOSE_STATUS</code>: Same definitions as for arrival but here for departure from the station.</li>
+<li><code>DURCHFAHRT_TF</code>: Is true if the vehicle does not stop even if a stop was scheduled.</li>
+</ul>
+<p>Let’s now have a look at the values in the column <code>PRODUKT_ID</code>:</p>
+<div id="1f9df9df" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at PRODUKT_ID</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"PRODUKT_ID"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>PRODUKT_ID
+Bus            1746016
+Tram            247305
+Zug             162038
+BUS             147531
+Metro             4304
+Zahnradbahn       1965
+Schiff             658
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>We can see that trains are only the third most frequent category in this data. However, as mentioned before, we want to keep it simple and now reduce the dataset to only trains.</p>
+<div id="37d72949" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First we reduce to only trains</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'PRODUKT_ID'</span>] <span class="op">==</span> <span class="st">"Zug"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In a next step, we remove all rows where the corresponding train has been cancelled.</p>
+<div id="21bda737" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out all entries with FAELLT_AUS_TF == True</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'FAELLT_AUS_TF'</span>] <span class="op">==</span> <span class="va">False</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s explore the data a bit more before we move to the second dataset. Let’s check out the most frequent values that occur in the column <code>BETREIBER_NAME</code>:</p>
+<div id="40e4ef7e" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at BETREIBER_NAME</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"BETREIBER_NAME"</span>].value_counts().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>BETREIBER_NAME
+Schweizerische Bundesbahnen SBB    61798
+BLS AG (bls)                       15842
+THURBO                             13250
+Aargau Verkehr AG                   7220
+Rhätische Bahn                      5366
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>As expected, SBB is the company serving the largest number of stations. What about the column <code>VERKEHRSMITTEL_TEXT</code>?</p>
+<div id="4a3ca69a" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at VERKEHRSMITTEL_TEXT</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"VERKEHRSMITTEL_TEXT"</span>].value_counts().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>VERKEHRSMITTEL_TEXT
+S     105288
+R      31987
+RE      8551
+IR      7104
+IC      2891
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>We can see that the most frequent type of trains are S-Bahns (<code>S</code>). Finally, let’s check the most frequent train stations that occur in the data:</p>
+<div id="f83e8924" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at HALTESTELLEN_NAME</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"HALTESTELLEN_NAME"</span>].value_counts().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>HALTESTELLEN_NAME
+Zürich HB          1914
+Bern               1706
+Winterthur          948
+Zürich Oerlikon     918
+Luzern              814
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>Unsurprisingly, Zürich and Bern are the most frequent values occuring in the data.</p>
+</section>
+<section id="load-and-preprocess-dienststellen-daten" class="level3">
+<h3 class="anchored" data-anchor-id="load-and-preprocess-dienststellen-daten">Load and preprocess “Dienststellen-Daten”</h3>
+<p>Fortunately, we can go through the second dataset a bit more quickly. We again start by loading it and checking the dimensions of the dataframe.</p>
+<div id="ea2bd70a" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> pd.read_csv(<span class="st">'dienststellen_full.csv'</span>, sep <span class="op">=</span> <span class="st">";"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows and columns</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ds.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(152433, 78)</code></pre>
+</div>
+</div>
+<p>The data contains a column <code>GUELTIG_BIS</code> that allows us to filter out all stations that are not valid anymore (closed down?). But first we need to transform it into the proper format.</p>
+<div id="663f6a30" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># GUELTIG_BIS as datetime</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>ds[<span class="st">'GUELTIG_BIS'</span>] <span class="op">=</span> pd.to_datetime(ds[<span class="st">'GUELTIG_BIS'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"%Y-%m-</span><span class="sc">%d</span><span class="st">"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only currently valid entries</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> ds[ds[<span class="st">'GUELTIG_BIS'</span>] <span class="op">==</span> <span class="st">"2099-12-31"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, we keep only the columns we need (identifier, official name, and geo coordinates).</p>
+<div id="c95d3b07" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the relevant columns</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> ds[[<span class="st">"BPUIC"</span>,<span class="st">"BEZEICHNUNG_OFFIZIELL"</span>,<span class="st">"E_WGS84"</span>,<span class="st">"N_WGS84"</span>,<span class="st">"Z_WGS84"</span>]]</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first few rows</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>ds.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BPUIC</th>
+<th data-quarto-table-cell-role="th">BEZEICHNUNG_OFFIZIELL</th>
+<th data-quarto-table-cell-role="th">E_WGS84</th>
+<th data-quarto-table-cell-role="th">N_WGS84</th>
+<th data-quarto-table-cell-role="th">Z_WGS84</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26</td>
+<td>8531284</td>
+<td>Samnaun-Ravaisch (Talst. I)</td>
+<td>10.375228</td>
+<td>46.951317</td>
+<td>1775.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">99</td>
+<td>8530938</td>
+<td>Fräkmüntegg (3. Sekt. Talst.)</td>
+<td>8.251436</td>
+<td>46.990475</td>
+<td>1413.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">114</td>
+<td>1400013</td>
+<td>Annecy, Pont Neuf</td>
+<td>6.114629</td>
+<td>45.897774</td>
+<td>-9999.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">115</td>
+<td>8530879</td>
+<td>Foppa (Naraus)</td>
+<td>9.267387</td>
+<td>46.846531</td>
+<td>1418.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">134</td>
+<td>8584977</td>
+<td>Essence Tamoil Collombey</td>
+<td>6.954193</td>
+<td>46.266124</td>
+<td>392.5</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="combine-the-two-datasets" class="level3">
+<h3 class="anchored" data-anchor-id="combine-the-two-datasets">Combine the two datasets</h3>
+<p>We now merge the “Dienststellen-Daten” to the first dataset via the <code>BPUIC</code> variable.</p>
+<div id="ec57e9a2" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Left-join with station names and coordinates</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.merge(df, ds, on <span class="op">=</span> <span class="st">'BPUIC'</span>, how <span class="op">=</span> <span class="st">'left'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Unfortunately, there are some rows for which there is no matching entry in the “Dienststellen-Daten”. But fortunately, we know which stations are affected based on the <code>HALTESTELLEN_NAME</code> column.</p>
+<div id="779752e6" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># There are still some missings after left-join (Oberkulm Post and Borgnone-Cadanza)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>].isna(), [<span class="st">'HALTESTELLEN_NAME'</span>,<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">HALTESTELLEN_NAME</th>
+<th data-quarto-table-cell-role="th">BEZEICHNUNG_OFFIZIELL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">101255</td>
+<td>Borgnone-Cadanza</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">101347</td>
+<td>Borgnone-Cadanza</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">101384</td>
+<td>Borgnone-Cadanza</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">101387</td>
+<td>Borgnone-Cadanza</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">101408</td>
+<td>Borgnone-Cadanza</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">156746</td>
+<td>Oberkulm Post</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">156763</td>
+<td>Oberkulm Post</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">156786</td>
+<td>Oberkulm Post</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">156803</td>
+<td>Oberkulm Post</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">156823</td>
+<td>Oberkulm Post</td>
+<td>NaN</td>
+</tr>
+</tbody>
+</table>
+
+<p>156 rows × 2 columns</p>
+</div>
+</div>
+</div>
+<p>The first part of the fix consists of imputing the names of the stations in the column <code>BEZEICHNUNG_OFFIZIELL</code>.</p>
+<div id="41e55348" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># But they have data in the original data, so let's impute those</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>].isna(), <span class="st">"BEZEICHNUNG_OFFIZIELL"</span>] <span class="op">=</span> df.loc[df[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>].isna(), <span class="st">"HALTESTELLEN_NAME"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The second part of the fix is to manually add the geo coordinates for the missing two stations (Oberkulm Post and Borgnone-Cadanza).</p>
+<div id="32418ba5" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute geo coordinates and elevation for those missing</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>] <span class="op">==</span> <span class="st">"Oberkulm Post"</span>, [<span class="st">"E_WGS84"</span>,<span class="st">"N_WGS84"</span>,<span class="st">"Z_WGS84"</span>]] <span class="op">=</span> (<span class="fl">8.11970</span>, <span class="fl">47.30414</span>, <span class="dv">483</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>] <span class="op">==</span> <span class="st">"Borgnone-Cadanza"</span>, [<span class="st">"E_WGS84"</span>,<span class="st">"N_WGS84"</span>,<span class="st">"Z_WGS84"</span>]] <span class="op">=</span> (<span class="fl">8.62254</span>, <span class="fl">46.15853</span>, <span class="dv">713</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, we are finally ready to start extracting the network from this data!</p>
+</section>
+<section id="convert-it-to-a-network" class="level3">
+<h3 class="anchored" data-anchor-id="convert-it-to-a-network">Convert it to a network</h3>
+<p>As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called “Fahrt” in German) then typically consists of several stops along the way. However, there are some “Fahrten” with only one entry. Presumably these are mostly foreign trains that have their end destination at some border station. I decided to remove those entries:</p>
+<div id="f8e4ab4b" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># It's mostly trains that stop at a place at the border (I think)</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>df_filtered <span class="op">=</span> df.groupby(<span class="st">'FAHRT_BEZEICHNER'</span>).<span class="bu">filter</span>(<span class="kw">lambda</span> g: <span class="bu">len</span>(g) <span class="op">&gt;</span> <span class="dv">1</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># How many rows do we loose with that?</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape[<span class="dv">0</span>] <span class="op">-</span> df_filtered.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>566</code></pre>
+</div>
+</div>
+<p>This preprocessing step removes 566 rows.</p>
+<p>Now we group the rows by <code>FAHRT_BEZEICHNER</code> so that each group is one “Fahrt”. In every group we sort the stops along the way in an ascending order of the departure time.</p>
+<div id="a2c95f95" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to sort entries within a group in ascending order of ABFAHRTSZEIT</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sort_data(group):</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> group.sort_values(<span class="st">'ABFAHRTSZEIT'</span>, ascending <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort for each group</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>df_sorted <span class="op">=</span> df_filtered.groupby(<span class="st">'FAHRT_BEZEICHNER'</span>, group_keys<span class="op">=</span><span class="va">True</span>).<span class="bu">apply</span>(sort_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s have a look at one “Fahrt” to get a better idea:</p>
+<div id="8cdb685f" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at one example Fahrt</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>df_sorted.loc[[<span class="st">'85:11:1511:003'</span>],[<span class="st">'BETREIBER_ABK'</span>,<span class="st">'LINIEN_TEXT'</span>,<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>,<span class="st">'ABFAHRTSZEIT'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BETREIBER_ABK</th>
+<th data-quarto-table-cell-role="th">LINIEN_TEXT</th>
+<th data-quarto-table-cell-role="th">BEZEICHNUNG_OFFIZIELL</th>
+<th data-quarto-table-cell-role="th">ABFAHRTSZEIT</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">FAHRT_BEZEICHNER</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td rowspan="12" data-quarto-table-cell-role="th" data-valign="top">85:11:1511:003</td>
+<td data-quarto-table-cell-role="th">1758</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Lausanne</td>
+<td>2023-06-06 06:15:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1759</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Yverdon-les-Bains</td>
+<td>2023-06-06 06:37:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1760</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Neuchâtel</td>
+<td>2023-06-06 06:58:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1761</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Biel/Bienne</td>
+<td>2023-06-06 07:17:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1762</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Grenchen Süd</td>
+<td>2023-06-06 07:26:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1763</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Solothurn</td>
+<td>2023-06-06 07:34:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1764</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Oensingen</td>
+<td>2023-06-06 07:46:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1765</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Olten</td>
+<td>2023-06-06 07:59:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1766</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Zürich HB</td>
+<td>2023-06-06 08:33:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1767</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Zürich Flughafen</td>
+<td>2023-06-06 08:43:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1768</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>Winterthur</td>
+<td>2023-06-06 08:59:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1769</td>
+<td>SBB</td>
+<td>IC5</td>
+<td>St. Gallen</td>
+<td>NaT</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>This is a train that goes from Lausanne to St.Gallen with many stops in-between. In St.Gallen the <code>ABFAHRTSZEIT</code> is missing as that “Fahrt” ends there (the train will most likely go back in the other direction, but that will be a new “Fahrt”).</p>
+<p>We now have enough knowledge about the data that we can extract the edges in a for loop. Basically, what we do is to loop over the rows of a given “Fahrt”, starting with the second row and extracting the edges as</p>
+<p><code>(previous station, current station, travel time between stations)</code>.</p>
+<p>The Python code for this looks as follows:</p>
+<div id="bead9a6f" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty list</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>edgelist <span class="op">=</span> []</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Variables to store previous row and its index</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>prev_row <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>prev_idx <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over rows of dataframe</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, row <span class="kw">in</span> df_sorted.iterrows():</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only start with second row</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only if the two rows belong to the same Fahrt</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> prev_idx <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> prev_idx <span class="op">==</span> i[<span class="dv">0</span>]:</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Add edge to edgelist assuming it's a directed edge</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>        edgelist.append((prev_row[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>], </span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>                         row[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>], </span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>                         (row[<span class="st">'ANKUNFTSZEIT'</span>] <span class="op">-</span> prev_row[<span class="st">'ABFAHRTSZEIT'</span>]).total_seconds() <span class="op">/</span> <span class="dv">60</span>))</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Set current row and row index to previous ones</span></span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    prev_idx <span class="op">=</span> i[<span class="dv">0</span>]</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    prev_row <span class="op">=</span> row</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To get a better idea, let’s have a look at the first list element:</p>
+<div id="93fefdeb" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First list element</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>edgelist[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>('Schaffhausen', 'Basel Bad Bf', 75.0)</code></pre>
+</div>
+</div>
+<p>We are still not quite done yet. The problem is that the <code>edgelist</code> contains many duplicated entries as, for example, the stretch Olten - Zürich HB is served by many different trains on a given day.</p>
+<p>What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary.</p>
+<div id="84a486b0" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty dict</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {}</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over elements in edgelist</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> edgelist:</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create key</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    key <span class="op">=</span> (i[<span class="dv">0</span>], i[<span class="dv">1</span>])</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get previous entries in dict (if there are any)</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    prev <span class="op">=</span> edges.get(key, (<span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Update values in dict</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>    edges[key] <span class="op">=</span> (prev[<span class="dv">0</span>] <span class="op">+</span> <span class="dv">1</span>, prev[<span class="dv">1</span>] <span class="op">+</span> i[<span class="dv">2</span>])</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Divide summed up travel times by number of trips</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {k: (v[<span class="dv">0</span>], <span class="bu">round</span>(v[<span class="dv">1</span>]<span class="op">/</span>v[<span class="dv">0</span>], <span class="dv">2</span>)) <span class="cf">for</span> k, v <span class="kw">in</span> edges.items()}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s look at the entry for the stretch between Schaffhausen and Basel Badischer Bahnhof again:</p>
+<div id="3cc8911c" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at some element in dict</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>edges[(<span class="st">'Schaffhausen'</span>, <span class="st">'Basel Bad Bf'</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<pre><code>(17, 73.18)</code></pre>
+</div>
+</div>
+<p>There are 17 trips between these two stations (in this direction) and they take 73 minutes on average.</p>
+<p>We are now ready to create the final node list (and export it). First, we add the two missing stations to the dataframe <code>ds</code> (above we only added them to the merged <code>df</code>, not <code>ds</code>). Then we reduce <code>ds</code> to the train stations that appear in the edges (it still contains many bus and tram stops and other things). Finally, we give it nicer column names.</p>
+<div id="7b7123de" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Add two missing places to ds</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>ds.loc[<span class="bu">len</span>(ds)] <span class="op">=</span> [<span class="dv">8502183</span>, <span class="st">'Oberkulm Post'</span>, <span class="fl">8.1197</span>, <span class="fl">47.30414</span>, <span class="fl">483.0</span>]</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>ds.loc[<span class="bu">len</span>(ds)] <span class="op">=</span> [<span class="dv">8505498</span>, <span class="st">'Borgnone-Cadanza'</span>, <span class="fl">8.62254</span>, <span class="fl">46.15853</span>, <span class="fl">713.0</span>]</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set of stations that appear in edgelist</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>stations_in_edgelist <span class="op">=</span> <span class="bu">set</span>(<span class="bu">sum</span>(<span class="bu">list</span>(edges.keys()), ()))</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduces nodes dataframe to only places in edgelist</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> ds[ds[<span class="st">'BEZEICHNUNG_OFFIZIELL'</span>].isin(stations_in_edgelist)]</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Better column names</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>nodes.columns <span class="op">=</span> [<span class="st">'BPUIC'</span>,<span class="st">'STATION_NAME'</span>,<span class="st">'LONGITUDE'</span>,<span class="st">'LATITUDE'</span>,<span class="st">'ELEVATION'</span>]</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>nodes.head()</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Export node list</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a><span class="co"># nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BPUIC</th>
+<th data-quarto-table-cell-role="th">STATION_NAME</th>
+<th data-quarto-table-cell-role="th">LONGITUDE</th>
+<th data-quarto-table-cell-role="th">LATITUDE</th>
+<th data-quarto-table-cell-role="th">ELEVATION</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2375</td>
+<td>8500329</td>
+<td>Koblenz</td>
+<td>8.227050</td>
+<td>47.600338</td>
+<td>320.3</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2431</td>
+<td>8503093</td>
+<td>Zürich Manegg</td>
+<td>8.519751</td>
+<td>47.338009</td>
+<td>430.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">3816</td>
+<td>8508208</td>
+<td>Trubschachen</td>
+<td>7.846142</td>
+<td>46.921700</td>
+<td>732.0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4013</td>
+<td>8503290</td>
+<td>Biberegg</td>
+<td>8.669443</td>
+<td>47.093610</td>
+<td>933.0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4102</td>
+<td>8502271</td>
+<td>Wohlen Oberdorf</td>
+<td>8.286887</td>
+<td>47.346852</td>
+<td>433.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Before we export the edges, we change the station names in the edgelist to the BPUIC to make the edges more compact. Then we transform the dictionary into a dataframe which can finally be exported.</p>
+<div id="6b02cbeb" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with BPUIC as values</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>node_dict <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [[node_dict[k[<span class="dv">0</span>]], node_dict[k[<span class="dv">1</span>]], v[<span class="dv">0</span>], v[<span class="dv">1</span>]] <span class="cf">for</span> k,v <span class="kw">in</span> edges.items()]</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> pd.DataFrame(edges, columns <span class="op">=</span> [<span class="st">'BPUIC1'</span>,<span class="st">'BPUIC2'</span>,<span class="st">'NUM_CONNECTIONS'</span>,<span class="st">'AVG_DURATION'</span>])</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>edges.head()</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Export edge list</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a><span class="co"># edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BPUIC1</th>
+<th data-quarto-table-cell-role="th">BPUIC2</th>
+<th data-quarto-table-cell-role="th">NUM_CONNECTIONS</th>
+<th data-quarto-table-cell-role="th">AVG_DURATION</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>8503424</td>
+<td>8500090</td>
+<td>17</td>
+<td>73.18</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>8500090</td>
+<td>8503424</td>
+<td>18</td>
+<td>72.39</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>8503000</td>
+<td>8500010</td>
+<td>35</td>
+<td>54.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>8500010</td>
+<td>8500090</td>
+<td>68</td>
+<td>6.06</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>8500090</td>
+<td>8500010</td>
+<td>73</td>
+<td>6.33</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Feel free to download the final results: <a href="nodelist.csv" download="">Nodelist (CSV)</a> and <a href="edgelist.csv" download="">Edgelist (CSV)</a>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Untitled.svg" class="img-fluid figure-img" width="850"></p>
+<figcaption>The Swiss railway network with a geographic layout (created using Gephi).</figcaption>
+</figure>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/martinsterchi\.ch");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Copyright 2025, Martin Sterchi</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

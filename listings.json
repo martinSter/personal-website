@@ -5,5 +5,11 @@
       "/news/netsci25/index.html",
       "/news/snf_epi/index.html"
     ]
+  },
+  {
+    "listing": "/blog/index.html",
+    "items": [
+      "/blog/sbb_nw/index.html"
+    ]
   }
 ]
