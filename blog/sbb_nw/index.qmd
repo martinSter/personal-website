@@ -98,24 +98,24 @@ df.head()
 
 But what do all these columns mean? I have browsed the metadata a bit and found the following explanations (that I hopefully accurately reproduce in English):
 
-* `BETRIEBSTAG`: Simply the day on which the data were recorded.
-* `FAHRT_BEZEICHNER`: This is some elaborate identifier in the format [UIC-Countrycode]:[GO-Number]:[VM-Number]:[Extended Reference].
-* `BETREIBER_ID`: [UIC-Countrycode]:[GO-Number]. GO is short for "Geschäftsorganisation". For foreign organizations it is not a GO-Number but a TU-Number with TU meaning "Transportunternehmen". It is basically an ID for the company running that particular train.
-* `BETREIBER_ABK`: The abbreviation for the company running the train.
-* `BETREIBER_NAME`: The full name of the company running the train.
-* `PRODUKT_ID`: Type of public transport.
-* `LINIEN_ID`: The ID for the route of that train.
-* `LINIEN_TEXT`: The public ID for the route of that train.
-* `UMLAUF_ID`: An ID for a "Umlauf" which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.
-* `ZUSATZFAHRT_TF`: Is true if it is an extraordinary (not usually scheduled) trip.
-* `FAELLT_AUS_TF`: Is true if the trip is cancelled.
-* `BPUIC`: The ID of the station.
-* `HALTESTELLEN_NAME`: The name of the station.
-* `ANKUNFTSZEIT`: Planned time of arrival at the station.
-* `AN_PROGNOSE`: Prediction of time of arrival at the station.
-* `AN_PROGNOSE_STATUS`: Status of that prediction. Possible values are: "UNBEKANNT", "leer", "PROGNOSE", "GESCHAETZT", "REAL". If the value of that column is "REAL", it means that the predicted time of arrival is the time the train actually arrived at the station.
-* `ABFAHRTSZEIT`, `AB_PROGNOSE`, `AB_PROGNOSE_STATUS`: Same definitions as for arrival but here for departure from the station.
-* `DURCHFAHRT_TF`: Is true if the vehicle does not stop even if a stop was scheduled.
+-   `BETRIEBSTAG`: Simply the day on which the data were recorded.
+-   `FAHRT_BEZEICHNER`: This is some elaborate identifier in the format \[UIC-Countrycode\]:\[GO-Number\]:\[VM-Number\]:\[Extended Reference\].
+-   `BETREIBER_ID`: \[UIC-Countrycode\]:\[GO-Number\]. GO is short for "Geschäftsorganisation". For foreign organizations it is not a GO-Number but a TU-Number with TU meaning "Transportunternehmen". It is basically an ID for the company running that particular train.
+-   `BETREIBER_ABK`: The abbreviation for the company running the train.
+-   `BETREIBER_NAME`: The full name of the company running the train.
+-   `PRODUKT_ID`: Type of public transport.
+-   `LINIEN_ID`: The ID for the route of that train.
+-   `LINIEN_TEXT`: The public ID for the route of that train.
+-   `UMLAUF_ID`: An ID for a "Umlauf" which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.
+-   `ZUSATZFAHRT_TF`: Is true if it is an extraordinary (not usually scheduled) trip.
+-   `FAELLT_AUS_TF`: Is true if the trip is cancelled.
+-   `BPUIC`: The ID of the station.
+-   `HALTESTELLEN_NAME`: The name of the station.
+-   `ANKUNFTSZEIT`: Planned time of arrival at the station.
+-   `AN_PROGNOSE`: Prediction of time of arrival at the station.
+-   `AN_PROGNOSE_STATUS`: Status of that prediction. Possible values are: "UNBEKANNT", "leer", "PROGNOSE", "GESCHAETZT", "REAL". If the value of that column is "REAL", it means that the predicted time of arrival is the time the train actually arrived at the station.
+-   `ABFAHRTSZEIT`, `AB_PROGNOSE`, `AB_PROGNOSE_STATUS`: Same definitions as for arrival but here for departure from the station.
+-   `DURCHFAHRT_TF`: Is true if the vehicle does not stop even if a stop was scheduled.
 
 Let's now have a look at the values in the column `PRODUKT_ID`:
 
@@ -370,4 +370,4 @@ edges.head()
 
 Feel free to download the final results: <a href="nodelist.csv" download>Nodelist (CSV)</a> and <a href="edgelist.csv" download>Edgelist (CSV)</a>.
 
-![The Swiss railway network with a geographic layout (created using Gephi).](Untitled.svg){width="850"}
+![The Swiss railway network with a geographic layout (created using Gephi).](network.svg){width="850"}
