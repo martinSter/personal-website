@@ -1,0 +1,373 @@
+---
+title: "SBB Network Analysis - Part 1"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2025-02-28
+categories: ["Networks"]
+image: signet.svg
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+For quite some time I have been wondering if there are some interesting Swiss data that would serve as the basis for some fun network analysis. As a fan of public transportation and a long-time owner of a Swiss train pass ("GA"), the answer should have been obvious much sooner: the **Swiss public transport network**.
+
+I wanted to create a (static) network in which *each node corresponds to a train station* and *each directed edge between any two nodes, A and B, means there is at least one train going nonstop from A to B*. Ideally, the edge would also be attributed with some weight representing the importance of the edge (e.g., how many trains go nonstop from A to B on a given day).
+
+The structure of this post is as follows. I will first introduce the two datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis.
+
+This is the first part of a series that will cover all kinds of fun network analysis based on the Swiss railway network.
+
+### Data sources
+
+It was not that obvious how a network with nodes and edges following the definitions given above could be constructed based on data from the Swiss Federal Railways (abbreviated by the German speakers in Switzerland as **SBB**). With some help from SBB Experts and the [SBB Open Data Plattform](https://data.sbb.ch/pages/home/), I finally found the right data.
+
+The first dataset is called "**Ist-Daten**" and, for a given day, contains all regular stops of all trains in Switzerland with their planned and effective arrival and departure times. From this data, we can infer all nonstop stretches of any train in Switzerland.
+
+Note that the "Ist-Daten" not only contain the data for trains but also for all other public transport (buses, trams, and even boats). To keep things simple we will focus on the train network.
+
+The second dataset is the "**Dienststellen-Daten**" which basically allows to add node attributes such as the geographic coordinates of a node (i.e., a train station).
+
+### Load and preprocess "Ist-Daten"
+
+Here, we will load and preprocess the "Ist-Daten" from which we can derive the edges of our network. First, I import some Python libraries and print their version number for better reproducibility of this code.
+
+```{python}
+import pandas as pd
+import numpy as np
+from collections import Counter
+
+# Check versions of libraries.
+print("NumPy version:", np.__version__)
+print("Pandas version:", pd.__version__)
+
+# Make sure there is no limit on the number of columns shown.
+pd.set_option('display.max_columns', None)
+```
+
+Let's now load the data. You can see in the filename that I downloaded the "Ist-Daten" from the SBB portal for June 6, 2023. You can get the data for any day you want [here](https://data.sbb.ch/explore/dataset/ist-daten-sbb/information/).
+
+```{python}
+# Load the data
+df = pd.read_csv('2023-06-06_istdaten.csv', sep=";", low_memory=False) 
+```
+
+To get a feeling for the data, let's check the number of rows and columns.
+
+```{python}
+# Number of rows and columns
+print(df.shape)
+```
+
+Ok, it's actually a pretty big dataset: it has over 2.3 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.
+
+```{python}
+# Missing values per column
+df.isna().sum()
+```
+
+We can see that some columns contain many missing values. The only one I worry about for now is the column `PRODUKT_ID`. If you look through these rows (I don't show that here), you can see that they should all be of type "Zug" (train). Thus, we impute accordingly:
+
+```{python}
+# Impute 'Zug'
+df.loc[df["PRODUKT_ID"].isna(), "PRODUKT_ID"] = 'Zug'
+```
+
+There are quite a few date-timestamp columns that are not yet in the proper format. Thus, we now convert them to datetime formats:
+
+```{python}
+# Convert BETRIEBSTAG to date format
+df['BETRIEBSTAG'] = pd.to_datetime(df['BETRIEBSTAG'], format = "%d.%m.%Y")
+
+# Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format
+df['ANKUNFTSZEIT'] = pd.to_datetime(df['ANKUNFTSZEIT'], format = "%d.%m.%Y %H:%M")
+df['AN_PROGNOSE'] = pd.to_datetime(df['AN_PROGNOSE'], format = "%d.%m.%Y %H:%M:%S")
+df['ABFAHRTSZEIT'] = pd.to_datetime(df['ABFAHRTSZEIT'], format = "%d.%m.%Y %H:%M")
+df['AB_PROGNOSE'] = pd.to_datetime(df['AB_PROGNOSE'], format = "%d.%m.%Y %H:%M:%S")
+```
+
+Now is a good time to finally have a look at the dataframe:
+
+```{python}
+# Let's look at first few rows
+df.head()
+```
+
+But what do all these columns mean? I have browsed the metadata a bit and found the following explanations (that I hopefully accurately reproduce in English):
+
+* `BETRIEBSTAG`: Simply the day on which the data were recorded.
+* `FAHRT_BEZEICHNER`: This is some elaborate identifier in the format [UIC-Countrycode]:[GO-Number]:[VM-Number]:[Extended Reference].
+* `BETREIBER_ID`: [UIC-Countrycode]:[GO-Number]. GO is short for "Geschäftsorganisation". For foreign organizations it is not a GO-Number but a TU-Number with TU meaning "Transportunternehmen". It is basically an ID for the company running that particular train.
+* `BETREIBER_ABK`: The abbreviation for the company running the train.
+* `BETREIBER_NAME`: The full name of the company running the train.
+* `PRODUKT_ID`: Type of public transport.
+* `LINIEN_ID`: The ID for the route of that train.
+* `LINIEN_TEXT`: The public ID for the route of that train.
+* `UMLAUF_ID`: An ID for a "Umlauf" which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.
+* `ZUSATZFAHRT_TF`: Is true if it is an extraordinary (not usually scheduled) trip.
+* `FAELLT_AUS_TF`: Is true if the trip is cancelled.
+* `BPUIC`: The ID of the station.
+* `HALTESTELLEN_NAME`: The name of the station.
+* `ANKUNFTSZEIT`: Planned time of arrival at the station.
+* `AN_PROGNOSE`: Prediction of time of arrival at the station.
+* `AN_PROGNOSE_STATUS`: Status of that prediction. Possible values are: "UNBEKANNT", "leer", "PROGNOSE", "GESCHAETZT", "REAL". If the value of that column is "REAL", it means that the predicted time of arrival is the time the train actually arrived at the station.
+* `ABFAHRTSZEIT`, `AB_PROGNOSE`, `AB_PROGNOSE_STATUS`: Same definitions as for arrival but here for departure from the station.
+* `DURCHFAHRT_TF`: Is true if the vehicle does not stop even if a stop was scheduled.
+
+Let's now have a look at the values in the column `PRODUKT_ID`:
+
+```{python}
+# Look at PRODUKT_ID
+df["PRODUKT_ID"].value_counts()
+```
+
+We can see that trains are only the third most frequent category in this data. However, as mentioned before, we want to keep it simple and now reduce the dataset to only trains.
+
+```{python}
+# First we reduce to only trains
+df = df[df['PRODUKT_ID'] == "Zug"]
+```
+
+In a next step, we remove all rows where the corresponding train has been cancelled.
+
+```{python}
+# Filter out all entries with FAELLT_AUS_TF == True
+df = df[df['FAELLT_AUS_TF'] == False]
+```
+
+Let's explore the data a bit more before we move to the second dataset. Let's check out the most frequent values that occur in the column `BETREIBER_NAME`:
+
+```{python}
+# Look at BETREIBER_NAME
+df["BETREIBER_NAME"].value_counts().head()
+```
+
+As expected, SBB is the company serving the largest number of stations. What about the column `VERKEHRSMITTEL_TEXT`?
+
+```{python}
+# Look at VERKEHRSMITTEL_TEXT
+df["VERKEHRSMITTEL_TEXT"].value_counts().head()
+```
+
+We can see that the most frequent type of trains are S-Bahns (`S`). Finally, let's check the most frequent train stations that occur in the data:
+
+```{python}
+# Look at HALTESTELLEN_NAME
+df["HALTESTELLEN_NAME"].value_counts().head()
+```
+
+Unsurprisingly, Zürich and Bern are the most frequent values occuring in the data.
+
+### Load and preprocess "Dienststellen-Daten"
+
+Fortunately, we can go through the second dataset a bit more quickly. We again start by loading it and checking the dimensions of the dataframe.
+
+```{python}
+# Load the data
+ds = pd.read_csv('dienststellen_full.csv', sep = ";", low_memory=False)
+
+# Number of rows and columns
+print(ds.shape)
+```
+
+The data contains a column `GUELTIG_BIS` that allows us to filter out all stations that are not valid anymore (closed down?). But first we need to transform it into the proper format.
+
+```{python}
+# GUELTIG_BIS as datetime
+ds['GUELTIG_BIS'] = pd.to_datetime(ds['GUELTIG_BIS'], format = "%Y-%m-%d")
+
+# Keep only currently valid entries
+ds = ds[ds['GUELTIG_BIS'] == "2099-12-31"]
+```
+
+Finally, we keep only the columns we need (identifier, official name, and geo coordinates).
+
+```{python}
+# Keep only the relevant columns
+ds = ds[["BPUIC","BEZEICHNUNG_OFFIZIELL","E_WGS84","N_WGS84","Z_WGS84"]]
+
+# Show first few rows
+ds.head()
+```
+
+### Combine the two datasets
+
+We now merge the "Dienststellen-Daten" to the first dataset via the `BPUIC` variable.
+
+```{python}
+# Left-join with station names and coordinates
+df = pd.merge(df, ds, on = 'BPUIC', how = 'left')
+```
+
+Unfortunately, there are some rows for which there is no matching entry in the "Dienststellen-Daten". But fortunately, we know which stations are affected based on the `HALTESTELLEN_NAME` column.
+
+```{python}
+# There are still some missings after left-join (Oberkulm Post and Borgnone-Cadanza)
+df.loc[df['BEZEICHNUNG_OFFIZIELL'].isna(), ['HALTESTELLEN_NAME','BEZEICHNUNG_OFFIZIELL']]
+```
+
+The first part of the fix consists of imputing the names of the stations in the column `BEZEICHNUNG_OFFIZIELL`.
+
+```{python}
+# But they have data in the original data, so let's impute those
+df.loc[df['BEZEICHNUNG_OFFIZIELL'].isna(), "BEZEICHNUNG_OFFIZIELL"] = df.loc[df['BEZEICHNUNG_OFFIZIELL'].isna(), "HALTESTELLEN_NAME"]
+```
+
+The second part of the fix is to manually add the geo coordinates for the missing two stations (Oberkulm Post and Borgnone-Cadanza).
+
+```{python}
+# Impute geo coordinates and elevation for those missing
+df.loc[df['BEZEICHNUNG_OFFIZIELL'] == "Oberkulm Post", ["E_WGS84","N_WGS84","Z_WGS84"]] = (8.11970, 47.30414, 483)
+df.loc[df['BEZEICHNUNG_OFFIZIELL'] == "Borgnone-Cadanza", ["E_WGS84","N_WGS84","Z_WGS84"]] = (8.62254, 46.15853, 713)
+```
+
+Now, we are finally ready to start extracting the network from this data!
+
+### Convert it to a network
+
+As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called "Fahrt" in German) then typically consists of several stops along the way. However, there are some "Fahrten" with only one entry. Presumably these are mostly foreign trains that have their end destination at some border station. I decided to remove those entries:
+
+```{python}
+# First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry
+# It's mostly trains that stop at a place at the border (I think)
+df_filtered = df.groupby('FAHRT_BEZEICHNER').filter(lambda g: len(g) > 1)
+
+# How many rows do we loose with that?
+print(df.shape[0] - df_filtered.shape[0])
+```
+
+This preprocessing step removes 566 rows.
+
+Now we group the rows by `FAHRT_BEZEICHNER` so that each group is one "Fahrt". In every group we sort the stops along the way in an ascending order of the departure time.
+
+```{python}
+# Function to sort entries within a group in ascending order of ABFAHRTSZEIT
+def sort_data(group):
+    return group.sort_values('ABFAHRTSZEIT', ascending = True)
+
+# Sort for each group
+df_sorted = df_filtered.groupby('FAHRT_BEZEICHNER', group_keys=True).apply(sort_data)
+```
+
+Let's have a look at one "Fahrt" to get a better idea:
+
+```{python}
+# Look at one example Fahrt
+df_sorted.loc[['85:11:1511:003'],['BETREIBER_ABK','LINIEN_TEXT','BEZEICHNUNG_OFFIZIELL','ABFAHRTSZEIT']]
+```
+
+This is a train that goes from Lausanne to St.Gallen with many stops in-between. In St.Gallen the `ABFAHRTSZEIT` is missing as that "Fahrt" ends there (the train will most likely go back in the other direction, but that will be a new "Fahrt").
+
+We now have enough knowledge about the data that we can extract the edges in a for loop. Basically, what we do is to loop over the rows of a given "Fahrt", starting with the second row and extracting the edges as
+
+`(previous station, current station, travel time between stations)`.
+
+The Python code for this looks as follows:
+
+```{python}
+# Empty list
+edgelist = []
+
+# Variables to store previous row and its index
+prev_row = None
+prev_idx = None
+
+# Loop over rows of dataframe
+for i, row in df_sorted.iterrows():
+    # Only start with second row
+    # Only if the two rows belong to the same Fahrt
+    if prev_idx is not None and prev_idx == i[0]:
+        # Add edge to edgelist assuming it's a directed edge
+        edgelist.append((prev_row['BEZEICHNUNG_OFFIZIELL'], 
+                         row['BEZEICHNUNG_OFFIZIELL'], 
+                         (row['ANKUNFTSZEIT'] - prev_row['ABFAHRTSZEIT']).total_seconds() / 60))
+    # Set current row and row index to previous ones
+    prev_idx = i[0]
+    prev_row = row
+```
+
+To get a better idea, let's have a look at the first list element:
+
+```{python}
+# First list element
+edgelist[0]
+```
+
+We are still not quite done yet. The problem is that the `edgelist` contains many duplicated entries as, for example, the stretch Olten - Zürich HB is served by many different trains on a given day.
+
+What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary.
+
+```{python}
+# Empty dict
+edges = {}
+
+# Loop over elements in edgelist
+for i in edgelist:
+    # Create key
+    key = (i[0], i[1])
+    # Get previous entries in dict (if there are any)
+    prev = edges.get(key, (0, 0))
+    # Update values in dict
+    edges[key] = (prev[0] + 1, prev[1] + i[2])
+
+# Divide summed up travel times by number of trips
+edges = {k: (v[0], round(v[1]/v[0], 2)) for k, v in edges.items()}
+```
+
+Let's look at the entry for the stretch between Schaffhausen and Basel Badischer Bahnhof again:
+
+```{python}
+# Look at some element in dict
+edges[('Schaffhausen', 'Basel Bad Bf')]
+```
+
+There are 17 trips between these two stations (in this direction) and they take 73 minutes on average.
+
+We are now ready to create the final node list (and export it). First, we add the two missing stations to the dataframe `ds` (above we only added them to the merged `df`, not `ds`). Then we reduce `ds` to the train stations that appear in the edges (it still contains many bus and tram stops and other things). Finally, we give it nicer column names.
+
+```{python}
+# Add two missing places to ds
+ds.loc[len(ds)] = [8502183, 'Oberkulm Post', 8.1197, 47.30414, 483.0]
+ds.loc[len(ds)] = [8505498, 'Borgnone-Cadanza', 8.62254, 46.15853, 713.0]
+
+# Set of stations that appear in edgelist
+stations_in_edgelist = set(sum(list(edges.keys()), ()))
+
+# Reduces nodes dataframe to only places in edgelist
+nodes = ds[ds['BEZEICHNUNG_OFFIZIELL'].isin(stations_in_edgelist)]
+
+# Better column names
+nodes.columns = ['BPUIC','STATION_NAME','LONGITUDE','LATITUDE','ELEVATION']
+
+# Have a look
+nodes.head()
+
+# Export node list
+# nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = ';', encoding = 'utf-8', index = False)
+```
+
+Before we export the edges, we change the station names in the edgelist to the BPUIC to make the edges more compact. Then we transform the dictionary into a dataframe which can finally be exported.
+
+```{python}
+# Create a node dict with BPUIC as values
+node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))
+
+# Transform edge dict to nested list and replace all station names with their BPUIC
+edges = [[node_dict[k[0]], node_dict[k[1]], v[0], v[1]] for k,v in edges.items()]
+
+# Create a dataframe
+edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','NUM_CONNECTIONS','AVG_DURATION'])
+
+# Have a look
+edges.head()
+
+# Export edge list
+# edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-8', index = False)
+```
+
+Feel free to download the final results: <a href="nodelist.csv" download>Nodelist (CSV)</a> and <a href="edgelist.csv" download>Edgelist (CSV)</a>.
+
+![The Swiss railway network with a geographic layout (created using Gephi).](Untitled.svg){width="850"}

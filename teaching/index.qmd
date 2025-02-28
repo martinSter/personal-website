@@ -50,10 +50,8 @@ Business Analytics (BA) is one of two components of the core module *Empirische 
 
 The BA section is structured around two main areas of focus:
 
-1. Introduction to R and Data Handling:
-Students begin by working with `R` and RStudio, gaining a basic understanding of key data structures such as vectors, factors, and data frames. They learn how to import data, manipulate these basic structures, and apply indexing. The course also covers the calculation of simple descriptive statistics and introduces `R`’s base plotting capabilities for data visualization.
+1.  Introduction to R and Data Handling: Students begin by working with `R` and RStudio, gaining a basic understanding of key data structures such as vectors, factors, and data frames. They learn how to import data, manipulate these basic structures, and apply indexing. The course also covers the calculation of simple descriptive statistics and introduces `R`’s base plotting capabilities for data visualization.
 
-2. Fundamentals of Linear Regression:
-The second part of the course delves into simple and multiple linear regression. Students explore the intuition behind least-squares coefficients and learn how the coefficient of determination can be used for model evaluation and comparison. In the context of multiple linear regression, the course covers topics such as dummy encoding for categorical variables and the use of interaction terms, among other techniques.
+2.  Fundamentals of Linear Regression: The second part of the course delves into simple and multiple linear regression. Students explore the intuition behind least-squares coefficients and learn how the coefficient of determination can be used for model evaluation and comparison. In the context of multiple linear regression, the course covers topics such as dummy encoding for categorical variables and the use of interaction terms, among other techniques.
 
 This structure ensures that students not only develop a basic technical proficiency in data analysis using `R` but also gain a solid understanding of essential statistical modeling concepts.
