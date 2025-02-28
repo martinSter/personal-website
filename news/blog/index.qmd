@@ -13,7 +13,7 @@ format:
 google-scholar: false
 ---
 
-I'm excited to announce that I've started a blog right here on this website ([see here](../blog/index.qmd)). I know the internet is already overflowing with blogs and other content, and the world certainly wasn’t waiting for yet another person eager to share their thoughts.
+I'm excited to announce that I've started a blog right here on this website ([see here](../../blog/index.qmd)). I know the internet is already overflowing with blogs and other content, and the world certainly wasn’t waiting for yet another person eager to share their thoughts.
 
 But honestly, this blog is, above all, a creative outlet for me. Writing my first post was a lot of fun, and if others find it interesting—great! If not, no hard feelings. 😉
 
