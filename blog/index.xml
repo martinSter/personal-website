@@ -34,7 +34,7 @@
 <section id="load-and-preprocess-ist-daten" class="level3">
 <h3 class="anchored" data-anchor-id="load-and-preprocess-ist-daten">Load and preprocess “Ist-Daten”</h3>
 <p>Here, we will load and preprocess the “Ist-Daten” from which we can derive the edges of our network. First, I import some Python libraries and print their version number for better reproducibility of this code.</p>
-<div id="f7381e15" class="cell" data-execution_count="1">
+<div id="fbfb0cf0" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
@@ -79,7 +79,7 @@ Pandas version: 2.1.4</code></pre>
 </div>
 </div>
 <p>Let’s now load the data. You can see in the filename that I downloaded the “Ist-Daten” from the SBB portal for June 6, 2023. You can get the data for any day you want <a href="https://data.sbb.ch/explore/dataset/ist-daten-sbb/information/">here</a>.</p>
-<div id="a1fe77af" class="cell" data-execution_count="2">
+<div id="5b20ebd2" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data</span></span>
@@ -98,7 +98,7 @@ background-color: null;
 font-style: inherit;">False</span>) </span></code></pre></div>
 </div>
 <p>To get a feeling for the data, let’s check the number of rows and columns.</p>
-<div id="ffdd56a2" class="cell" data-execution_count="3">
+<div id="bed9b53c" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Number of rows and columns</span></span>
@@ -110,7 +110,7 @@ font-style: inherit;">print</span>(df.shape)</span></code></pre></div>
 </div>
 </div>
 <p>Ok, it’s actually a pretty big dataset: it has over 2.3 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.</p>
-<div id="f3816566" class="cell" data-execution_count="4">
+<div id="f14fa9e2" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Missing values per column</span></span>
@@ -143,7 +143,7 @@ dtype: int64</code></pre>
 </div>
 </div>
 <p>We can see that some columns contain many missing values. The only one I worry about for now is the column <code>PRODUKT_ID</code>. If you look through these rows (I don’t show that here), you can see that they should all be of type “Zug” (train). Thus, we impute accordingly:</p>
-<div id="76816d9b" class="cell" data-execution_count="5">
+<div id="3c7a0e4d" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Impute 'Zug'</span></span>
@@ -158,7 +158,7 @@ background-color: null;
 font-style: inherit;">'Zug'</span></span></code></pre></div>
 </div>
 <p>There are quite a few date-timestamp columns that are not yet in the proper format. Thus, we now convert them to datetime formats:</p>
-<div id="d703efc5" class="cell" data-execution_count="6">
+<div id="2dd4f0d6" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Convert BETRIEBSTAG to date format</span></span>
@@ -253,7 +253,7 @@ background-color: null;
 font-style: inherit;">.%m.%Y %H:%M:%S"</span>)</span></code></pre></div>
 </div>
 <p>Now is a good time to finally have a look at the dataframe:</p>
-<div id="75d1fe52" class="cell" data-execution_count="7">
+<div id="a99effcc" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Let's look at first few rows</span></span>
@@ -438,7 +438,7 @@ font-style: inherit;"># Let's look at first few rows</span></span>
 <li><code>DURCHFAHRT_TF</code>: Is true if the vehicle does not stop even if a stop was scheduled.</li>
 </ul>
 <p>Let’s now have a look at the values in the column <code>PRODUKT_ID</code>:</p>
-<div id="1f9df9df" class="cell" data-execution_count="8">
+<div id="c19bafde" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at PRODUKT_ID</span></span>
@@ -458,7 +458,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>We can see that trains are only the third most frequent category in this data. However, as mentioned before, we want to keep it simple and now reduce the dataset to only trains.</p>
-<div id="37d72949" class="cell" data-execution_count="9">
+<div id="83c7585b" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># First we reduce to only trains</span></span>
@@ -473,7 +473,7 @@ background-color: null;
 font-style: inherit;">"Zug"</span>]</span></code></pre></div>
 </div>
 <p>In a next step, we remove all rows where the corresponding train has been cancelled.</p>
-<div id="21bda737" class="cell" data-execution_count="10">
+<div id="01000bb7" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Filter out all entries with FAELLT_AUS_TF == True</span></span>
@@ -488,7 +488,7 @@ background-color: null;
 font-style: inherit;">False</span>]</span></code></pre></div>
 </div>
 <p>Let’s explore the data a bit more before we move to the second dataset. Let’s check out the most frequent values that occur in the column <code>BETREIBER_NAME</code>:</p>
-<div id="40e4ef7e" class="cell" data-execution_count="11">
+<div id="13fa0143" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at BETREIBER_NAME</span></span>
@@ -506,7 +506,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>As expected, SBB is the company serving the largest number of stations. What about the column <code>VERKEHRSMITTEL_TEXT</code>?</p>
-<div id="4a3ca69a" class="cell" data-execution_count="12">
+<div id="458699fe" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at VERKEHRSMITTEL_TEXT</span></span>
@@ -524,7 +524,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>We can see that the most frequent type of trains are S-Bahns (<code>S</code>). Finally, let’s check the most frequent train stations that occur in the data:</p>
-<div id="f83e8924" class="cell" data-execution_count="13">
+<div id="734babf7" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at HALTESTELLEN_NAME</span></span>
@@ -546,7 +546,7 @@ Name: count, dtype: int64</code></pre>
 <section id="load-and-preprocess-dienststellen-daten" class="level3">
 <h3 class="anchored" data-anchor-id="load-and-preprocess-dienststellen-daten">Load and preprocess “Dienststellen-Daten”</h3>
 <p>Fortunately, we can go through the second dataset a bit more quickly. We again start by loading it and checking the dimensions of the dataframe.</p>
-<div id="ea2bd70a" class="cell" data-execution_count="14">
+<div id="bcbb4ab2" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data</span></span>
@@ -575,7 +575,7 @@ font-style: inherit;">print</span>(ds.shape)</span></code></pre></div>
 </div>
 </div>
 <p>The data contains a column <code>GUELTIG_BIS</code> that allows us to filter out all stations that are not valid anymore (closed down?). But first we need to transform it into the proper format.</p>
-<div id="663f6a30" class="cell" data-execution_count="15">
+<div id="a47ad1f0" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># GUELTIG_BIS as datetime</span></span>
@@ -611,7 +611,7 @@ background-color: null;
 font-style: inherit;">"2099-12-31"</span>]</span></code></pre></div>
 </div>
 <p>Finally, we keep only the columns we need (identifier, official name, and geo coordinates).</p>
-<div id="c95d3b07" class="cell" data-execution_count="16">
+<div id="6685755b" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Keep only the relevant columns</span></span>
@@ -699,7 +699,7 @@ font-style: inherit;"># Show first few rows</span></span>
 <section id="combine-the-two-datasets" class="level3">
 <h3 class="anchored" data-anchor-id="combine-the-two-datasets">Combine the two datasets</h3>
 <p>We now merge the “Dienststellen-Daten” to the first dataset via the <code>BPUIC</code> variable.</p>
-<div id="ec57e9a2" class="cell" data-execution_count="17">
+<div id="b9851ef1" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Left-join with station names and coordinates</span></span>
@@ -716,7 +716,7 @@ background-color: null;
 font-style: inherit;">'left'</span>)</span></code></pre></div>
 </div>
 <p>Unfortunately, there are some rows for which there is no matching entry in the “Dienststellen-Daten”. But fortunately, we know which stations are affected based on the <code>HALTESTELLEN_NAME</code> column.</p>
-<div id="779752e6" class="cell" data-execution_count="18">
+<div id="ac533365" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># There are still some missings after left-join (Oberkulm Post and Borgnone-Cadanza)</span></span>
@@ -803,7 +803,7 @@ font-style: inherit;">'BEZEICHNUNG_OFFIZIELL'</span>]]</span></code></pre></div>
 </div>
 </div>
 <p>The first part of the fix consists of imputing the names of the stations in the column <code>BEZEICHNUNG_OFFIZIELL</code>.</p>
-<div id="41e55348" class="cell" data-execution_count="19">
+<div id="c5d3dda1" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># But they have data in the original data, so let's impute those</span></span>
@@ -820,7 +820,7 @@ background-color: null;
 font-style: inherit;">"HALTESTELLEN_NAME"</span>]</span></code></pre></div>
 </div>
 <p>The second part of the fix is to manually add the geo coordinates for the missing two stations (Oberkulm Post and Borgnone-Cadanza).</p>
-<div id="32418ba5" class="cell" data-execution_count="20">
+<div id="3a8d4919" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Impute geo coordinates and elevation for those missing</span></span>
@@ -872,7 +872,7 @@ font-style: inherit;">713</span>)</span></code></pre></div>
 <section id="convert-it-to-a-network" class="level3">
 <h3 class="anchored" data-anchor-id="convert-it-to-a-network">Convert it to a network</h3>
 <p>As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called “Fahrt” in German) then typically consists of several stops along the way. However, there are some “Fahrten” with only one entry. Presumably these are mostly foreign trains that have their end destination at some border station. I decided to remove those entries:</p>
-<div id="f8e4ab4b" class="cell" data-execution_count="21">
+<div id="0d46fc3d" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry</span></span>
@@ -914,7 +914,7 @@ font-style: inherit;">0</span>])</span></code></pre></div>
 </div>
 <p>This preprocessing step removes 566 rows.</p>
 <p>Now we group the rows by <code>FAHRT_BEZEICHNER</code> so that each group is one “Fahrt”. In every group we sort the stops along the way in an ascending order of the departure time.</p>
-<div id="a2c95f95" class="cell" data-execution_count="22">
+<div id="473342b5" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to sort entries within a group in ascending order of ABFAHRTSZEIT</span></span>
@@ -949,7 +949,7 @@ background-color: null;
 font-style: inherit;">apply</span>(sort_data)</span></code></pre></div>
 </div>
 <p>Let’s have a look at one “Fahrt” to get a better idea:</p>
-<div id="8cdb685f" class="cell" data-execution_count="23">
+<div id="9e57e424" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at one example Fahrt</span></span>
@@ -1083,7 +1083,7 @@ font-style: inherit;">'ABFAHRTSZEIT'</span>]]</span></code></pre></div>
 <p>We now have enough knowledge about the data that we can extract the edges in a for loop. Basically, what we do is to loop over the rows of a given “Fahrt”, starting with the second row and extracting the edges as</p>
 <p><code>(previous station, current station, travel time between stations)</code>.</p>
 <p>The Python code for this looks as follows:</p>
-<div id="bead9a6f" class="cell" data-execution_count="24">
+<div id="b257b447" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty list</span></span>
@@ -1173,7 +1173,7 @@ background-color: null;
 font-style: inherit;">=</span> row</span></code></pre></div>
 </div>
 <p>To get a better idea, let’s have a look at the first list element:</p>
-<div id="93fefdeb" class="cell" data-execution_count="25">
+<div id="f89b17ae" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># First list element</span></span>
@@ -1186,7 +1186,7 @@ font-style: inherit;">0</span>]</span></code></pre></div>
 </div>
 <p>We are still not quite done yet. The problem is that the <code>edgelist</code> contains many duplicated entries as, for example, the stretch Olten - Zürich HB is served by many different trains on a given day.</p>
 <p>What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary.</p>
-<div id="84a486b0" class="cell" data-execution_count="26">
+<div id="dd6c870e" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty dict</span></span>
@@ -1269,7 +1269,7 @@ font-weight: bold;
 font-style: inherit;">in</span> edges.items()}</span></code></pre></div>
 </div>
 <p>Let’s look at the entry for the stretch between Schaffhausen and Basel Badischer Bahnhof again:</p>
-<div id="3cc8911c" class="cell" data-execution_count="27">
+<div id="20cc32f7" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at some element in dict</span></span>
@@ -1284,7 +1284,7 @@ font-style: inherit;">'Basel Bad Bf'</span>)]</span></code></pre></div>
 </div>
 <p>There are 17 trips between these two stations (in this direction) and they take 73 minutes on average.</p>
 <p>We are now ready to create the final node list (and export it). First, we add the two missing stations to the dataframe <code>ds</code> (above we only added them to the merged <code>df</code>, not <code>ds</code>). Then we reduce <code>ds</code> to the train stations that appear in the edges (it still contains many bus and tram stops and other things). Finally, we give it nicer column names.</p>
-<div id="7b7123de" class="cell" data-execution_count="28">
+<div id="fe48bf34" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Add two missing places to ds</span></span>
@@ -1432,7 +1432,7 @@ font-style: inherit;"># nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = 
 </div>
 </div>
 <p>Before we export the edges, we change the station names in the edgelist to the BPUIC to make the edges more compact. Then we transform the dictionary into a dataframe which can finally be exported.</p>
-<div id="6b02cbeb" class="cell" data-execution_count="29">
+<div id="77520f81" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a node dict with BPUIC as values</span></span>
@@ -1552,7 +1552,7 @@ font-style: inherit;"># edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-
 <p>Feel free to download the final results: <a href="nodelist.csv" download="">Nodelist (CSV)</a> and <a href="edgelist.csv" download="">Edgelist (CSV)</a>.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="https://martinsterchi.ch/blog/sbb_nw/Untitled.svg" class="img-fluid figure-img" width="850"></p>
+<p><img src="https://martinsterchi.ch/blog/sbb_nw/network.svg" class="img-fluid figure-img" width="850"></p>
 <figcaption>The Swiss railway network with a geographic layout (created using Gephi).</figcaption>
 </figure>
 </div>
