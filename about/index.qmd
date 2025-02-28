@@ -16,16 +16,16 @@ I have a background in **economics**, having studied at the Universities of Frib
 
 At FHNW I teach the following modules ([more info](../teaching/index.qmd)):
 
-* **Machine Learning**: This course is designed for business students, emphasizing the *practical application* of ML to real-world problems. We primarily use the `tidymodels` framework, building on students' prior knowledge of R.
-* **Applied Data Science**: Currently, this week-long intensive course focuses on teaching students data visualization skills in `R` using `ggplot2`.
-* **Business Analytics**: In this core module, I introduce students to programming in `R` and guide them through the fundamentals of linear regression.
+-   **Machine Learning**: This course is designed for business students, emphasizing the *practical application* of ML to real-world problems. We primarily use the `tidymodels` framework, building on students' prior knowledge of R.
+-   **Applied Data Science**: Currently, this week-long intensive course focuses on teaching students data visualization skills in `R` using `ggplot2`.
+-   **Business Analytics**: In this core module, I introduce students to programming in `R` and guide them through the fundamentals of linear regression.
 
 My research interests are as follows:
 
-* **Dynamical processes on networks**: My primary research interest lies in epidemic processes, which was the focus of my PhD and remains a central theme in my current work.
-* **Monte Carlo simulations**: For many problems, analytical solutions do not exist, and as a computer scientist, I am not reluctant to use simulations to find approximate solutions. 
-* **Graph Neural Networks**: Network science has not escaped the Deep Learning revolution—and naturally, GNNs have caught my attention. Specifically, I am curious if GNNs can help address the challenge of source detection.
-* **Explainability**: Recently, I have begun exploring model explainability, primarily through visualizations—another passion of mine. I plan to further investigate this topic, particularly in the context of models on networks.
+-   **Dynamical processes on networks**: My primary research interest lies in epidemic processes, which was the focus of my PhD and remains a central theme in my current work.
+-   **Monte Carlo simulations**: For many problems, analytical solutions do not exist, and as a computer scientist, I am not reluctant to use simulations to find approximate solutions.
+-   **Graph Neural Networks**: Network science has not escaped the Deep Learning revolution—and naturally, GNNs have caught my attention. Specifically, I am curious if GNNs can help address the challenge of source detection.
+-   **Explainability**: Recently, I have begun exploring model explainability, primarily through visualizations—another passion of mine. I plan to further investigate this topic, particularly in the context of models on networks.
 
 I enjoy implementing Machine Learning algorithms from scratch to deepen my understanding at the implementation level. Moreover, I can spend hours refining data visualizations—whether in base `R`, `ggplot2`, or `matplotlib`—striving for a balance of aesthetics, clarity, and engagement.
 
