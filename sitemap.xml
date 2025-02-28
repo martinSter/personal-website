@@ -2,38 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://martinsterchi.ch/blog/sbb_nw/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.453Z</lastmod>
+    <lastmod>2025-02-28T18:31:42.476Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/news/snf_epi/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.461Z</lastmod>
+    <lastmod>2025-02-28T18:31:42.485Z</lastmod>
   </url>
   <url>
-    <loc>https://martinsterchi.ch/teaching/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.472Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/about/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.452Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/publications/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.461Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.459Z</lastmod>
+    <loc>https://martinsterchi.ch/news/blog/index.html</loc>
+    <lastmod>2025-02-28T18:31:42.483Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/code/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.459Z</lastmod>
+    <lastmod>2025-02-28T18:31:42.483Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/index.html</loc>
+    <lastmod>2025-02-28T18:31:42.483Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/publications/index.html</loc>
+    <lastmod>2025-02-28T18:31:42.485Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/about/index.html</loc>
+    <lastmod>2025-02-28T18:31:42.475Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/teaching/index.html</loc>
+    <lastmod>2025-02-28T18:31:42.496Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/news/netsci25/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.461Z</lastmod>
+    <lastmod>2025-02-28T18:31:42.485Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/blog/index.html</loc>
-    <lastmod>2025-02-28T17:03:49.452Z</lastmod>
+    <lastmod>2025-02-28T18:31:42.476Z</lastmod>
   </url>
 </urlset>
