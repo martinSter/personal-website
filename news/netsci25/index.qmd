@@ -21,4 +21,4 @@ Our (still preliminary) findings suggest that GNNs may not yet live up to their 
 
 If you're interested, check out our abstract below—and stay tuned for a full paper on this topic!
 
-<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="500px" height="800px" />
+<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="500px" height="645px" />
