@@ -324,7 +324,7 @@ Let's look at the entry for the stretch between Schaffhausen and Basel Badischer
 edges[('Schaffhausen', 'Basel Bad Bf')]
 ```
 
-There are 17 trips between these two stations (in this direction) and they take 73 minutes on average.
+There are 17 trips between these two stations (in this direction) and they take 73 minutes on average. (Note that there are quite a few stops between these two stations but they do not appear in the data since they are all located in Germany.)
 
 We are now ready to create the final node list (and export it). First, we add the two missing stations to the dataframe `ds` (above we only added them to the merged `df`, not `ds`). Then we reduce `ds` to the train stations that appear in the edges (it still contains many bus and tram stops and other things). Finally, we give it nicer column names.
 

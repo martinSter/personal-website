@@ -13,7 +13,7 @@ format:
 google-scholar: false
 ---
 
-My colleague Lorenz Hilfiker and I are excited to have been accepted for a poster presentation at [NetSci2025](https://netsci2025.github.io/)! We look forward to traveling to Maastricht (NL) this June to share our work with experts in the field.
+My colleague Lorenz Hilfiker and I have been accepted for a poster presentation at [NetSci2025](https://netsci2025.github.io/)! We look forward to traveling to Maastricht (NL) this June to share our work with experts in the field.
 
 Our research explores the potential of Graph Neural Networks (GNNs) for epidemic source detection—identifying the origin of an outbreak given a contact network and the epidemic states of all nodes.
 
@@ -21,4 +21,4 @@ Our (still preliminary) findings suggest that GNNs may not yet live up to their 
 
 If you're interested, check out our abstract below—and stay tuned for a full paper on this topic!
 
-<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="500px" height="500px" />
+<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="500px" height="800px" />
