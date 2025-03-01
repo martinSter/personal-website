@@ -20,9 +20,9 @@
 
 
 
-<p>I’m excited to announce that I’ve started a blog right here on this website (<a href="../../blog/index.html">see here</a>). I know the internet is already overflowing with blogs and other content, and the world certainly wasn’t waiting for yet another person eager to share their thoughts.</p>
+<p>I’ve started a blog right here on this website (<a href="../../blog/index.html">see here</a>). I know the internet is already overflowing with blogs and other content, and the world certainly wasn’t waiting for yet another person eager to share their thoughts.</p>
 <p>But honestly, this blog is, above all, a creative outlet for me. Writing my first post was a lot of fun, and if others find it interesting—great! If not, no hard feelings. 😉</p>
-<p>That said, this first post took a surprising amount of effort (a full workday, if we’re being honest—don’t tell my boss). So, I won’t be posting on a fixed schedule. Instead, whenever I have an interesting analysis that isn’t quite enough for a formal publication, a cool data visualization, or a neat tutorial on a model or algorithm—and, crucially, some spare time—I’ll share it here.</p>
+<p>That said, this first post took a surprising amount of work (a full workday, if we’re being honest—don’t tell my boss). So, I won’t be posting on a fixed schedule. Instead, whenever I have an interesting analysis that isn’t quite enough for a formal publication, a cool data visualization, or a neat tutorial on a model or algorithm—and, crucially, some spare time—I’ll share it here.</p>
 <p>Speaking of which, my first post explores how to use Swiss public transport data to create a directed network. I plan to turn this into a series of blogposts, applying different network science concepts to that network.</p>
 <p><em>The title image has been created by Wikimedia user Cortega9 and is licensed under <a href="https://creativecommons.org/licenses/by-sa/3.0/deed.en">Creative Commons</a>.</em></p>
 
@@ -43,11 +43,11 @@
 
 
 
-<p>My colleague Lorenz Hilfiker and I are excited to have been accepted for a poster presentation at <a href="https://netsci2025.github.io/">NetSci2025</a>! We look forward to traveling to Maastricht (NL) this June to share our work with experts in the field.</p>
+<p>My colleague Lorenz Hilfiker and I have been accepted for a poster presentation at <a href="https://netsci2025.github.io/">NetSci2025</a>! We look forward to traveling to Maastricht (NL) this June to share our work with experts in the field.</p>
 <p>Our research explores the potential of Graph Neural Networks (GNNs) for epidemic source detection—identifying the origin of an outbreak given a contact network and the epidemic states of all nodes.</p>
 <p>Our (still preliminary) findings suggest that GNNs may not yet live up to their promise, as they are consistently outperformed by more traditional source detection methods. However, we have only explored a small region of the GNN design space so far, so it is too early to rule them out as a valuable tool for this problem.</p>
 <p>If you’re interested, check out our abstract below—and stay tuned for a full paper on this topic!</p>
-<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="500px" height="500px">
+<embed src="Abstract_NetSci_2025_Sterchi_Hilfiker.pdf" width="500px" height="800px">
 
 
 
