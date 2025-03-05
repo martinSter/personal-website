@@ -5,7 +5,7 @@ author:
     email: martin.sterchi@fhnw.ch
 date: 2025-02-28
 categories: ["Networks"]
-image: signet.svg
+image: sbb_hb.jpg
 format:
   html:
     df-print: paged
@@ -17,7 +17,9 @@ For quite some time I have been wondering if there are some interesting Swiss da
 
 I wanted to create a (static) network in which *each node corresponds to a train station* and *each directed edge between any two nodes, A and B, means there is at least one train going nonstop from A to B*. Ideally, the edge would also be attributed with some weight representing the importance of the edge (e.g., how many trains go nonstop from A to B on a given day).
 
-The structure of this post is as follows. I will first introduce the two datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis.
+The structure of this post is as follows. I will first introduce the two datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis. The following image shows a visualization of the network data resulting from this post.
+
+![The Swiss railway network with a geographic layout (created using Gephi).](network.svg){width="850"}
 
 This is the first part of a series that will cover all kinds of fun network analysis based on the Swiss railway network.
 
@@ -370,4 +372,5 @@ edges.head()
 
 Feel free to download the final results: <a href="nodelist.csv" download>Nodelist (CSV)</a> and <a href="edgelist.csv" download>Edgelist (CSV)</a>.
 
-![The Swiss railway network with a geographic layout (created using Gephi).](network.svg){width="850"}
+*The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*
+
