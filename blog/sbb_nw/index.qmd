@@ -13,11 +13,13 @@ format:
 google-scholar: false
 ---
 
-For quite some time I have been wondering if there are some interesting Swiss data that would serve as the basis for some fun network analysis. As a fan of public transportation and a long-time owner of a Swiss train pass ("GA"), the answer should have been obvious much sooner: the **Swiss public transport network**.
+*Update 10.03.2025: I updated the analysis in this blog so that it runs on more recent data. More precisely, I use the train traffic data from March 5, 2025 to construct the network. Moreover, I now properly reference the source data and I have added a bunch of additional node attributes. The most interesting new node attributes are average passenger frequency data for all stations.*
+
+For quite some time I have been wondering if there are some interesting Swiss data that would serve as the basis for some fun network analysis. As a fan of public transportation and a long-time owner of a Swiss train pass ("GA"), the answer should have been obvious much sooner: the **Swiss railway network**.
 
 I wanted to create a (static) network in which *each node corresponds to a train station* and *each directed edge between any two nodes, A and B, means there is at least one train going nonstop from A to B*. Ideally, the edge would also be attributed with some weight representing the importance of the edge (e.g., how many trains go nonstop from A to B on a given day).
 
-The structure of this post is as follows. I will first introduce the two datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis. The following image shows a visualization of the network data resulting from this post.
+The structure of this post is as follows. I will first introduce the three datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis. The following image shows a visualization of the network data resulting from this post.
 
 ![The Swiss railway network with a geographic layout (created using Gephi).](network.svg){width="850"}
 
@@ -25,13 +27,15 @@ This is the first part of a series that will cover all kinds of fun network anal
 
 ### Data sources
 
-It was not that obvious how a network with nodes and edges following the definitions given above could be constructed based on data from the Swiss Federal Railways (abbreviated by the German speakers in Switzerland as **SBB**). With some help from SBB Experts and the [SBB Open Data Plattform](https://data.sbb.ch/pages/home/), I finally found the right data.
+It was not that obvious how a network with nodes and edges following the definitions given above could be constructed based on data from the Swiss Federal Railways (abbreviated by the German speakers in Switzerland as **SBB**). With some help from SBB Experts and the [Open Data Plattform Mobility Switzerland](https://opentransportdata.swiss/en/), I finally found the right data.
 
-The first dataset is called "**Ist-Daten**" and, for a given day, contains all regular stops of all trains in Switzerland with their planned and effective arrival and departure times. From this data, we can infer all nonstop stretches of any train in Switzerland.
+The first and most important dataset is called [Ist-Daten](https://data.opentransportdata.swiss/de/dataset/istdaten) and, for a given day, contains all regular stops of all trains in Switzerland with their planned and effective arrival and departure times. From this data, we can infer all nonstop stretches of any train in Switzerland. A description of this dataset can be found [here](https://opentransportdata.swiss/de/cookbook/actual-data/).
 
 Note that the "Ist-Daten" not only contain the data for trains but also for all other public transport (buses, trams, and even boats). To keep things simple we will focus on the train network.
 
-The second dataset is the "**Dienststellen-Daten**" which basically allows to add node attributes such as the geographic coordinates of a node (i.e., a train station).
+The second dataset is the [Dienststellen-Daten](https://data.opentransportdata.swiss/de/dataset/service-points-actual-date) which basically allows to add node attributes such as the geographic coordinates of a node (i.e., a train station). A description of this dataset can be found [here](https://opentransportdata.swiss/de/cookbook/service-points/).
+
+The third dataset is a [statistic of the average number of passengers boarding and alighting](https://data.opentransportdata.swiss/en/dataset/einundaus). It will allow us to add further interesting node attributes.
 
 ### Load and preprocess "Ist-Daten"
 
@@ -50,11 +54,11 @@ print("Pandas version:", pd.__version__)
 pd.set_option('display.max_columns', None)
 ```
 
-Let's now load the data. You can see in the filename that I downloaded the "Ist-Daten" from the SBB portal for June 6, 2023. You can get the data for any day you want [here](https://data.sbb.ch/explore/dataset/ist-daten-sbb/information/).
+Let's now load the data. You can see in the filename that I downloaded the "Ist-Daten" from the SBB portal for March 5, 2025. You can get the data for any day you want [here](https://data.opentransportdata.swiss/de/dataset/istdaten).
 
 ```{python}
 # Load the data
-df = pd.read_csv('2023-06-06_istdaten.csv', sep=";", low_memory=False) 
+df = pd.read_csv('2025-03-05_istdaten.csv', sep=";", low_memory=False)
 ```
 
 To get a feeling for the data, let's check the number of rows and columns.
@@ -64,7 +68,7 @@ To get a feeling for the data, let's check the number of rows and columns.
 print(df.shape)
 ```
 
-Ok, it's actually a pretty big dataset: it has over 2.3 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.
+Ok, it's actually a pretty big dataset: it has over 2.5 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.
 
 ```{python}
 # Missing values per column
@@ -169,68 +173,123 @@ Fortunately, we can go through the second dataset a bit more quickly. We again s
 
 ```{python}
 # Load the data
-ds = pd.read_csv('dienststellen_full.csv', sep = ";", low_memory=False)
+ds = pd.read_csv('actual_date-swiss-only-service_point-2025-03-06.csv', sep = ";", low_memory = False)
 
 # Number of rows and columns
 print(ds.shape)
 ```
 
-The data contains a column `GUELTIG_BIS` that allows us to filter out all stations that are not valid anymore (closed down?). But first we need to transform it into the proper format.
+The data contains a column `validTo` that allows us to filter out all stations that are not valid anymore (closed down?). We check the values that appear in this column and see that all stations should be valid as of March 6, 2025. This is no surprise as we use the dataset of currently valid stations.
 
 ```{python}
-# GUELTIG_BIS as datetime
-ds['GUELTIG_BIS'] = pd.to_datetime(ds['GUELTIG_BIS'], format = "%Y-%m-%d")
+# Check 'validTo' values.
+ds['validTo'].unique()
+```
 
-# Keep only currently valid entries
-ds = ds[ds['GUELTIG_BIS'] == "2099-12-31"]
+Let's also quickly make sure that we have unique rows (based on 'number').
+
+```{python}
+# Is the number of unique 'number' (= BPUIC) values equal to the number of rows?
+len(pd.unique(ds['number'])) == ds.shape[0]
 ```
 
 Finally, we keep only the columns we need (identifier, official name, and geo coordinates).
 
 ```{python}
 # Keep only the relevant columns
-ds = ds[["BPUIC","BEZEICHNUNG_OFFIZIELL","E_WGS84","N_WGS84","Z_WGS84"]]
+ds = ds[["number","designationOfficial","cantonName","municipalityName","businessOrganisationDescriptionEn","wgs84East","wgs84North","height"]]
 
 # Show first few rows
 ds.head()
 ```
 
-### Combine the two datasets
+### Load and preprocess average traffic data
 
-We now merge the "Dienststellen-Daten" to the first dataset via the `BPUIC` variable.
+This part is also fairly easy. We load the data and check the dimensions, as always.
+
+```{python}
+# Load the data
+ds_freq = pd.read_csv('t01x-sbb-cff-ffs-frequentia-2023.csv', sep = ";", low_memory = False)
+
+# Number of rows and columns
+print(ds_freq.shape)
+```
+
+If you actually have a look at the data, you see that many stations have several measurements made at different times (and the times of measurements are identified by `Jahr_Annee_Anno`). We only want to keep the most recent measurements for every station:
+
+```{python}
+# For every station, we only keep the most recent measurements.
+ds_freq = ds_freq.loc[ds_freq.groupby('UIC')['Jahr_Annee_Anno'].idxmax()]
+```
+
+Checking the data types of all columns reveals that there is still a problem with the measurement columns `DTV_TJM_TGM`, `DWV_TMJO_TFM`, and `DNWV_TMJNO_TMGNL`. They are currently of type `object` because they contain the thousand separator `’`. We thus remove all instances of this characters and transform these columns to integers.
+
+```{python}
+# Data types of columns
+ds_freq.dtypes
+
+# Remove thousand separator and make integers out of it.
+ds_freq['DTV_TJM_TGM'] = ds_freq['DTV_TJM_TGM'].str.replace('’', '').astype(int)
+ds_freq['DWV_TMJO_TFM'] = ds_freq['DWV_TMJO_TFM'].str.replace('’', '').astype(int)
+ds_freq['DNWV_TMJNO_TMGNL'] = ds_freq['DNWV_TMJNO_TMGNL'].str.replace('’', '').astype(int)
+```
+
+Finally, we keep only the relevant columns.
+
+```{python}
+# Keep only the relevant columns
+ds_freq = ds_freq[["UIC","DTV_TJM_TGM","DWV_TMJO_TFM","DNWV_TMJNO_TMGNL"]]
+```
+
+```{python}
+# Show first few rows
+ds_freq.head()
+```
+
+But what exactly are these three measurement variables? The source dataset provides the following definitions:
+
+* `DTV_TJM_TGM`: "Average daily traffic (Monday to Sunday)."
+* `DWV_TMJO_TFM`: "Average traffic on weekdays (Monday to Friday)."
+* `DNWV_TMJNO_TMGNL`: "Average non-work day traffic (Saturdays, Sundays and public holidays)."
+
+It is further mentioned that all passengers boarding and exiting the trains are counted. That also means that passengers who switch trains are counted twice. For larger stations, the data may not cover all trains arriving and departing at the corresponding station. For example, the numbers for Bern do not include the traffic generated by the regional train company RBS.
+
+### Combine the three datasets
+
+We first merge the traffic data to the "Dienststellen-Daten":
+
+```{python}
+# Join to 'ds'
+ds = pd.merge(ds, ds_freq, left_on = 'number', right_on = 'UIC', how = 'left')
+
+# Drop 'UIC'
+ds = ds.drop('UIC', axis=1)
+
+# Better column names
+ds.columns = ['BPUIC','STATION_NAME','CANTON','MUNICIPALITY','COMPANY',
+              'LONGITUDE','LATITUDE','ELEVATION','AVG_DAILY_TRAFFIC',
+              'AVG_DAILY_TRAFFIC_WEEKDAYS','AVG_DAILY_TRAFFIC_WEEKENDS']
+```
+
+Then we merge the "Dienststellen-Daten" to the "Ist-Daten" via the `BPUIC` variable:
 
 ```{python}
 # Left-join with station names and coordinates
 df = pd.merge(df, ds, on = 'BPUIC', how = 'left')
 ```
 
-Unfortunately, there are some rows for which there is no matching entry in the "Dienststellen-Daten". But fortunately, we know which stations are affected based on the `HALTESTELLEN_NAME` column.
+Unfortunately, there are some rows (18) for which `HALTESTELLEN_NAME` is missing. But fortunately, we know which stations are affected based on the `STATION_NAME` column that we have just merged from `ds`.
 
 ```{python}
-# There are still some missings after left-join (Oberkulm Post and Borgnone-Cadanza)
-df.loc[df['BEZEICHNUNG_OFFIZIELL'].isna(), ['HALTESTELLEN_NAME','BEZEICHNUNG_OFFIZIELL']]
-```
-
-The first part of the fix consists of imputing the names of the stations in the column `BEZEICHNUNG_OFFIZIELL`.
-
-```{python}
-# But they have data in the original data, so let's impute those
-df.loc[df['BEZEICHNUNG_OFFIZIELL'].isna(), "BEZEICHNUNG_OFFIZIELL"] = df.loc[df['BEZEICHNUNG_OFFIZIELL'].isna(), "HALTESTELLEN_NAME"]
-```
-
-The second part of the fix is to manually add the geo coordinates for the missing two stations (Oberkulm Post and Borgnone-Cadanza).
-
-```{python}
-# Impute geo coordinates and elevation for those missing
-df.loc[df['BEZEICHNUNG_OFFIZIELL'] == "Oberkulm Post", ["E_WGS84","N_WGS84","Z_WGS84"]] = (8.11970, 47.30414, 483)
-df.loc[df['BEZEICHNUNG_OFFIZIELL'] == "Borgnone-Cadanza", ["E_WGS84","N_WGS84","Z_WGS84"]] = (8.62254, 46.15853, 713)
+# There are 18 missing values for 'HALTESTELLEN_NAME' which we impute from 'STATION_NAME'.
+df.loc[df['HALTESTELLEN_NAME'].isna(), "HALTESTELLEN_NAME"] = df.loc[df['HALTESTELLEN_NAME'].isna(), "STATION_NAME"]
 ```
 
 Now, we are finally ready to start extracting the network from this data!
 
 ### Convert it to a network
 
-As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called "Fahrt" in German) then typically consists of several stops along the way. However, there are some "Fahrten" with only one entry. Presumably these are mostly foreign trains that have their end destination at some border station. I decided to remove those entries:
+As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called "Fahrt" in German) then typically consists of several stops along the way. However, there are some "Fahrten" with only one entry. Presumably these are mostly foreign trains that have their final destination at some border station. I decided to remove those entries:
 
 ```{python}
 # First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry
@@ -241,7 +300,7 @@ df_filtered = df.groupby('FAHRT_BEZEICHNER').filter(lambda g: len(g) > 1)
 print(df.shape[0] - df_filtered.shape[0])
 ```
 
-This preprocessing step removes 566 rows.
+This preprocessing step removes 420 rows.
 
 Now we group the rows by `FAHRT_BEZEICHNER` so that each group is one "Fahrt". In every group we sort the stops along the way in an ascending order of the departure time.
 
@@ -258,10 +317,10 @@ Let's have a look at one "Fahrt" to get a better idea:
 
 ```{python}
 # Look at one example Fahrt
-df_sorted.loc[['85:11:1511:003'],['BETREIBER_ABK','LINIEN_TEXT','BEZEICHNUNG_OFFIZIELL','ABFAHRTSZEIT']]
+df_sorted.loc[['85:22:1083:000'],['BETREIBER_NAME','LINIEN_TEXT','HALTESTELLEN_NAME','ABFAHRTSZEIT']]
 ```
 
-This is a train that goes from Lausanne to St.Gallen with many stops in-between. In St.Gallen the `ABFAHRTSZEIT` is missing as that "Fahrt" ends there (the train will most likely go back in the other direction, but that will be a new "Fahrt").
+This is a train that goes from Gossau to Appenzell with many stops in-between. In Appenzell the `ABFAHRTSZEIT` is missing as that "Fahrt" ends there (the train will most likely go back in the other direction, but that will be a new "Fahrt").
 
 We now have enough knowledge about the data that we can extract the edges in a for loop. Basically, what we do is to loop over the rows of a given "Fahrt", starting with the second row and extracting the edges as
 
@@ -283,8 +342,8 @@ for i, row in df_sorted.iterrows():
     # Only if the two rows belong to the same Fahrt
     if prev_idx is not None and prev_idx == i[0]:
         # Add edge to edgelist assuming it's a directed edge
-        edgelist.append((prev_row['BEZEICHNUNG_OFFIZIELL'], 
-                         row['BEZEICHNUNG_OFFIZIELL'], 
+        edgelist.append((prev_row['STATION_NAME'], 
+                         row['STATION_NAME'], 
                          (row['ANKUNFTSZEIT'] - prev_row['ABFAHRTSZEIT']).total_seconds() / 60))
     # Set current row and row index to previous ones
     prev_idx = i[0]
@@ -298,7 +357,7 @@ To get a better idea, let's have a look at the first list element:
 edgelist[0]
 ```
 
-We are still not quite done yet. The problem is that the `edgelist` contains many duplicated entries as, for example, the stretch Olten - Zürich HB is served by many different trains on a given day.
+We are still not quite done yet. The problem is that the `edgelist` contains many duplicated entries as, for example, the stretch Zürich HB - Basel SBB is served by many different trains on a given day.
 
 What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary.
 
@@ -323,27 +382,38 @@ Let's look at the entry for the stretch between Schaffhausen and Basel Badischer
 
 ```{python}
 # Look at some element in dict
-edges[('Schaffhausen', 'Basel Bad Bf')]
+edges[('Zürich HB', 'Basel SBB')]
 ```
 
-There are 17 trips between these two stations (in this direction) and they take 73 minutes on average. (Note that there are quite a few stops between these two stations but they do not appear in the data since they are all located in Germany.)
+There are 36 trips between these two stations (in this direction) and they take 54 minutes on average.
 
-We are now ready to create the final node list (and export it). First, we add the two missing stations to the dataframe `ds` (above we only added them to the merged `df`, not `ds`). Then we reduce `ds` to the train stations that appear in the edges (it still contains many bus and tram stops and other things). Finally, we give it nicer column names.
+We are now ready to create the final node list (and export it). First, we reduce `ds` to the train stations that actually appear in the edges (it still contains many bus and tram stops and other things).
 
 ```{python}
-# Add two missing places to ds
-ds.loc[len(ds)] = [8502183, 'Oberkulm Post', 8.1197, 47.30414, 483.0]
-ds.loc[len(ds)] = [8505498, 'Borgnone-Cadanza', 8.62254, 46.15853, 713.0]
-
 # Set of stations that appear in edgelist
 stations_in_edgelist = set(sum(list(edges.keys()), ()))
 
 # Reduces nodes dataframe to only places in edgelist
-nodes = ds[ds['BEZEICHNUNG_OFFIZIELL'].isin(stations_in_edgelist)]
+nodes = ds[ds['STATION_NAME'].isin(stations_in_edgelist)]
+```
 
-# Better column names
-nodes.columns = ['BPUIC','STATION_NAME','LONGITUDE','LATITUDE','ELEVATION']
+Second, we quickly check the number of missing values again.
 
+```{python}
+# Missing values per column
+nodes.isna().sum()
+```
+
+There are still some issues here. The one we can solve is the missing elevation. The station Tirano (in Italy) has no value for this column. We simply impute manually (Tirano's elevation is approximately 441m).
+
+```{python}
+# Impute missing elevation for Tirano
+nodes.loc[nodes['STATION_NAME'] == "Tirano", "ELEVATION"] = 441
+```
+
+The missing values for `CANTON` and `MUNICIPALITY` concern municipalities abroad (in Germany and Italy mostly). The 500 missing values in the traffic columns are stations are run by smaller companies or stations abroad. There is nothing we can do about all these missing values.
+
+```{python}
 # Have a look
 nodes.head()
 
@@ -373,4 +443,3 @@ edges.head()
 Feel free to download the final results: <a href="nodelist.csv" download>Nodelist (CSV)</a> and <a href="edgelist.csv" download>Edgelist (CSV)</a>.
 
 *The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*
-
