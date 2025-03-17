@@ -378,7 +378,7 @@ for i in edgelist:
 edges = {k: (v[0], round(v[1]/v[0], 2)) for k, v in edges.items()}
 ```
 
-Let's look at the entry for the stretch between Schaffhausen and Basel Badischer Bahnhof again:
+Let's look at the entry for the stretch between Zürich and Basel again:
 
 ```{python}
 # Look at some element in dict
