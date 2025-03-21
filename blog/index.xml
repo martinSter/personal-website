@@ -10,7 +10,506 @@
 <atom:link href="https://martinsterchi.ch/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.42</generator>
-<lastBuildDate>Fri, 28 Feb 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 21 Mar 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>k-Means for Image Segmentation</title>
+  <dc:creator>Martin Sterchi</dc:creator>
+  <link>https://martinsterchi.ch/blog/kmeans_imgseg/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>The other day, I had a great session with my Master’s students exploring <strong>Clustering</strong>. We focused primarily on the <strong>k-Means</strong> algorithm, and I was reminded of just how cool that algorithm is.</p>
+<p>One of the reasons k-Means is so interesting is that it’s easy to understand and visualize (well, at least in 2D and with numeric-only features). But beyond that, its versatility is what truly makes it stand out. k-Means isn’t just for clustering observations into similar groups, it has a wide range of applications.</p>
+<p>For instance, we can use k-Means for dimensionality reduction, feature engineering, selecting which observations to label in a semi-supervised setting, and even <strong>image segmentation</strong>. If you’re interested in exploring more, I highly recommend <a href="https://www.oreilly.com/library/view/hands-on-machine-learning/9781098125967/">Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow</a> by Aurélien Géron—an excellent resource showcasing the many ways k-Means can be applied.</p>
+<p>Here, I’d like to quickly demonstrate how to use k-Means for image segmentation on your own portrait picture using <code>R</code>. This is just fun, nothing too terribly useful.</p>
+<section id="loading-picture" class="level3">
+<h3 class="anchored" data-anchor-id="loading-picture">Loading picture</h3>
+<p>We start by loading my FHNW portrait picture (FHNW is my current employer). For this we use the handy <code>jpeg</code> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(jpeg)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load image</span></span>
+<span id="cb1-4">X <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">readJPEG</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Martin-Sterchi.jpg"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">native =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Dimensions of X</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(X)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 512 512   3</code></pre>
+</div>
+</div>
+<p>As you can see, <code>X</code> is a three-dimensional array. You can imagine it as three stacked <img src="https://latex.codecogs.com/png.latex?512%5Ctimes%20512"> matrices, one per Red-Green-Blue (RGB) color channel.</p>
+<p>Next, we store the original dimensions of <code>X</code> and then transform the array into a large matrix, in which every row represents a pixel.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Store dimensions of original image</span></span>
+<span id="cb3-2">dim_original <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(X)</span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Transform 3D array to matrix</span></span>
+<span id="cb3-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(X) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(dim_original[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> dim_original[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>], <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb3-6"></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># New dimensions of X</span></span>
+<span id="cb3-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(X)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 262144      3</code></pre>
+</div>
+</div>
+<p>The picture is now basically represented as a dataset of <img src="https://latex.codecogs.com/png.latex?n=512%5Ccdot%20512=262'144"> observations (every observation is a pixel) and <img src="https://latex.codecogs.com/png.latex?p=3"> columns (the three color channels).</p>
+</section>
+<section id="running-k-means" class="level3">
+<h3 class="anchored" data-anchor-id="running-k-means">Running k-Means</h3>
+<p>The idea of this type of image segmentation is simple: we let k-Means cluster the observations (pixels) into <img src="https://latex.codecogs.com/png.latex?k"> groups of similarly colored pixels. Or in other words, pixels with similar RGB color values will be grouped into the same color cluster.</p>
+<p>For now, we let k-Means create <img src="https://latex.codecogs.com/png.latex?k=2"> clusters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set k (number of clusters)</span></span>
+<span id="cb5-2">k <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb5-3"></span>
+<span id="cb5-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Run k-means</span></span>
+<span id="cb5-5">km.out <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kmeans</span>(X, k, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nstart =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>)</span>
+<span id="cb5-6"></span>
+<span id="cb5-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Output k-means</span></span>
+<span id="cb5-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(km.out<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>centers)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       [,1]      [,2]      [,3]
+1 0.8660900 0.8047682 0.7698332
+2 0.4066233 0.2899175 0.2120528</code></pre>
+</div>
+</div>
+<p>The output above are the two cluster centers (or centroids). These two centroids are obviously also colors. Let’s visualize the colors:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Two square plots next to each other</span></span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">par</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mfrow =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pty =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"s"</span>)</span>
+<span id="cb7-3"></span>
+<span id="cb7-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plot the two centroid colors using rgb()</span></span>
+<span id="cb7-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rgb</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8660900</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8047682</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7698332</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cex =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ann =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb7-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rgb</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4066233</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2899175</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2120528</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pch =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cex =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ann =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://martinsterchi.ch/blog/kmeans_imgseg/index_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The trick is now to replace the colors of all pixels belonging to a given cluster by the cluster’s centroid color. This will lead to a segmentation of the image into (in our case) two areas of different color.</p>
+<p>In <code>R</code>, we can create the segmented image array as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create segmented image</span></span>
+<span id="cb8-2">X_segmented <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> km.out<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>centers[km.out<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>cluster, ]</span></code></pre></div>
+</div>
+<p><code>km.out$cluster</code> is a vector of length 262’144 defining which pixel belongs to which cluster.</p>
+<p>Finally, let’s transform the segmented image back to its orignal dimensions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Reshape to original dimensions</span></span>
+<span id="cb9-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(X_segmented) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> dim_original</span></code></pre></div>
+</div>
+</section>
+<section id="plotting-the-image" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-the-image">Plotting the image</h3>
+<p>We can now plot the resulting image:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plot should be square</span></span>
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">par</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pty =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"s"</span>)</span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empty plot</span></span>
+<span id="cb10-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ann =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb10-6"></span>
+<span id="cb10-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Add image</span></span>
+<span id="cb10-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterImage</span>(X_segmented, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://martinsterchi.ch/blog/kmeans_imgseg/index_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>If you want to export the segmented portrait picture to your working directory, you can run the following command:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Export image</span></span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">writeJPEG</span>(X_segmented, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">target =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"output.jpg"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">quality =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="shades-of-me" class="level3">
+<h3 class="anchored" data-anchor-id="shades-of-me">10 Shades of me</h3>
+<p>Finally, let’s plot the segmented images for values of <img src="https://latex.codecogs.com/png.latex?k=1,%5Cdots,10">, using a for loop:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Some plot options</span></span>
+<span id="cb12-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">par</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mfrow =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">oma =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mar =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pty =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"s"</span>)</span>
+<span id="cb12-3"></span>
+<span id="cb12-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Loop over k = 1, ..., 10</span></span>
+<span id="cb12-5"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>) {</span>
+<span id="cb12-6">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># EMpty plot</span></span>
+<span id="cb12-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"n"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ann =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb12-8">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># k-Means</span></span>
+<span id="cb12-9">  km.out <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kmeans</span>(X, k, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nstart =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb12-10">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Segmented image</span></span>
+<span id="cb12-11">  X_segmented <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> km.out<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>centers[km.out<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>cluster, ]</span>
+<span id="cb12-12">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Reshape segmented image</span></span>
+<span id="cb12-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(X_segmented) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> dim_original</span>
+<span id="cb12-14">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Plot the image</span></span>
+<span id="cb12-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rasterImage</span>(X_segmented, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb12-16">}</span></code></pre></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://martinsterchi.ch/blog/kmeans_imgseg/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For <img src="https://latex.codecogs.com/png.latex?k=1">, only one cluster is built and its centroid color is the average color in the image. In that case, the image obviously contains no contours.</p>
+<p>I hope you enjoyed that brief post and maybe you can use it to create your own stylized portrait picture.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>Data Science</category>
+  <guid>https://martinsterchi.ch/blog/kmeans_imgseg/</guid>
+  <pubDate>Fri, 21 Mar 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://martinsterchi.ch/blog/kmeans_imgseg/me.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>SBB Network Analysis - Part 1</title>
   <dc:creator>Martin Sterchi</dc:creator>
