@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Martin Sterchi">
+<meta name="dcterms.date" content="2025-03-31">
+
+<title>SBB Network Analysis - Part 2 – Martin Sterchi</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-9407edd59bb309057f71c3e93333e4e4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Martin Sterchi</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../teaching"> 
+<span class="menu-text">Teaching</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../publications"> 
+<span class="menu-text">Publications</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../code"> 
+<span class="menu-text">Code</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#space-of-changes" id="toc-space-of-changes" class="nav-link active" data-scroll-target="#space-of-changes">Space-of-changes</a></li>
+  <li><a href="#space-of-stations" id="toc-space-of-stations" class="nav-link" data-scroll-target="#space-of-stations">Space-of-stations</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">SBB Network Analysis - Part 2</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Networks</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Martin Sterchi <a href="mailto:martin.sterchi@fhnw.ch" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 31, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In <a href="../../blog/sbb_nw/index.html">Part 1</a> of this series on the Swiss train network, I demonstrated how to construct a directed network where nodes represent stations, and a directed edge exists whenever at least one nonstop train connection links two stations.</p>
+<p>For some time, I believed this was the most intuitive graph representation for this context. However, after reading an insightful 2006 paper by <a href="https://arxiv.org/abs/physics/0510151">Maciej Kurant and Patrick Thiran</a>, I discovered that public transport networks can be represented in (at least) three distinct ways. The graph representation I introduced in <a href="../../blog/sbb_nw/index.html">Part 1</a> aligns with what they call the <strong>space-of-stops</strong> representation.</p>
+<p>Yet, depending on the specific questions being asked, two other graph representations can also be useful. In the <strong>space-of-changes</strong> representation proposed by Kurant and Thiran (2006), an edge exists between any two stations connected by a train on a given “Fahrt”, even if the train makes stops at other stations in between.</p>
+<p>The third representation, <strong>space-of-stations</strong>, includes an undirected edge between two stations only if they are directly connected by railway tracks, with no other station in between. This approach offers a more infrastructure-focused perspective on the network.</p>
+<p>Crucially, all three representations share the same set of nodes—namely, all active train stations. What differs is how the edges are defined.</p>
+<p>Kurant and Thiran (2006) also highlight how the shortest path length is interpreted differently in each representation:</p>
+<ul>
+<li><em>space-of-stops</em>: The number of train stops on a journey between two stations.</li>
+<li><em>space-of-changes</em>: The number of times a traveler must change trains between two stations.</li>
+<li><em>space-of-stations</em>: The number of stations passed through between two stations.</li>
+</ul>
+<p>Lastly, they point out an important subgraph relationship among these representations: <em>space-of-stations</em> is a subgraph of <em>space-of-stops</em>, which in turn is a subgraph of <em>space-of-changes</em>.</p>
+<p>As always, we begin the practical part with loading the libraries we are going to use.</p>
+<div id="28ac6c25" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter, defaultdict</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check versions of libraries.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Pandas version:"</span>, pd.__version__)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure there is no limit on the number of columns shown.</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Pandas version: 2.1.4</code></pre>
+</div>
+</div>
+<p>We first present how the <em>space-of-changes</em> representation can be extracted. After that we show one way of finding the edges for the <em>space-of-stations</em> representation.</p>
+<section id="space-of-changes" class="level3">
+<h3 class="anchored" data-anchor-id="space-of-changes">Space-of-changes</h3>
+<p>We start by importing the already processed “Ist-Daten” from <a href="../../blog/sbb_nw/index.html">Part 1</a>. Since we load them from a CSV file we have to transform all date-time information into the Pandas datetime format.</p>
+<div id="1fdcc87a" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the processed IST-DATEN.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'ist-daten.csv'</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert BETRIEBSTAG to date format</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'BETRIEBSTAG'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'BETRIEBSTAG'</span>])</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'ANKUNFTSZEIT'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'ANKUNFTSZEIT'</span>])</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AN_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AN_PROGNOSE'</span>])</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'ABFAHRTSZEIT'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'ABFAHRTSZEIT'</span>])</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AB_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AB_PROGNOSE'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next comes the key part of extracting the edges for the <em>space-of-changes</em> representation. We will group the rows by <code>FAHRT_BEZEICHNER</code>. Then, we will use two nested loops to create edges between any station and all subsequent stations on a given “Fahrt”. Note that in contrast to Kurant and Thiran (2006) we will extract <em>directed</em> edges. The following function specifies how the edges can be extracted for one group. It’s not very performant code and there may be smarter and more efficient ways of doing this. But it does the job.</p>
+<div id="c6a6547a" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to compute (directed) edges according to spaces-of-changes principle.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_edges_in_groups(group):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Empty list for results of a group.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> []</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop over all rows in group.</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(group)):</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Nested loop over all subsequent rows.</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, <span class="bu">len</span>(group)):</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Now, append edge to results list.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            results.append((</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                group.iloc[i][<span class="st">"STATION_NAME"</span>], <span class="co"># Station of origin</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                group.iloc[j][<span class="st">"STATION_NAME"</span>], <span class="co"># Station of destination</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                (group.iloc[j][<span class="st">'ANKUNFTSZEIT'</span>] <span class="op">-</span> group.iloc[i][<span class="st">'ABFAHRTSZEIT'</span>]).total_seconds() <span class="op">/</span> <span class="dv">60</span> <span class="co"># Time (minutes)</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            ))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return list.</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now apply that function to every group. On my machine, this step took roughly 10 minutes.</p>
+<div id="8f7d7fc5" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now apply that function group-wise.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>edges_series <span class="op">=</span> df.groupby(<span class="st">"FAHRT_BEZEICHNER"</span>, group_keys<span class="op">=</span><span class="va">False</span>).<span class="bu">apply</span>(get_edges_in_groups)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The output of the previous step is a Pandas series, as the following check confirms. We can see that every element of that series is identified with <code>FAHRT_BEZEICHNER</code> and contains a list with the edges, also including the time between the two nodes.</p>
+<div id="048be03a" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure the result is a pandas series.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Is pandas series:"</span>, <span class="bu">isinstance</span>(edges_series, pd.Series))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check first few elements:</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>edges_series.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Is pandas series: True</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>FAHRT_BEZEICHNER
+60402-NZ-8503000-213400    [(Zürich HB, Basel SBB, 54.0), (Zürich HB, Bas...
+60403-NZ-8400058-191500    [(Basel Bad Bf, Basel SBB, 7.0), (Basel Bad Bf...
+60408-NZ-8098160-205700    [(Basel Bad Bf, Basel SBB, 8.0), (Basel Bad Bf...
+60409-NZ-8503000-195900    [(Zürich HB, Basel SBB, 54.0), (Zürich HB, Bas...
+60470-NZ-8503000-205900    [(Zürich HB, Basel SBB, 54.0), (Zürich HB, Bas...
+dtype: object</code></pre>
+</div>
+</div>
+<p>We perform another quick check to make sure the series contains as many elements as there are unique <code>FAHRT_BEZEICHNER</code> strings. That seems to be the case.</p>
+<div id="922aa250" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How many elements?</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of elements in series:"</span>, <span class="bu">len</span>(edges_series))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Is that the number of distinct FAHRTEN?</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df[[<span class="st">'FAHRT_BEZEICHNER'</span>]].nunique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of elements in series: 14653</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>FAHRT_BEZEICHNER    14653
+dtype: int64</code></pre>
+</div>
+</div>
+<p>We quickly check the list of edges for one “Fahrt” to make sure it really extracted the edges in the right way.</p>
+<div id="40d3c550" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's check out one FAHRT.</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>edges_series[<span class="st">"85:97:9:000"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>[('Yverdon-les-Bains', 'Vuiteboeuf', 10.0),
+ ('Yverdon-les-Bains', 'Baulmes', 14.0),
+ ('Yverdon-les-Bains', 'Six-Fontaines', 18.0),
+ ('Yverdon-les-Bains', 'Ste-Croix', 33.0),
+ ('Vuiteboeuf', 'Baulmes', 4.0),
+ ('Vuiteboeuf', 'Six-Fontaines', 8.0),
+ ('Vuiteboeuf', 'Ste-Croix', 23.0),
+ ('Baulmes', 'Six-Fontaines', 4.0),
+ ('Baulmes', 'Ste-Croix', 19.0),
+ ('Six-Fontaines', 'Ste-Croix', 15.0)]</code></pre>
+</div>
+</div>
+<p>This seems to be a train that goes from Yverdon-les-Bains to Ste-Croix. It stops in Vuiteboeuf, Baulmes, and Six-Fontaines before getting to Ste-Croix. There is an edge between every station and all its subsequent stations on that “Fahrt”. This is exactly what we wanted.</p>
+<p>Now, we flatten the Pandas series of lists into one edgelist.</p>
+<div id="410d14d6" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Flatten the result into one edgelist.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>edgelist <span class="op">=</span> [x <span class="cf">for</span> l <span class="kw">in</span> edges_series.values <span class="cf">for</span> x <span class="kw">in</span> l]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of edges:"</span>, <span class="bu">len</span>(edgelist))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of edges: 1110834</code></pre>
+</div>
+</div>
+<p>This edgelist contains over one million edges. Note, however, that many of them are duplicates as we looped over all “Fahrten” of a given day. As in <a href="../../blog/sbb_nw/index.html">Part 1</a>, we will now aggregate all duplicate edges, counting the number of connections and the average travel time between any two nodes.</p>
+<div id="d311368f" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty dict</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {}</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over elements in edgelist</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> edgelist:</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create key</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    key <span class="op">=</span> (i[<span class="dv">0</span>], i[<span class="dv">1</span>])</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get previous entries in dict (if there are any)</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    prev <span class="op">=</span> edges.get(key, (<span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Update values in dict</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    edges[key] <span class="op">=</span> (prev[<span class="dv">0</span>] <span class="op">+</span> <span class="dv">1</span>, prev[<span class="dv">1</span>] <span class="op">+</span> i[<span class="dv">2</span>])</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Divide summed up travel times by number of trips</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {k: (v[<span class="dv">0</span>], <span class="bu">round</span>(v[<span class="dv">1</span>]<span class="op">/</span>v[<span class="dv">0</span>], <span class="dv">2</span>)) <span class="cf">for</span> k, v <span class="kw">in</span> edges.items()}</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of edges:"</span>, <span class="bu">len</span>(edges))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of edges: 37951</code></pre>
+</div>
+</div>
+<p>We are left with 37’951 directed and weighted edges that are currently stored in a dict called <code>edges</code>. Let’s see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:</p>
+<div id="d73a11be" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>edges[(<span class="st">"Olten"</span>, <span class="st">"Winterthur"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<pre><code>(25, 63.84)</code></pre>
+</div>
+</div>
+<p>I can travel from Olten to Winterthur 25 times per day (without having to change trains) and the trip takes a bit more than an hour.</p>
+<p>Now, we import the nodelist from <a href="../../blog/sbb_nw/index.html">Part 1</a> so that we can replace the station names in the edges by the BPUIC identifiers.</p>
+<div id="1846a1bc" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the nodelist.</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pd.read_csv(<span class="st">"nodelist.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with BPUIC as values</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>node_dict <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>After changing all stations names to BPUIC numbers we create a dataframe that can then be exported as a CSV file. Yay, we’re done!</p>
+<div id="968f4c89" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [[node_dict[k[<span class="dv">0</span>]], node_dict[k[<span class="dv">1</span>]], v[<span class="dv">0</span>], v[<span class="dv">1</span>]] <span class="cf">for</span> k,v <span class="kw">in</span> edges.items()]</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> pd.DataFrame(edges, columns <span class="op">=</span> [<span class="st">'BPUIC1'</span>,<span class="st">'BPUIC2'</span>,<span class="st">'NUM_CONNECTIONS'</span>,<span class="st">'AVG_DURATION'</span>])</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>edges.head()</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Export edge list</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co"># edges.to_csv("edgelist_SoC.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BPUIC1</th>
+<th data-quarto-table-cell-role="th">BPUIC2</th>
+<th data-quarto-table-cell-role="th">NUM_CONNECTIONS</th>
+<th data-quarto-table-cell-role="th">AVG_DURATION</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>8503000</td>
+<td>8500010</td>
+<td>88</td>
+<td>63.81</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>8503000</td>
+<td>8500090</td>
+<td>14</td>
+<td>81.36</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>8500010</td>
+<td>8500090</td>
+<td>67</td>
+<td>6.07</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>8500090</td>
+<td>8500010</td>
+<td>67</td>
+<td>6.39</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>8500090</td>
+<td>8503000</td>
+<td>10</td>
+<td>100.00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>You can download the result here: <a href="edgelist_SoC.csv" download="">Edgelist space-of-changes (CSV)</a>.</p>
+</section>
+<section id="space-of-stations" class="level3">
+<h3 class="anchored" data-anchor-id="space-of-stations">Space-of-stations</h3>
+<p>For the <em>space-of-stations</em> graph representation we make use of the fact that the <em>space-of-stations</em> graph should be a subgraph of the <em>space-of-stops</em> graph that we extracted in <a href="../../blog/sbb_nw/index.html">Part 1</a> with the latter containing additional edges that represent <strong>shortcuts</strong>. For example, the <em>space-of-stops</em> graph contains a directed edge from Olten to Basel SBB as there are nonstop trains between these two stations. However, there are also smaller, regional trains which stop at all stations in between. The key idea (also nicely shown by Kurant and Thiran) is to go through all edges in the <em>space-of-stops</em> graph and identify the ones that are shortcuts.</p>
+<p>We first load the (<em>space-of-stops</em>) edgelist from <a href="../../blog/sbb_nw/index.html">Part 1</a> and add the station names.</p>
+<div id="6d40af58" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the space-of-stops edgelist.</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> pd.read_csv(<span class="st">"edgelist.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with station names as values.</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>node_dict <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(nodes.BPUIC, nodes.STATION_NAME))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Add actual station names.</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>edges[<span class="st">"STATION1"</span>] <span class="op">=</span> [node_dict[v] <span class="cf">for</span> v <span class="kw">in</span> edges[<span class="st">"BPUIC1"</span>]]</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>edges[<span class="st">"STATION2"</span>] <span class="op">=</span> [node_dict[v] <span class="cf">for</span> v <span class="kw">in</span> edges[<span class="st">"BPUIC2"</span>]]</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check out the dataframe.</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(edges.head())</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of edges in space-of-stops representation:"</span>, edges.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    BPUIC1   BPUIC2  NUM_CONNECTIONS  AVG_DURATION      STATION1      STATION2
+0  8503000  8500010               36         54.00     Zürich HB     Basel SBB
+1  8500010  8500090               67          6.07     Basel SBB  Basel Bad Bf
+2  8500090  8500010               67          6.39  Basel Bad Bf     Basel SBB
+3  8500010  8503000               39         57.87     Basel SBB     Zürich HB
+4  8503424  8500090               17         73.18  Schaffhausen  Basel Bad Bf
+Number of edges in space-of-stops representation: 4215</code></pre>
+</div>
+</div>
+<p>For the <em>space-of-stations</em> representation, <strong>undirected</strong> edges make the most sense. Thus, we need to make the directed edges from the <em>space-of-stops</em> representation undirected and remove all duplicates that this introduces (e.g., ‘Olten - Basel SBB’ and ‘Basel SBB - Olten’). With a little help by ChatGPT I found an elegant solution to achieve just that.</p>
+<p>More concretely, we iterate over the zip object containing the node pairs of all edges. The <code>min()</code> and <code>max()</code> functions applied to the station names will sort the station names alphabetically so that, for example, ‘Olten - Basel SBB’ and ‘Basel SBB - Olten’ are both transformed to ‘Basel SBB - Olten’. Finally, the <code>set()</code> function will get rid of all duplicates.</p>
+<div id="40823cd6" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get a list of unique undirected edges.</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>unique_undirected_edges <span class="op">=</span> <span class="bu">list</span>(<span class="bu">set</span>((<span class="bu">min</span>(e1, e2), <span class="bu">max</span>(e1, e2)) <span class="cf">for</span> e1, e2 <span class="kw">in</span> <span class="bu">zip</span>(edges[<span class="st">"STATION1"</span>], edges[<span class="st">"STATION2"</span>])))</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of unique undirected edges:"</span>, <span class="bu">len</span>(unique_undirected_edges))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of unique undirected edges: 2154</code></pre>
+</div>
+</div>
+<p>This step leaves us with 2’154 undirected, unique edges.</p>
+<section id="data-preprocessing-for-improved-efficiency" class="level4">
+<h4 class="anchored" data-anchor-id="data-preprocessing-for-improved-efficiency">Data preprocessing for improved efficiency</h4>
+<p>In order to make the procedure further below more efficient, we extract here all unique “Fahrten”. More specifically, we create a dictionary <code>fahrten</code> with the sequence of station names as key and the <code>FAHRT_BEZEICHNER</code> as value. Note that if a sequence of station names already exists as a key in the dict, then the value belonging to that key will be overwritten with the new <code>FAHRT_BEZEICHNER</code> but that doesn’t bother us since we just want to be able to extract one example “Fahrt” per unique sequence of stops.</p>
+<div id="509739e5" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty dict</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>fahrten <span class="op">=</span> {}</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over grouped df.</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># If the same key (sequence of stops) reappears, the value will be overwritte.</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co"># But that behavior is desired: we only want to keep one FAHRT_BEZEICHNER per key.</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> fahrt, group <span class="kw">in</span> df.groupby(<span class="st">'FAHRT_BEZEICHNER'</span>):</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    fahrten[<span class="bu">tuple</span>(group[<span class="st">'STATION_NAME'</span>])] <span class="op">=</span> fahrt</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of unique 'Fahrten':"</span>, <span class="bu">len</span>(fahrten))</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of 'Fahrten' in whole dataframe:"</span>, df[<span class="st">'FAHRT_BEZEICHNER'</span>].nunique())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of unique 'Fahrten': 1678
+Number of 'Fahrten' in whole dataframe: 14653</code></pre>
+</div>
+</div>
+<p>We can see from the above output that this step drastically reduces the “Fahrten” that we will iterate over later.</p>
+<p>In the following code chunk we filter the “Ist-Daten” (<code>df</code>) loaded earlier so that only the unique “Fahrten” are left.</p>
+<div id="08c6710e" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduce the dataframe to the 'Fahrten' in list of values of dict.</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'FAHRT_BEZEICHNER'</span>].isin(<span class="bu">list</span>(fahrten.values()))]</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Remaining number of rows:"</span>, df.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Remaining number of rows: 17597</code></pre>
+</div>
+</div>
+<p>Another little trick to make things more efficent later is to create a dictionary with station names as keys and a list with all <code>FAHRT_BEZEICHNER</code> strings a station name is part of as values (kind of an <em>inverted index</em>).</p>
+<div id="c84f5ada" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># defaultdict with lists</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>result_dict <span class="op">=</span> defaultdict(<span class="bu">list</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Iterate over rows</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _, row <span class="kw">in</span> df.iterrows():</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create a dict with stations as keys and FAHRT_BEZEICHNER as values.</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    result_dict[row[<span class="st">'STATION_NAME'</span>]].append(row[<span class="st">'FAHRT_BEZEICHNER'</span>])</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert back to normal dict.</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>result_dict <span class="op">=</span> <span class="bu">dict</span>(result_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="identify-shortcuts" class="level4">
+<h4 class="anchored" data-anchor-id="identify-shortcuts">Identify shortcuts</h4>
+<p>Next, we perform the key step in extracting the edges for the <em>space-of-stations</em> representation: we need to identify all edges that are shortcuts, passing train stations without stopping.</p>
+<p>We first define a custom function that determines whether any two station names <code>a</code> and <code>b</code> are adjacent in a sequence (list) of station names <code>lst</code>.</p>
+<div id="fb5f142f" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to check whether elements a and b are NOT adjacent in lst.</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> is_shortcut(lst, a, b):</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">not</span> <span class="bu">any</span>((x, y) <span class="op">==</span> (a, b) <span class="kw">or</span> (x, y) <span class="op">==</span> (b, a) <span class="cf">for</span> x, y <span class="kw">in</span> <span class="bu">zip</span>(lst, lst[<span class="dv">1</span>:]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, we iterate over all undirected, unique edges that we prepared above. For each edge we go through the following steps:</p>
+<ol type="1">
+<li>We get the <code>FAHRT_BEZEICHNER</code> strings for all “Fahrten” which both nodes of the edge are part of. For this we use the <em>inverted index</em>-style dictionary we created above.</li>
+<li>Then we perform an inner loop over the “Fahrten” extracted in the first step.
+<ul>
+<li>We first extract the sequence of stations of a “Fahrt”.</li>
+<li>We use our custom function from above to check whether the two nodes are adjacent in the sequence of stations.</li>
+<li>If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and move on to the next edge.</li>
+</ul></li>
+</ol>
+<div id="a654fab7" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty list for shortcuts.</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>shortcut_edges <span class="op">=</span> []</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over list of undirected edges.</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> idx, edge <span class="kw">in</span> <span class="bu">enumerate</span>(unique_undirected_edges):</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find all 'Fahrten' in which both stations of the edge appear.</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    intersection <span class="op">=</span> <span class="bu">list</span>(<span class="bu">set</span>(result_dict[edge[<span class="dv">0</span>]]) <span class="op">&amp;</span> <span class="bu">set</span>(result_dict[edge[<span class="dv">1</span>]]))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initialize shortcut to False</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    shortcut <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loop over 'Fahrten' in which both stations of the edge appear.</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> fahrt <span class="kw">in</span> intersection:</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get the sequence of stations in current 'Fahrt'.</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>        seq_of_stations <span class="op">=</span> df.loc[df[<span class="st">'FAHRT_BEZEICHNER'</span>] <span class="op">==</span> fahrt, <span class="st">'STATION_NAME'</span>].tolist()</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check whether the edge represents a shortcut in that sequence.</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>        shortcut <span class="op">=</span> is_shortcut(seq_of_stations, edge[<span class="dv">0</span>], edge[<span class="dv">1</span>])</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># If it is a shortcut, we add it to the list and break the inner loop.</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> shortcut:</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Add to list and break the loop.</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>            shortcut_edges.append((fahrt, edge))</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of shortcut edges:"</span>, <span class="bu">len</span>(shortcut_edges))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of shortcut edges: 442</code></pre>
+</div>
+</div>
+<p>A total of 442 edges are identified as shortcuts. Let’s have a look at the first one:</p>
+<div id="20a8367c" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check first shortcut.</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(shortcut_edges[<span class="dv">0</span>])</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check the 'Fahrt' in which it was detected as a shortcut.</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'FAHRT_BEZEICHNER'</span>] <span class="op">==</span> shortcut_edges[<span class="dv">0</span>][<span class="dv">0</span>], <span class="st">'STATION_NAME'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>('85:97:181:000', ('Vuiteboeuf', 'Yverdon-les-Bains'))</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>48505         Yverdon-les-Bains
+48506    Yverdon William Barbey
+48507                 La Brinaz
+48508    Valeyres-sous-Montagny
+48509     Essert-sous-Champvent
+48510                Vuiteboeuf
+48511                   Baulmes
+48512             Six-Fontaines
+48513                 Ste-Croix
+Name: STATION_NAME, dtype: object</code></pre>
+</div>
+</div>
+<p>From the whole sequence of stations, we can see that there is a “Fahrt” with a stop in-between Näfels-Mollis and Ziegelbrücke, namely Nieder- und Oberurnen. So, <code>('Näfels-Mollis', 'Ziegelbrücke')</code> really seems to be a shortcut!</p>
+<p>Finally, we remove the <code>FAHRT_BEZEICHNER</code> from <code>shortcut_edges</code> and create the final edge list without shortcuts.</p>
+<div id="cf673e86" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract only edges</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>shortcut_edges_clean <span class="op">=</span> [i[<span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> shortcut_edges]</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the final list of non-shortcut edges.</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>final_edges <span class="op">=</span> [e <span class="cf">for</span> e <span class="kw">in</span> unique_undirected_edges <span class="cf">if</span> e <span class="kw">not</span> <span class="kw">in</span> shortcut_edges_clean]</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of edges:"</span>, <span class="bu">len</span>(final_edges))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of edges: 1712</code></pre>
+</div>
+</div>
+<p>We have a final number of edges of <span class="math inline">\(2154-442=1712\)</span>.</p>
+</section>
+<section id="validate-with-liniendaten" class="level4">
+<h4 class="anchored" data-anchor-id="validate-with-liniendaten">Validate with “Liniendaten”</h4>
+<p>The extraction of the edges in the <em>space-of-stations</em> representation was a bit more complex than for <em>space-of-changes</em> or <em>space-of-stops</em>. That’s why I would like to run some checks.</p>
+<p>We can validate some of the edges we extracted with another dataset from the <a href="https://data.sbb.ch/pages/home/">Open Data Portal of SBB</a>. The dataset <a href="https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/">Linie (Betriebspunkte)</a> contains all railway “lines” maintained by SBB with all “Betriebspunkte” (including stations) that are located along these lines. Let’s load this dataset:</p>
+<div id="d67e1c2f" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data about "Linien mit Betriebspunkten"</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>linien <span class="op">=</span> pd.read_csv(<span class="st">'linie-mit-betriebspunkten.csv'</span>, sep <span class="op">=</span> <span class="st">";"</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduce to relevant columns</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>linien <span class="op">=</span> linien[[<span class="st">"Name Haltestelle"</span>,<span class="st">"Linie"</span>,<span class="st">"KM"</span>,<span class="st">"Linien Text"</span>,<span class="st">"BPUIC"</span>]]</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Shape of dataframe:"</span>, linien.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Shape of dataframe: (1884, 5)</code></pre>
+</div>
+</div>
+<p>Let’s have a look:</p>
+<div id="7179b5cd" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look at the dataframe</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>linien.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Name Haltestelle</th>
+<th data-quarto-table-cell-role="th">Linie</th>
+<th data-quarto-table-cell-role="th">KM</th>
+<th data-quarto-table-cell-role="th">Linien Text</th>
+<th data-quarto-table-cell-role="th">BPUIC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>Aarau</td>
+<td>649</td>
+<td>41.50577</td>
+<td>Aarau - Woschnau Tunnel alt</td>
+<td>8502113</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Aarberg</td>
+<td>251</td>
+<td>95.49304</td>
+<td>Palezieux Est - Lyss Nord</td>
+<td>8504404</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>Aesch BL</td>
+<td>230</td>
+<td>113.00006</td>
+<td>Delemont Est - Basel SBB Ost</td>
+<td>8500117</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Aespli</td>
+<td>455</td>
+<td>92.76586</td>
+<td>Unterhard BE - Aespli</td>
+<td>8515299</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Aigle</td>
+<td>100</td>
+<td>39.31241</td>
+<td>Lausanne - Simplon Tunnel I - Iselle</td>
+<td>8501400</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>The rows in that dataset are not just stations but also other “Betriebspunkte” (important locations that are needed to run the infrastructure). But we can identify the stations among the “Betriebspunkte” by joining the <code>nodes</code> dataframe on BPUIC and only keeping the entries for which there was a matching row in <code>nodes</code>.</p>
+<div id="eb9a8d72" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join the rows of nodelist based on BPUIC.</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>linien <span class="op">=</span> pd.merge(linien, nodes[[<span class="st">"BPUIC"</span>,<span class="st">"STATION_NAME"</span>]], on <span class="op">=</span> <span class="st">'BPUIC'</span>, how <span class="op">=</span> <span class="st">'left'</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="co"># How many entries have a missing value aka are not stations?</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of non-stations:"</span>, linien[<span class="st">"STATION_NAME"</span>].isna().<span class="bu">sum</span>())</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop all rows that are not stations.</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>linien <span class="op">=</span> linien.dropna(subset <span class="op">=</span> [<span class="st">"STATION_NAME"</span>])</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of remaining rows:"</span>, linien.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of non-stations: 979
+Number of remaining rows: 905</code></pre>
+</div>
+</div>
+<p>Next, we group the rows by <code>'Linie'</code> and sort them in ascending order by <code>'KM'</code> (where along the line is the “Betriebspunkt” located, in terms of kilometres) so that the stations for each line are sorted in the right order.</p>
+<div id="c827433a" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to sort entries within a group in ascending order of KM</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sort_data(group):</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> group.sort_values(<span class="st">'KM'</span>, ascending <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort for each group</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>linien_sorted <span class="op">=</span> linien.groupby(<span class="st">'Linie'</span>, group_keys<span class="op">=</span><span class="va">False</span>).<span class="bu">apply</span>(sort_data)</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's have a look at Linie 290.</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>linien_sorted.loc[linien_sorted[<span class="st">'Linie'</span>] <span class="op">==</span> <span class="dv">290</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Name Haltestelle</th>
+<th data-quarto-table-cell-role="th">Linie</th>
+<th data-quarto-table-cell-role="th">KM</th>
+<th data-quarto-table-cell-role="th">Linien Text</th>
+<th data-quarto-table-cell-role="th">BPUIC</th>
+<th data-quarto-table-cell-role="th">STATION_NAME</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1351</td>
+<td>Ostermundigen</td>
+<td>290</td>
+<td>110.76500</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507002</td>
+<td>Ostermundigen</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">865</td>
+<td>Gumligen</td>
+<td>290</td>
+<td>113.95844</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507003</td>
+<td>Gümligen</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">270</td>
+<td>Rubigen</td>
+<td>290</td>
+<td>119.03812</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507005</td>
+<td>Rubigen</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1333</td>
+<td>Munsingen</td>
+<td>290</td>
+<td>122.13149</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507006</td>
+<td>Münsingen</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">695</td>
+<td>Wichtrach</td>
+<td>290</td>
+<td>125.73250</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507007</td>
+<td>Wichtrach</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">892</td>
+<td>Kiesen</td>
+<td>290</td>
+<td>128.30300</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507008</td>
+<td>Kiesen</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1055</td>
+<td>Uttigen</td>
+<td>290</td>
+<td>131.09513</td>
+<td>Bern Wylerfeld - Thun</td>
+<td>8507009</td>
+<td>Uttigen</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We see here for one example (Line 290) that the stations are now nicely sorted in ascending order of <code>'KM'</code>.</p>
+<p>Now, we can create a new column that always contains the station name of the next row using the handy <code>shift()</code> method. The last row within a group will always have a missing value for that new column as there is no next station at the end of a line. So, we drop the last row of each line.</p>
+<div id="23b68725" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new column that for each row contains the next stop within the group.</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>linien_sorted[<span class="st">"NEXT_STATION"</span>] <span class="op">=</span> linien_sorted.groupby(<span class="st">"Linie"</span>)[<span class="st">"STATION_NAME"</span>].shift(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop all rows where 'NEXT_STATION' is missing</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>linien_sorted <span class="op">=</span> linien_sorted.dropna(subset <span class="op">=</span> [<span class="st">"NEXT_STATION"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We extract the values of the last two columns as the edges. Importantly, we now sort the node pairs in each edge in the same way as before (alphabetically).</p>
+<div id="49ef759b" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now let's extract the edges</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>linien_edges <span class="op">=</span> <span class="bu">list</span>(<span class="bu">zip</span>(linien_sorted[<span class="st">'STATION_NAME'</span>], linien_sorted[<span class="st">'NEXT_STATION'</span>]))</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure the tuples are arranged in the same way as above (and unique).</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>linien_edges <span class="op">=</span> <span class="bu">list</span>(<span class="bu">set</span>((<span class="bu">min</span>(e[<span class="dv">0</span>], e[<span class="dv">1</span>]), <span class="bu">max</span>(e[<span class="dv">0</span>], e[<span class="dv">1</span>])) <span class="cf">for</span> e <span class="kw">in</span> linien_edges))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We first want to check whether there are edges in <code>linien_edges</code> that are neither a shortcut nor in the final edgelist from above.</p>
+<div id="c07ee09d" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check which edges are in linien_edges but neither in final_edges nor in shortcut_edges_clean.</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>[x <span class="cf">for</span> x <span class="kw">in</span> linien_edges <span class="cf">if</span> x <span class="kw">not</span> <span class="kw">in</span> final_edges <span class="kw">and</span> x <span class="kw">not</span> <span class="kw">in</span> shortcut_edges_clean]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<pre><code>[('La Chaux-de-Fonds', 'Tavannes'),
+ ('Concise', 'Grandson'),
+ ('Dietfurt', 'Kaltbrunn'),
+ ('Koblenz', 'Laufenburg'),
+ ('Solothurn', 'Zollikofen'),
+ ('Büren an der Aare', 'Solothurn'),
+ ('Neuhausen Rheinfall', 'Rafz'),
+ ('Langenthal', 'Niederbipp'),
+ ('Chambrelien', 'Corcelles-Peseux'),
+ ('Bauma', 'Hinwil'),
+ ('Niederbipp', 'Solothurn')]</code></pre>
+</div>
+</div>
+<p>There are some candidate edges but I checked all of them manually in the train schedule and none of them seem to have direct train connections. It could be that some of these are old train lines that are not active anymore.</p>
+<p>Are there any edges in <code>linien_edges</code> that were classified as shortcuts before?</p>
+<div id="7b35e167" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Are there any edges that I classified as shortcuts?</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>[x <span class="cf">for</span> x <span class="kw">in</span> linien_edges <span class="cf">if</span> x <span class="kw">in</span> shortcut_edges_clean]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>[('Chur', 'Landquart'), ('Niederbipp', 'Oensingen')]</code></pre>
+</div>
+</div>
+<p>Yes, but the two lines are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.</p>
+<p>A manual check of all 1’712 edges reveals that there are more shortcuts that our procedure was not able to identify. For example, the edge <code>(Bern, Zofingen)</code> cannot be identified because there is not other “Fahrt” that contains these two stations and stops somewhere in between. We manually remove such edges.</p>
+<div id="5ebb8fe6" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Manually remove edges.</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>final_edges.remove((<span class="st">'Bern'</span>, <span class="st">'Zofingen'</span>))</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>final_edges.remove((<span class="st">'Basel Bad Bf'</span>, <span class="st">'Schaffhausen'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="export-the-edgelist" class="level4">
+<h4 class="anchored" data-anchor-id="export-the-edgelist">Export the edgelist</h4>
+<p>Finally, we can export the edges as before for the other representations.</p>
+<div id="a7ee3067" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with BPUIC as values</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>node_dict <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [[node_dict[e[<span class="dv">0</span>]], node_dict[e[<span class="dv">1</span>]]] <span class="cf">for</span> e <span class="kw">in</span> final_edges]</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe</span></span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> pd.DataFrame(edges, columns <span class="op">=</span> [<span class="st">'BPUIC1'</span>,<span class="st">'BPUIC2'</span>])</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>edges.head()</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Export edge list</span></span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a><span class="co"># edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BPUIC1</th>
+<th data-quarto-table-cell-role="th">BPUIC2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>8530225</td>
+<td>8504387</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>8503056</td>
+<td>8503057</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>8506368</td>
+<td>8506369</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>8502222</td>
+<td>8502223</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>8501426</td>
+<td>8501425</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>You can download the result here: <a href="edgelist_SoS.csv" download="">Edgelist space-of-stations (CSV)</a>.</p>
+</section>
+</section>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<p>Kurant, M., &amp; Thiran, P. (2006). Extraction and analysis of traffic and topologies of transportation networks. Physical Review E, 74(3), 036114. <a href="https://doi.org/10.1103/PhysRevE.74.036114" class="uri">https://doi.org/10.1103/PhysRevE.74.036114</a></p>
+<p><em>The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">Creative Commons</a>.</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/martinsterchi\.ch");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Copyright 2025, Martin Sterchi</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
