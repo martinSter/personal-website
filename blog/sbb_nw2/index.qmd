@@ -1,0 +1,469 @@
+---
+title: "SBB Network Analysis - Part 2"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2025-03-31
+categories: ["Networks"]
+image: sbb_hb.jpg
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+In [Part 1](../sbb_nw/index.qmd) of this series on the Swiss train network, I demonstrated how to construct a directed network where nodes represent stations, and a directed edge exists whenever at least one nonstop train connection links two stations.
+
+For some time, I believed this was the most intuitive graph representation for this context. However, after reading an insightful 2006 paper by [Maciej Kurant and Patrick Thiran](https://arxiv.org/abs/physics/0510151), I discovered that public transport networks can be represented in (at least) three distinct ways. The graph representation I introduced in [Part 1](../sbb_nw/index.qmd) aligns with what they call the **space-of-stops** representation.
+
+Yet, depending on the specific questions being asked, two other graph representations can also be useful. In the **space-of-changes** representation proposed by Kurant and Thiran (2006), an edge exists between any two stations connected by a train on a given "Fahrt", even if the train makes stops at other stations in between.
+
+The third representation, **space-of-stations**, includes an undirected edge between two stations only if they are directly connected by railway tracks, with no other station in between. This approach offers a more infrastructure-focused perspective on the network.
+
+Crucially, all three representations share the same set of nodes—namely, all active train stations. What differs is how the edges are defined.
+
+Kurant and Thiran (2006) also highlight how the shortest path length is interpreted differently in each representation:
+
+-   *space-of-stops*: The number of train stops on a journey between two stations.
+-   *space-of-changes*: The number of times a traveler must change trains between two stations.
+-   *space-of-stations*: The number of stations passed through between two stations.
+
+Lastly, they point out an important subgraph relationship among these representations: *space-of-stations* is a subgraph of *space-of-stops*, which in turn is a subgraph of *space-of-changes*.
+
+As always, we begin the practical part with loading the libraries we are going to use.
+
+```{python}
+import pandas as pd
+from collections import Counter, defaultdict
+
+# Check versions of libraries.
+print("Pandas version:", pd.__version__)
+
+# Make sure there is no limit on the number of columns shown.
+pd.set_option('display.max_columns', None)
+```
+
+We first present how the *space-of-changes* representation can be extracted. After that we show one way of finding the edges for the *space-of-stations* representation.
+
+### Space-of-changes
+
+We start by importing the already processed "Ist-Daten" from [Part 1](../sbb_nw/index.qmd). Since we load them from a CSV file we have to transform all date-time information into the Pandas datetime format.
+
+```{python}
+# Load the processed IST-DATEN.
+df = pd.read_csv('ist-daten.csv', low_memory=False)
+
+# Convert BETRIEBSTAG to date format
+df['BETRIEBSTAG'] = pd.to_datetime(df['BETRIEBSTAG'])
+
+# Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format
+df['ANKUNFTSZEIT'] = pd.to_datetime(df['ANKUNFTSZEIT'])
+df['AN_PROGNOSE'] = pd.to_datetime(df['AN_PROGNOSE'])
+df['ABFAHRTSZEIT'] = pd.to_datetime(df['ABFAHRTSZEIT'])
+df['AB_PROGNOSE'] = pd.to_datetime(df['AB_PROGNOSE'])
+```
+
+Next comes the key part of extracting the edges for the *space-of-changes* representation. We will group the rows by `FAHRT_BEZEICHNER`. Then, we will use two nested loops to create edges between any station and all subsequent stations on a given "Fahrt". Note that in contrast to Kurant and Thiran (2006) we will extract *directed* edges. The following function specifies how the edges can be extracted for one group. It's not very performant code and there may be smarter and more efficient ways of doing this. But it does the job.
+
+```{python}
+# Function to compute (directed) edges according to spaces-of-changes principle.
+def get_edges_in_groups(group):
+    # Empty list for results of a group.
+    results = []
+    # Loop over all rows in group.
+    for i in range(len(group)):
+        # Nested loop over all subsequent rows.
+        for j in range(i + 1, len(group)):
+            # Now, append edge to results list.
+            results.append((
+                group.iloc[i]["STATION_NAME"], # Station of origin
+                group.iloc[j]["STATION_NAME"], # Station of destination
+                (group.iloc[j]['ANKUNFTSZEIT'] - group.iloc[i]['ABFAHRTSZEIT']).total_seconds() / 60 # Time (minutes)
+            ))
+    # Return list.
+    return results
+```
+
+We can now apply that function to every group. On my machine, this step took roughly 10 minutes.
+
+```{python}
+# Now apply that function group-wise.
+edges_series = df.groupby("FAHRT_BEZEICHNER", group_keys=False).apply(get_edges_in_groups)
+```
+
+The output of the previous step is a Pandas series, as the following check confirms. We can see that every element of that series is identified with `FAHRT_BEZEICHNER` and contains a list with the edges, also including the time between the two nodes.
+
+```{python}
+# Make sure the result is a pandas series.
+print("Is pandas series:", isinstance(edges_series, pd.Series))
+
+# Check first few elements:
+edges_series.head()
+```
+
+We perform another quick check to make sure the series contains as many elements as there are unique `FAHRT_BEZEICHNER` strings. That seems to be the case.
+
+```{python}
+# How many elements?
+print("Number of elements in series:", len(edges_series))
+
+# Is that the number of distinct FAHRTEN?
+df[['FAHRT_BEZEICHNER']].nunique()
+```
+
+We quickly check the list of edges for one "Fahrt" to make sure it really extracted the edges in the right way.
+
+```{python}
+# Let's check out one FAHRT.
+edges_series["85:97:9:000"]
+```
+
+This seems to be a train that goes from Yverdon-les-Bains to Ste-Croix. It stops in Vuiteboeuf, Baulmes, and Six-Fontaines before getting to Ste-Croix. There is an edge between every station and all its subsequent stations on that "Fahrt". This is exactly what we wanted.
+
+Now, we flatten the Pandas series of lists into one edgelist.
+
+```{python}
+# Flatten the result into one edgelist.
+edgelist = [x for l in edges_series.values for x in l]
+
+print("Number of edges:", len(edgelist))
+```
+
+This edgelist contains over one million edges. Note, however, that many of them are duplicates as we looped over all "Fahrten" of a given day. As in [Part 1](../sbb_nw/index.qmd), we will now aggregate all duplicate edges, counting the number of connections and the average travel time between any two nodes.
+
+```{python}
+# Empty dict
+edges = {}
+
+# Loop over elements in edgelist
+for i in edgelist:
+    # Create key
+    key = (i[0], i[1])
+    # Get previous entries in dict (if there are any)
+    prev = edges.get(key, (0, 0))
+    # Update values in dict
+    edges[key] = (prev[0] + 1, prev[1] + i[2])
+
+# Divide summed up travel times by number of trips
+edges = {k: (v[0], round(v[1]/v[0], 2)) for k, v in edges.items()}
+
+print("Number of edges:", len(edges))
+```
+
+We are left with 37'951 directed and weighted edges that are currently stored in a dict called `edges`. Let's see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:
+
+```{python}
+# Test
+edges[("Olten", "Winterthur")]
+```
+
+I can travel from Olten to Winterthur 25 times per day (without having to change trains) and the trip takes a bit more than an hour.
+
+Now, we import the nodelist from [Part 1](../sbb_nw/index.qmd) so that we can replace the station names in the edges by the BPUIC identifiers.
+
+```{python}
+# Load the nodelist.
+nodes = pd.read_csv("nodelist.csv", sep = ";")
+
+# Create a node dict with BPUIC as values
+node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))
+```
+
+After changing all stations names to BPUIC numbers we create a dataframe that can then be exported as a CSV file. Yay, we're done!
+
+```{python}
+# Transform edge dict to nested list and replace all station names with their BPUIC
+edges = [[node_dict[k[0]], node_dict[k[1]], v[0], v[1]] for k,v in edges.items()]
+
+# Create a dataframe
+edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','NUM_CONNECTIONS','AVG_DURATION'])
+
+# Have a look
+edges.head()
+
+# Export edge list
+# edges.to_csv("edgelist_SoC.csv", sep = ';', encoding = 'utf-8', index = False)
+```
+
+You can download the result here: <a href="edgelist_SoC.csv" download>Edgelist space-of-changes (CSV)</a>.
+
+### Space-of-stations
+
+For the *space-of-stations* graph representation we make use of the fact that the *space-of-stations* graph should be a subgraph of the *space-of-stops* graph that we extracted in [Part 1](../sbb_nw/index.qmd) with the latter containing additional edges that represent **shortcuts**. For example, the *space-of-stops* graph contains a directed edge from Olten to Basel SBB as there are nonstop trains between these two stations. However, there are also smaller, regional trains which stop at all stations in between. The key idea (also nicely shown by Kurant and Thiran) is to go through all edges in the *space-of-stops* graph and identify the ones that are shortcuts.
+
+We first load the (*space-of-stops*) edgelist from [Part 1](../sbb_nw/index.qmd) and add the station names.
+
+```{python}
+# Load the space-of-stops edgelist.
+edges = pd.read_csv("edgelist.csv", sep = ";")
+
+# Create a node dict with station names as values.
+node_dict = dict(zip(nodes.BPUIC, nodes.STATION_NAME))
+
+# Add actual station names.
+edges["STATION1"] = [node_dict[v] for v in edges["BPUIC1"]]
+edges["STATION2"] = [node_dict[v] for v in edges["BPUIC2"]]
+
+# Check out the dataframe.
+print(edges.head())
+
+print("Number of edges in space-of-stops representation:", edges.shape[0])
+```
+
+For the *space-of-stations* representation, **undirected** edges make the most sense. Thus, we need to make the directed edges from the *space-of-stops* representation undirected and remove all duplicates that this introduces (e.g., 'Olten - Basel SBB' and 'Basel SBB - Olten'). With a little help by ChatGPT I found an elegant solution to achieve just that.
+
+More concretely, we iterate over the zip object containing the node pairs of all edges. The `min()` and `max()` functions applied to the station names will sort the station names alphabetically so that, for example, 'Olten - Basel SBB' and 'Basel SBB - Olten' are both transformed to 'Basel SBB - Olten'. Finally, the `set()` function will get rid of all duplicates. 
+
+```{python}
+# Get a list of unique undirected edges.
+unique_undirected_edges = list(set((min(e1, e2), max(e1, e2)) for e1, e2 in zip(edges["STATION1"], edges["STATION2"])))
+
+print("Number of unique undirected edges:", len(unique_undirected_edges))
+```
+
+This step leaves us with 2'154 undirected, unique edges.
+
+#### Data preprocessing for improved efficiency
+
+In order to make the procedure further below more efficient, we extract here all unique "Fahrten". More specifically, we create a dictionary `fahrten` with the sequence of station names as key and the `FAHRT_BEZEICHNER` as value. Note that if a sequence of station names already exists as a key in the dict, then the value belonging to that key will be overwritten with the new `FAHRT_BEZEICHNER` but that doesn't bother us since we just want to be able to extract one example "Fahrt" per unique sequence of stops.
+
+```{python}
+# Empty dict
+fahrten = {}
+
+# Loop over grouped df.
+# If the same key (sequence of stops) reappears, the value will be overwritte.
+# But that behavior is desired: we only want to keep one FAHRT_BEZEICHNER per key.
+for fahrt, group in df.groupby('FAHRT_BEZEICHNER'):
+    fahrten[tuple(group['STATION_NAME'])] = fahrt
+
+print("Number of unique 'Fahrten':", len(fahrten))
+print("Number of 'Fahrten' in whole dataframe:", df['FAHRT_BEZEICHNER'].nunique())
+```
+
+We can see from the above output that this step drastically reduces the "Fahrten" that we will iterate over later.
+
+In the following code chunk we filter the "Ist-Daten" (`df`) loaded earlier so that only the unique "Fahrten" are left.
+
+```{python}
+# Reduce the dataframe to the 'Fahrten' in list of values of dict.
+df = df[df['FAHRT_BEZEICHNER'].isin(list(fahrten.values()))]
+
+print("Remaining number of rows:", df.shape[0])
+```
+
+Another little trick to make things more efficent later is to create a dictionary with station names as keys and a list with all `FAHRT_BEZEICHNER` strings a station name is part of as values (kind of an *inverted index*).
+
+```{python}
+# defaultdict with lists
+result_dict = defaultdict(list)
+
+# Iterate over rows
+for _, row in df.iterrows():
+    # Create a dict with stations as keys and FAHRT_BEZEICHNER as values.
+    result_dict[row['STATION_NAME']].append(row['FAHRT_BEZEICHNER'])
+
+# Convert back to normal dict.
+result_dict = dict(result_dict)
+```
+
+#### Identify shortcuts
+
+Next, we perform the key step in extracting the edges for the *space-of-stations* representation: we need to identify all edges that are shortcuts, passing train stations without stopping.
+
+We first define a custom function that determines whether any two station names `a` and `b` are adjacent in a sequence (list) of station names `lst`.
+
+```{python}
+# Function to check whether elements a and b are NOT adjacent in lst.
+def is_shortcut(lst, a, b):
+    return not any((x, y) == (a, b) or (x, y) == (b, a) for x, y in zip(lst, lst[1:]))
+```
+
+Then, we iterate over all undirected, unique edges that we prepared above. For each edge we go through the following steps:
+
+1. We get the `FAHRT_BEZEICHNER` strings for all "Fahrten" which both nodes of the edge are part of. For this we use the *inverted index*-style dictionary we created above.
+2. Then we perform an inner loop over the "Fahrten" extracted in the first step. 
+    - We first extract the sequence of stations of a "Fahrt".
+    - We use our custom function from above to check whether the two nodes are adjacent in the sequence of stations.
+    - If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and         move on to the next edge.
+
+```{python}
+# Empty list for shortcuts.
+shortcut_edges = []
+
+# Loop over list of undirected edges.
+for idx, edge in enumerate(unique_undirected_edges):
+    # Find all 'Fahrten' in which both stations of the edge appear.
+    intersection = list(set(result_dict[edge[0]]) & set(result_dict[edge[1]]))
+    # Initialize shortcut to False
+    shortcut = False
+    # Loop over 'Fahrten' in which both stations of the edge appear.
+    for fahrt in intersection:
+        # Get the sequence of stations in current 'Fahrt'.
+        seq_of_stations = df.loc[df['FAHRT_BEZEICHNER'] == fahrt, 'STATION_NAME'].tolist()
+        # Check whether the edge represents a shortcut in that sequence.
+        shortcut = is_shortcut(seq_of_stations, edge[0], edge[1])
+        # If it is a shortcut, we add it to the list and break the inner loop.
+        if shortcut:
+            # Add to list and break the loop.
+            shortcut_edges.append((fahrt, edge))
+            break
+
+print("Number of shortcut edges:", len(shortcut_edges))
+```
+
+A total of 442 edges are identified as shortcuts. Let's have a look at the first one:
+
+```{python}
+# Check first shortcut.
+print(shortcut_edges[0])
+
+# Check the 'Fahrt' in which it was detected as a shortcut.
+df.loc[df['FAHRT_BEZEICHNER'] == shortcut_edges[0][0], 'STATION_NAME']
+```
+
+From the whole sequence of stations, we can see that there is a "Fahrt" with a stop in-between Näfels-Mollis and Ziegelbrücke, namely Nieder- und Oberurnen. So, `('Näfels-Mollis', 'Ziegelbrücke')` really seems to be a shortcut!
+
+Finally, we remove the `FAHRT_BEZEICHNER` from `shortcut_edges` and create the final edge list without shortcuts.
+
+```{python}
+# Extract only edges
+shortcut_edges_clean = [i[1] for i in shortcut_edges]
+
+# Get the final list of non-shortcut edges.
+final_edges = [e for e in unique_undirected_edges if e not in shortcut_edges_clean]
+
+print("Number of edges:", len(final_edges))
+```
+
+We have a final number of edges of $2154-442=1712$.
+
+#### Validate with "Liniendaten"
+
+The extraction of the edges in the *space-of-stations* representation was a bit more complex than for *space-of-changes* or *space-of-stops*. That's why I would like to run some checks.
+
+We can validate some of the edges we extracted with another dataset from the [Open Data Portal of SBB](https://data.sbb.ch/pages/home/). The dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/) contains all railway "lines" maintained by SBB with all "Betriebspunkte" (including stations) that are located along these lines. Let's load this dataset:
+
+```{python}
+# Load the data about "Linien mit Betriebspunkten"
+linien = pd.read_csv('linie-mit-betriebspunkten.csv', sep = ";")
+
+# Reduce to relevant columns
+linien = linien[["Name Haltestelle","Linie","KM","Linien Text","BPUIC"]]
+
+print("Shape of dataframe:", linien.shape)
+```
+
+Let's have a look:
+
+```{python}
+# Have a look at the dataframe
+linien.head()
+```
+
+The rows in that dataset are not just stations but also other "Betriebspunkte" (important locations that are needed to run the infrastructure). But we can identify the stations among the "Betriebspunkte" by joining the `nodes` dataframe on BPUIC and only keeping the entries for which there was a matching row in `nodes`.
+
+```{python}
+# Join the rows of nodelist based on BPUIC.
+linien = pd.merge(linien, nodes[["BPUIC","STATION_NAME"]], on = 'BPUIC', how = 'left')
+
+# How many entries have a missing value aka are not stations?
+print("Number of non-stations:", linien["STATION_NAME"].isna().sum())
+
+# Drop all rows that are not stations.
+linien = linien.dropna(subset = ["STATION_NAME"])
+
+print("Number of remaining rows:", linien.shape[0])
+```
+
+Next, we group the rows by `'Linie'` and sort them in ascending order by `'KM'` (where along the line is the "Betriebspunkt" located, in terms of kilometres) so that the stations for each line are sorted in the right order.
+
+```{python}
+# Function to sort entries within a group in ascending order of KM
+def sort_data(group):
+    return group.sort_values('KM', ascending = True)
+
+# Sort for each group
+linien_sorted = linien.groupby('Linie', group_keys=False).apply(sort_data)
+
+# Let's have a look at Linie 290.
+linien_sorted.loc[linien_sorted['Linie'] == 290]
+```
+
+We see here for one example (Line 290) that the stations are now nicely sorted in ascending order of `'KM'`.
+
+Now, we can create a new column that always contains the station name of the next row using the handy `shift()` method. The last row within a group will always have a missing value for that new column as there is no next station at the end of a line. So, we drop the last row of each line.
+
+```{python}
+# Create a new column that for each row contains the next stop within the group.
+linien_sorted["NEXT_STATION"] = linien_sorted.groupby("Linie")["STATION_NAME"].shift(-1)
+
+# Drop all rows where 'NEXT_STATION' is missing
+linien_sorted = linien_sorted.dropna(subset = ["NEXT_STATION"])
+```
+
+We extract the values of the last two columns as the edges. Importantly, we now sort the node pairs in each edge in the same way as before (alphabetically).
+
+```{python}
+# Now let's extract the edges
+linien_edges = list(zip(linien_sorted['STATION_NAME'], linien_sorted['NEXT_STATION']))
+
+# Make sure the tuples are arranged in the same way as above (and unique).
+linien_edges = list(set((min(e[0], e[1]), max(e[0], e[1])) for e in linien_edges))
+```
+
+We first want to check whether there are edges in `linien_edges` that are neither a shortcut nor in the final edgelist from above.
+
+```{python}
+# Check which edges are in linien_edges but neither in final_edges nor in shortcut_edges_clean.
+[x for x in linien_edges if x not in final_edges and x not in shortcut_edges_clean]
+```
+
+There are some candidate edges but I checked all of them manually in the train schedule and none of them seem to have direct train connections. It could be that some of these are old train lines that are not active anymore.
+
+Are there any edges in `linien_edges` that were classified as shortcuts before?
+
+```{python}
+# Are there any edges that I classified as shortcuts?
+[x for x in linien_edges if x in shortcut_edges_clean]
+```
+
+Yes, but the two lines are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.
+
+A manual check of all 1'712 edges reveals that there are more shortcuts that our procedure was not able to identify. For example, the edge `(Bern, Zofingen)` cannot be identified because there is not other "Fahrt" that contains these two stations and stops somewhere in between. We manually remove such edges.
+
+```{python}
+# Manually remove edges.
+final_edges.remove(('Bern', 'Zofingen'))
+final_edges.remove(('Basel Bad Bf', 'Schaffhausen'))
+```
+
+#### Export the edgelist
+
+Finally, we can export the edges as before for the other representations.
+
+```{python}
+# Create a node dict with BPUIC as values
+node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))
+
+# Transform edge dict to nested list and replace all station names with their BPUIC
+edges = [[node_dict[e[0]], node_dict[e[1]]] for e in final_edges]
+
+# Create a dataframe
+edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2'])
+
+# Have a look
+edges.head()
+
+# Export edge list
+# edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = 'utf-8', index = False)
+```
+
+You can download the result here: <a href="edgelist_SoS.csv" download>Edgelist space-of-stations (CSV)</a>.
+
+### References
+
+Kurant, M., & Thiran, P. (2006). Extraction and analysis of traffic and topologies of transportation networks. Physical Review E, 74(3), 036114. <https://doi.org/10.1103/PhysRevE.74.036114>
+
+*The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*
