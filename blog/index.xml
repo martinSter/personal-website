@@ -10,7 +10,528 @@
 <atom:link href="https://martinsterchi.ch/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.42</generator>
-<lastBuildDate>Mon, 31 Mar 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 01 Apr 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>SBB Network Analysis - Part 3</title>
+  <dc:creator>Martin Sterchi</dc:creator>
+  <link>https://martinsterchi.ch/blog/sbb_nw3/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>After <a href="../../blog/sbb_nw/index.html">Part 1</a> and <a href="../../blog/sbb_nw2/index.html">Part 2</a>, where I demonstrated how to create different versions of static networks, I now want to show how to construct a temporal network representation of the Swiss railway network. If you’ve followed along with the first two parts of this series, the code here should be easy to understand.</p>
+<p>The temporal network representation I develop here is based on the <strong>space-of-changes</strong> approach. In this representation, a <em>directed</em> edge connects each station to all subsequent stations for a given “Fahrt.” Instead of aggregating edges between the same pairs of stations, we retain all edges at different points in time, storing both the start time of each edge, <img src="https://latex.codecogs.com/png.latex?t">, and the time required to traverse it, <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20t">. This is just one possible way to represent temporal edges (see, for instance, the 2012 overview paper by <a href="https://doi.org/10.1016/j.physrep.2012.03.001">Petter Holme and Jari Saramäki</a>).</p>
+<p>With this temporal network model, finding <strong>time-respecting paths</strong> between any two nodes closely mirrors what the SBB (Swiss railway) app does when searching for the fastest connections between stations.</p>
+<p>But let’s start the practical part now.</p>
+<div id="d67f8922" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb1-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> collections <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Counter, defaultdict</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check versions of libraries.</span></span>
+<span id="cb1-5"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Pandas version:"</span>, pd.__version__)</span>
+<span id="cb1-6"></span>
+<span id="cb1-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Make sure there is no limit on the number of columns shown.</span></span>
+<span id="cb1-8">pd.set_option(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'display.max_columns'</span>, <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">None</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Pandas version: 2.1.4</code></pre>
+</div>
+</div>
+<section id="temporal-edgelist" class="level3">
+<h3 class="anchored" data-anchor-id="temporal-edgelist">Temporal edgelist</h3>
+<p>As for the <em>space-of-changes</em> representation, we start by loading the already processed “Ist-Daten” from <a href="../../blog/sbb_nw/index.html">Part 1</a> and transform all date-time elements into the right format. Also, we only need a few of the columns, so we reduce the dataframe drastically to only 4 columns.</p>
+<div id="32d4d2be" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the processed IST-DATEN.</span></span>
+<span id="cb3-2">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ist-daten.csv'</span>, low_memory<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert BETRIEBSTAG to date format</span></span>
+<span id="cb3-5">df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'BETRIEBSTAG'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'BETRIEBSTAG'</span>])</span>
+<span id="cb3-6"></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format</span></span>
+<span id="cb3-8">df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ANKUNFTSZEIT'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ANKUNFTSZEIT'</span>])</span>
+<span id="cb3-9">df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'AN_PROGNOSE'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'AN_PROGNOSE'</span>])</span>
+<span id="cb3-10">df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ABFAHRTSZEIT'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ABFAHRTSZEIT'</span>])</span>
+<span id="cb3-11">df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'AB_PROGNOSE'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.to_datetime(df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'AB_PROGNOSE'</span>])</span>
+<span id="cb3-12"></span>
+<span id="cb3-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Reduce to relevant columns.</span></span>
+<span id="cb3-14">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"FAHRT_BEZEICHNER"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"STATION_NAME"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ANKUNFTSZEIT"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ABFAHRTSZEIT"</span>]]</span>
+<span id="cb3-15"></span>
+<span id="cb3-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check the dataframe.</span></span>
+<span id="cb3-17">df.head()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">FAHRT_BEZEICHNER</th>
+<th data-quarto-table-cell-role="th">STATION_NAME</th>
+<th data-quarto-table-cell-role="th">ANKUNFTSZEIT</th>
+<th data-quarto-table-cell-role="th">ABFAHRTSZEIT</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>60402-NZ-8503000-213400</td>
+<td>Zürich HB</td>
+<td>NaT</td>
+<td>2025-03-05 21:34:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>60402-NZ-8503000-213400</td>
+<td>Basel SBB</td>
+<td>2025-03-05 22:28:00</td>
+<td>2025-03-05 23:13:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>60402-NZ-8503000-213400</td>
+<td>Basel Bad Bf</td>
+<td>2025-03-05 23:19:00</td>
+<td>2025-03-05 23:23:00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>60403-NZ-8400058-191500</td>
+<td>Basel Bad Bf</td>
+<td>2025-03-06 06:10:00</td>
+<td>2025-03-06 06:13:00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>60403-NZ-8400058-191500</td>
+<td>Basel SBB</td>
+<td>2025-03-06 06:20:00</td>
+<td>2025-03-06 06:45:00</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>We now use almost the same function as for the <em>space-of-changes</em> representation in order to extract the edges between any station and all its subsequent stations in a given “Fahrt”.</p>
+<p>The only difference is that we extract, as the third element of an edge, the start time measured in minutes since the start of the day (2025-03-05 00:00:00). So, a train that departs at one minute past midnight will have the start time 1, as the following code demonstrates:</p>
+<div id="045924a8" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">(pd.to_datetime(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2025-03-05 00:01:00"</span>) <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> pd.to_datetime(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2025-03-05 00:00:00"</span>)).total_seconds() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>1.0</code></pre>
+</div>
+</div>
+<p>Here now the function that we will use to iterate over the “Fahrten”:</p>
+<div id="3881517b" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Function to compute (directed) edges according to spaces-of-changes principle.</span></span>
+<span id="cb6-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">def</span> get_edges_in_groups(group):</span>
+<span id="cb6-3">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Empty list for results of a group.</span></span>
+<span id="cb6-4">    results <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> []</span>
+<span id="cb6-5">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Loop over all rows in group.</span></span>
+<span id="cb6-6">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(group)):</span>
+<span id="cb6-7">        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Nested loop over all subsequent rows.</span></span>
+<span id="cb6-8">        <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> j <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">range</span>(i <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(group)):</span>
+<span id="cb6-9">            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Now, append edge to results list.</span></span>
+<span id="cb6-10">            results.append((</span>
+<span id="cb6-11">                group.iloc[i][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"STATION_NAME"</span>], <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Station of origin</span></span>
+<span id="cb6-12">                group.iloc[j][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"STATION_NAME"</span>], <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Station of destination</span></span>
+<span id="cb6-13">                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Time of departure in minutes since the day began.</span></span>
+<span id="cb6-14">                (group.iloc[i][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ABFAHRTSZEIT"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> pd.to_datetime(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2025-03-05 00:00:00"</span>)).total_seconds() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>,</span>
+<span id="cb6-15">                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Duration in minutes.</span></span>
+<span id="cb6-16">                (group.iloc[j][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ANKUNFTSZEIT'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> group.iloc[i][<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'ABFAHRTSZEIT'</span>]).total_seconds() <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span></span>
+<span id="cb6-17">            ))</span>
+<span id="cb6-18">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Return list.</span></span>
+<span id="cb6-19">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">return</span> results</span></code></pre></div>
+</div>
+<p>This function is applied as before for the <em>space-of-changes</em> representation:</p>
+<div id="e59fda18" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Now apply that function group-wise.</span></span>
+<span id="cb7-2">edges_series <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df.groupby(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"FAHRT_BEZEICHNER"</span>, group_keys<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>).<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">apply</span>(get_edges_in_groups)</span></code></pre></div>
+</div>
+<p>We can check the same “Fahrt” between Yverdon-les-Bains and Ste-Croix again.</p>
+<div id="272c1416" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Let's check out one FAHRT.</span></span>
+<span id="cb8-2">edges_series[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"85:97:9:000"</span>]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>[('Yverdon-les-Bains', 'Vuiteboeuf', 333.0, 10.0),
+ ('Yverdon-les-Bains', 'Baulmes', 333.0, 14.0),
+ ('Yverdon-les-Bains', 'Six-Fontaines', 333.0, 18.0),
+ ('Yverdon-les-Bains', 'Ste-Croix', 333.0, 33.0),
+ ('Vuiteboeuf', 'Baulmes', 343.0, 4.0),
+ ('Vuiteboeuf', 'Six-Fontaines', 343.0, 8.0),
+ ('Vuiteboeuf', 'Ste-Croix', 343.0, 23.0),
+ ('Baulmes', 'Six-Fontaines', 347.0, 4.0),
+ ('Baulmes', 'Ste-Croix', 347.0, 19.0),
+ ('Six-Fontaines', 'Ste-Croix', 351.0, 15.0)]</code></pre>
+</div>
+</div>
+<p>That train starts at 333 minutes past midnight (which is 05:33). The durations are the same as before in the <em>space-of-changes</em> representation.</p>
+<p>The final step before getting the data ready for the export is to flatten all the edges that are currently organized in the form of a Pandas series of lists.</p>
+<div id="3c88bd07" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Flatten the result into one edgelist.</span></span>
+<span id="cb10-2">edgelist <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [x <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> l <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> edges_series.values <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> x <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> l]</span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of edges:"</span>, <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">len</span>(edgelist))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of edges: 1110834</code></pre>
+</div>
+</div>
+<p>The <em>space-of-changes</em> representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal represenation of the network will have 1’110’834 edges.</p>
+<p>The final steps are easy: we change the station names to their BPUIC numbers, we convert both the start time and the duration of an edge to integer values, and we export the dataframe as a CSV file.</p>
+<div id="11267476" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load the nodelist.</span></span>
+<span id="cb12-2">nodes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"nodelist.csv"</span>, sep <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span>)</span>
+<span id="cb12-3"></span>
+<span id="cb12-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a node dict with BPUIC as values</span></span>
+<span id="cb12-5">node_dict <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">dict</span>(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span></code></pre></div>
+</div>
+<div id="d161cbd9" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
+<span id="cb13-2">edges <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [[node_dict[e[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>]], node_dict[e[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]], <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(e[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]), <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">int</span>(e[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>])] <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> e <span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> edgelist]</span>
+<span id="cb13-3"></span>
+<span id="cb13-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create a dataframe</span></span>
+<span id="cb13-5">edges <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame(edges, columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'BPUIC1'</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'BPUIC2'</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'START'</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'DURATION'</span>])</span>
+<span id="cb13-6"></span>
+<span id="cb13-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Have a look</span></span>
+<span id="cb13-8">edges.head()</span>
+<span id="cb13-9"></span>
+<span id="cb13-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Export edge list</span></span>
+<span id="cb13-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># edges.to_csv("edgelist_temporal.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">BPUIC1</th>
+<th data-quarto-table-cell-role="th">BPUIC2</th>
+<th data-quarto-table-cell-role="th">START</th>
+<th data-quarto-table-cell-role="th">DURATION</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>8503000</td>
+<td>8500010</td>
+<td>1294</td>
+<td>54</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>8503000</td>
+<td>8500090</td>
+<td>1294</td>
+<td>105</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>8500010</td>
+<td>8500090</td>
+<td>1393</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>8500090</td>
+<td>8500010</td>
+<td>1813</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>8500090</td>
+<td>8503000</td>
+<td>1813</td>
+<td>112</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>You can download the result here: <a href="edgelist_temporal.csv" download="">Temporal Edgelist (CSV)</a>.</p>
+</section>
+<section id="references" class="level3">
+<h3 class="anchored" data-anchor-id="references">References</h3>
+<p>Holme, P., &amp; Saramäki, J. (2012). Temporal networks. <em>Physics Reports</em>, 519(3), 97-125. <a href="https://doi.org/10.1016/j.physrep.2012.03.001">https://doi.org/10.1016/j.physrep.2012.03.001</a></p>
+<p><em>The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">Creative Commons</a>.</em></p>
+
+
+</section>
+
+ ]]></description>
+  <category>Networks</category>
+  <guid>https://martinsterchi.ch/blog/sbb_nw3/</guid>
+  <pubDate>Tue, 01 Apr 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://martinsterchi.ch/blog/sbb_nw3/sbb_hb.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>SBB Network Analysis - Part 2</title>
   <dc:creator>Martin Sterchi</dc:creator>
