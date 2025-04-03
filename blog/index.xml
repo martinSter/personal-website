@@ -554,7 +554,7 @@ font-style: inherit;"># edges.to_csv("edgelist_temporal.csv", sep = ';', encodin
 </ul>
 <p>Lastly, they point out an important subgraph relationship among these representations: <em>space-of-stations</em> is a subgraph of <em>space-of-stops</em>, which in turn is a subgraph of <em>space-of-changes</em>.</p>
 <p>As always, we begin the practical part with loading the libraries we are going to use.</p>
-<div id="28ac6c25" class="cell" data-execution_count="1">
+<div id="ecd03802" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
@@ -591,7 +591,7 @@ font-style: inherit;">None</span>)</span></code></pre></div>
 <section id="space-of-changes" class="level3">
 <h3 class="anchored" data-anchor-id="space-of-changes">Space-of-changes</h3>
 <p>We start by importing the already processed “Ist-Daten” from <a href="../../blog/sbb_nw/index.html">Part 1</a>. Since we load them from a CSV file we have to transform all date-time information into the Pandas datetime format.</p>
-<div id="1fdcc87a" class="cell" data-execution_count="2">
+<div id="930b5fff" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the processed IST-DATEN.</span></span>
@@ -649,7 +649,7 @@ background-color: null;
 font-style: inherit;">'AB_PROGNOSE'</span>])</span></code></pre></div>
 </div>
 <p>Next comes the key part of extracting the edges for the <em>space-of-changes</em> representation. We will group the rows by <code>FAHRT_BEZEICHNER</code>. Then, we will use two nested loops to create edges between any station and all subsequent stations on a given “Fahrt”. Note that in contrast to Kurant and Thiran (2006) we will extract <em>directed</em> edges. The following function specifies how the edges can be extracted for one group. It’s not very performant code and there may be smarter and more efficient ways of doing this. But it does the job.</p>
-<div id="c6a6547a" class="cell" data-execution_count="3">
+<div id="13e8980e" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to compute (directed) edges according to spaces-of-changes principle.</span></span>
@@ -732,7 +732,7 @@ font-weight: bold;
 font-style: inherit;">return</span> results</span></code></pre></div>
 </div>
 <p>We can now apply that function to every group. On my machine, this step took roughly 10 minutes.</p>
-<div id="8f7d7fc5" class="cell" data-execution_count="4">
+<div id="dd56659b" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Now apply that function group-wise.</span></span>
@@ -749,7 +749,7 @@ background-color: null;
 font-style: inherit;">apply</span>(get_edges_in_groups)</span></code></pre></div>
 </div>
 <p>The output of the previous step is a Pandas series, as the following check confirms. We can see that every element of that series is identified with <code>FAHRT_BEZEICHNER</code> and contains a list with the edges, also including the time between the two nodes.</p>
-<div id="048be03a" class="cell" data-execution_count="5">
+<div id="1b900161" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Make sure the result is a pandas series.</span></span>
@@ -779,7 +779,7 @@ dtype: object</code></pre>
 </div>
 </div>
 <p>We perform another quick check to make sure the series contains as many elements as there are unique <code>FAHRT_BEZEICHNER</code> strings. That seems to be the case.</p>
-<div id="922aa250" class="cell" data-execution_count="6">
+<div id="defb4c18" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># How many elements?</span></span>
@@ -806,7 +806,7 @@ dtype: int64</code></pre>
 </div>
 </div>
 <p>We quickly check the list of edges for one “Fahrt” to make sure it really extracted the edges in the right way.</p>
-<div id="40d3c550" class="cell" data-execution_count="7">
+<div id="731a82ac" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Let's check out one FAHRT.</span></span>
@@ -828,7 +828,7 @@ font-style: inherit;">"85:97:9:000"</span>]</span></code></pre></div>
 </div>
 <p>This seems to be a train that goes from Yverdon-les-Bains to Ste-Croix. It stops in Vuiteboeuf, Baulmes, and Six-Fontaines before getting to Ste-Croix. There is an edge between every station and all its subsequent stations on that “Fahrt”. This is exactly what we wanted.</p>
 <p>Now, we flatten the Pandas series of lists into one edgelist.</p>
-<div id="410d14d6" class="cell" data-execution_count="8">
+<div id="c8f880bf" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Flatten the result into one edgelist.</span></span>
@@ -860,7 +860,7 @@ font-style: inherit;">len</span>(edgelist))</span></code></pre></div>
 </div>
 </div>
 <p>This edgelist contains over one million edges. Note, however, that many of them are duplicates as we looped over all “Fahrten” of a given day. As in <a href="../../blog/sbb_nw/index.html">Part 1</a>, we will now aggregate all duplicate edges, counting the number of connections and the average travel time between any two nodes.</p>
-<div id="d311368f" class="cell" data-execution_count="9">
+<div id="ec70350a" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty dict</span></span>
@@ -954,7 +954,7 @@ font-style: inherit;">len</span>(edges))</span></code></pre></div>
 </div>
 </div>
 <p>We are left with 37’951 directed and weighted edges that are currently stored in a dict called <code>edges</code>. Let’s see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:</p>
-<div id="d73a11be" class="cell" data-execution_count="10">
+<div id="db7ff2b6" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Test</span></span>
@@ -969,7 +969,7 @@ font-style: inherit;">"Winterthur"</span>)]</span></code></pre></div>
 </div>
 <p>I can travel from Olten to Winterthur 25 times per day (without having to change trains) and the trip takes a bit more than an hour.</p>
 <p>Now, we import the nodelist from <a href="../../blog/sbb_nw/index.html">Part 1</a> so that we can replace the station names in the edges by the BPUIC identifiers.</p>
-<div id="1846a1bc" class="cell" data-execution_count="11">
+<div id="3108fc5b" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the nodelist.</span></span>
@@ -995,7 +995,7 @@ background-color: null;
 font-style: inherit;">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span></code></pre></div>
 </div>
 <p>After changing all stations names to BPUIC numbers we create a dataframe that can then be exported as a CSV file. Yay, we’re done!</p>
-<div id="968f4c89" class="cell" data-execution_count="12">
+<div id="e5659f65" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
@@ -1107,7 +1107,7 @@ font-style: inherit;"># edges.to_csv("edgelist_SoC.csv", sep = ';', encoding = '
 <h3 class="anchored" data-anchor-id="space-of-stations">Space-of-stations</h3>
 <p>For the <em>space-of-stations</em> graph representation we make use of the fact that the <em>space-of-stations</em> graph should be a subgraph of the <em>space-of-stops</em> graph that we extracted in <a href="../../blog/sbb_nw/index.html">Part 1</a> with the latter containing additional edges that represent <strong>shortcuts</strong>. For example, the <em>space-of-stops</em> graph contains a directed edge from Olten to Basel SBB as there are nonstop trains between these two stations. However, there are also smaller, regional trains which stop at all stations in between. The key idea (also nicely shown by Kurant and Thiran) is to go through all edges in the <em>space-of-stops</em> graph and identify the ones that are shortcuts.</p>
 <p>We first load the (<em>space-of-stops</em>) edgelist from <a href="../../blog/sbb_nw/index.html">Part 1</a> and add the station names.</p>
-<div id="6d40af58" class="cell" data-execution_count="13">
+<div id="d1106cf3" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the space-of-stops edgelist.</span></span>
@@ -1188,7 +1188,7 @@ Number of edges in space-of-stops representation: 4215</code></pre>
 </div>
 <p>For the <em>space-of-stations</em> representation, <strong>undirected</strong> edges make the most sense. Thus, we need to make the directed edges from the <em>space-of-stops</em> representation undirected and remove all duplicates that this introduces (e.g., ‘Olten - Basel SBB’ and ‘Basel SBB - Olten’). With a little help by ChatGPT I found an elegant solution to achieve just that.</p>
 <p>More concretely, we iterate over the zip object containing the node pairs of all edges. The <code>min()</code> and <code>max()</code> functions applied to the station names will sort the station names alphabetically so that, for example, ‘Olten - Basel SBB’ and ‘Basel SBB - Olten’ are both transformed to ‘Basel SBB - Olten’. Finally, the <code>set()</code> function will get rid of all duplicates.</p>
-<div id="40823cd6" class="cell" data-execution_count="14">
+<div id="0c8f789f" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Get a list of unique undirected edges.</span></span>
@@ -1231,7 +1231,7 @@ font-style: inherit;">len</span>(unique_undirected_edges))</span></code></pre></
 <section id="data-preprocessing-for-improved-efficiency" class="level4">
 <h4 class="anchored" data-anchor-id="data-preprocessing-for-improved-efficiency">Data preprocessing for improved efficiency</h4>
 <p>In order to make the procedure further below more efficient, we extract here all unique “Fahrten”. More specifically, we create a dictionary <code>fahrten</code> with the sequence of station names as key and the <code>FAHRT_BEZEICHNER</code> as value. Note that if a sequence of station names already exists as a key in the dict, then the value belonging to that key will be overwritten with the new <code>FAHRT_BEZEICHNER</code> but that doesn’t bother us since we just want to be able to extract one example “Fahrt” per unique sequence of stops.</p>
-<div id="509739e5" class="cell" data-execution_count="15">
+<div id="1874e836" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty dict</span></span>
@@ -1286,7 +1286,7 @@ Number of 'Fahrten' in whole dataframe: 14653</code></pre>
 </div>
 <p>We can see from the above output that this step drastically reduces the “Fahrten” that we will iterate over later.</p>
 <p>In the following code chunk we filter the “Ist-Daten” (<code>df</code>) loaded earlier so that only the unique “Fahrten” are left.</p>
-<div id="08c6710e" class="cell" data-execution_count="16">
+<div id="f54ccf38" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Reduce the dataframe to the 'Fahrten' in list of values of dict.</span></span>
@@ -1310,7 +1310,7 @@ font-style: inherit;">0</span>])</span></code></pre></div>
 </div>
 </div>
 <p>Another little trick to make things more efficent later is to create a dictionary with station names as keys and a list with all <code>FAHRT_BEZEICHNER</code> strings a station name is part of as values (kind of an <em>inverted index</em>).</p>
-<div id="c84f5ada" class="cell" data-execution_count="17">
+<div id="22cfa983" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># defaultdict with lists</span></span>
@@ -1353,7 +1353,7 @@ font-style: inherit;">dict</span>(result_dict)</span></code></pre></div>
 <h4 class="anchored" data-anchor-id="identify-shortcuts">Identify shortcuts</h4>
 <p>Next, we perform the key step in extracting the edges for the <em>space-of-stations</em> representation: we need to identify all edges that are shortcuts, passing train stations without stopping.</p>
 <p>We first define a custom function that determines whether any two station names <code>a</code> and <code>b</code> are adjacent in a sequence (list) of station names <code>lst</code>.</p>
-<div id="fb5f142f" class="cell" data-execution_count="18">
+<div id="a591f5d9" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to check whether elements a and b are NOT adjacent in lst.</span></span>
@@ -1398,7 +1398,7 @@ font-style: inherit;">1</span>:]))</span></code></pre></div>
 <li>If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and move on to the next edge.</li>
 </ul></li>
 </ol>
-<div id="a654fab7" class="cell" data-execution_count="19">
+<div id="df3a1b22" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty list for shortcuts.</span></span>
@@ -1504,7 +1504,7 @@ font-style: inherit;">len</span>(shortcut_edges))</span></code></pre></div>
 </div>
 </div>
 <p>A total of 442 edges are identified as shortcuts. Let’s have a look at the first one:</p>
-<div id="20a8367c" class="cell" data-execution_count="20">
+<div id="1c795c71" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check first shortcut.</span></span>
@@ -1529,24 +1529,40 @@ font-style: inherit;">0</span>], <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'STATION_NAME'</span>]</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>('85:97:181:000', ('Vuiteboeuf', 'Yverdon-les-Bains'))</code></pre>
+<pre><code>('85:22:2076:000', ('Bühler', 'Gais'))</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="20">
-<pre><code>48505         Yverdon-les-Bains
-48506    Yverdon William Barbey
-48507                 La Brinaz
-48508    Valeyres-sous-Montagny
-48509     Essert-sous-Champvent
-48510                Vuiteboeuf
-48511                   Baulmes
-48512             Six-Fontaines
-48513                 Ste-Croix
+<pre><code>1236                       Gais
+1237                Zweibrücken
+1238                 Strahlholz
+1239                     Bühler
+1240                  Steigbach
+1241                  Teufen AR
+1242           Teufen AR Stofel
+1243         Sternen bei Teufen
+1244               Niederteufen
+1245                  Lustmühle
+1246       St. Gallen Riethüsli
+1247    St. Gallen Güterbahnhof
+1248                 St. Gallen
+1249      St. Gallen Marktplatz
+1250       St. Gallen Spisertor
+1251     St. Gallen Schülerhaus
+1252      St. Gallen Birnbäumen
+1253      St. Gallen Notkersegg
+1254            Schwarzer Bären
+1255                Vögelinsegg
+1256             Schützengarten
+1257                   Speicher
+1258                   Bendlehn
+1259                      Gfeld
+1260                     Trogen
 Name: STATION_NAME, dtype: object</code></pre>
 </div>
 </div>
-<p>From the whole sequence of stations, we can see that there is a “Fahrt” with a stop in-between Näfels-Mollis and Ziegelbrücke, namely Nieder- und Oberurnen. So, <code>('Näfels-Mollis', 'Ziegelbrücke')</code> really seems to be a shortcut!</p>
+<p>From the whole sequence of stations, we can see that the edge identified as a shortcut is, in fact, a connection that is not consecutive.</p>
 <p>Finally, we remove the <code>FAHRT_BEZEICHNER</code> from <code>shortcut_edges</code> and create the final edge list without shortcuts.</p>
-<div id="cf673e86" class="cell" data-execution_count="21">
+<div id="72326ebd" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Extract only edges</span></span>
@@ -1601,7 +1617,7 @@ font-style: inherit;">len</span>(final_edges))</span></code></pre></div>
 <h4 class="anchored" data-anchor-id="validate-with-liniendaten">Validate with “Liniendaten”</h4>
 <p>The extraction of the edges in the <em>space-of-stations</em> representation was a bit more complex than for <em>space-of-changes</em> or <em>space-of-stops</em>. That’s why I would like to run some checks.</p>
 <p>We can validate some of the edges we extracted with another dataset from the <a href="https://data.sbb.ch/pages/home/">Open Data Portal of SBB</a>. The dataset <a href="https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/">Linie (Betriebspunkte)</a> contains all railway “lines” maintained by SBB with all “Betriebspunkte” (including stations) that are located along these lines. Let’s load this dataset:</p>
-<div id="d67e1c2f" class="cell" data-execution_count="22">
+<div id="ed69e6bd" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data about "Linien mit Betriebspunkten"</span></span>
@@ -1642,7 +1658,7 @@ font-style: inherit;">"Shape of dataframe:"</span>, linien.shape)</span></code><
 </div>
 </div>
 <p>Let’s have a look:</p>
-<div id="7179b5cd" class="cell" data-execution_count="23">
+<div id="d073d346" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Have a look at the dataframe</span></span>
@@ -1710,7 +1726,7 @@ font-style: inherit;"># Have a look at the dataframe</span></span>
 </div>
 </div>
 <p>The rows in that dataset are not just stations but also other “Betriebspunkte” (important locations that are needed to run the infrastructure). But we can identify the stations among the “Betriebspunkte” by joining the <code>nodes</code> dataframe on BPUIC and only keeping the entries for which there was a matching row in <code>nodes</code>.</p>
-<div id="eb9a8d72" class="cell" data-execution_count="24">
+<div id="ba51572b" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Join the rows of nodelist based on BPUIC.</span></span>
@@ -1767,7 +1783,7 @@ Number of remaining rows: 905</code></pre>
 </div>
 </div>
 <p>Next, we group the rows by <code>'Linie'</code> and sort them in ascending order by <code>'KM'</code> (where along the line is the “Betriebspunkt” located, in terms of kilometres) so that the stations for each line are sorted in the right order.</p>
-<div id="c827433a" class="cell" data-execution_count="25">
+<div id="04bc19e7" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to sort entries within a group in ascending order of KM</span></span>
@@ -1899,7 +1915,7 @@ font-style: inherit;">290</span>]</span></code></pre></div>
 </div>
 <p>We see here for one example (Line 290) that the stations are now nicely sorted in ascending order of <code>'KM'</code>.</p>
 <p>Now, we can create a new column that always contains the station name of the next row using the handy <code>shift()</code> method. The last row within a group will always have a missing value for that new column as there is no next station at the end of a line. So, we drop the last row of each line.</p>
-<div id="23b68725" class="cell" data-execution_count="26">
+<div id="010436b8" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a new column that for each row contains the next stop within the group.</span></span>
@@ -1929,7 +1945,7 @@ background-color: null;
 font-style: inherit;">"NEXT_STATION"</span>])</span></code></pre></div>
 </div>
 <p>We extract the values of the last two columns as the edges. Importantly, we now sort the node pairs in each edge in the same way as before (alphabetically).</p>
-<div id="49ef759b" class="cell" data-execution_count="27">
+<div id="19861a4b" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Now let's extract the edges</span></span>
@@ -1975,7 +1991,7 @@ font-weight: bold;
 font-style: inherit;">in</span> linien_edges))</span></code></pre></div>
 </div>
 <p>We first want to check whether there are edges in <code>linien_edges</code> that are neither a shortcut nor in the final edgelist from above.</p>
-<div id="c07ee09d" class="cell" data-execution_count="28">
+<div id="712230cd" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check which edges are in linien_edges but neither in final_edges nor in shortcut_edges_clean.</span></span>
@@ -2005,22 +2021,22 @@ background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> shortcut_edges_clean]</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="28">
-<pre><code>[('La Chaux-de-Fonds', 'Tavannes'),
+<pre><code>[('Koblenz', 'Laufenburg'),
+ ('La Chaux-de-Fonds', 'Tavannes'),
  ('Concise', 'Grandson'),
- ('Dietfurt', 'Kaltbrunn'),
- ('Koblenz', 'Laufenburg'),
- ('Solothurn', 'Zollikofen'),
  ('Büren an der Aare', 'Solothurn'),
+ ('Dietfurt', 'Kaltbrunn'),
  ('Neuhausen Rheinfall', 'Rafz'),
- ('Langenthal', 'Niederbipp'),
  ('Chambrelien', 'Corcelles-Peseux'),
  ('Bauma', 'Hinwil'),
- ('Niederbipp', 'Solothurn')]</code></pre>
+ ('Niederbipp', 'Solothurn'),
+ ('Langenthal', 'Niederbipp'),
+ ('Solothurn', 'Zollikofen')]</code></pre>
 </div>
 </div>
 <p>There are some candidate edges but I checked all of them manually in the train schedule and none of them seem to have direct train connections. It could be that some of these are old train lines that are not active anymore.</p>
-<p>Are there any edges in <code>linien_edges</code> that were classified as shortcuts before?</p>
-<div id="7b35e167" class="cell" data-execution_count="29">
+<p>Are there any edges in <code>linien_edges</code> that were classified as shortcuts?</p>
+<div id="ea957c83" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Are there any edges that I classified as shortcuts?</span></span>
@@ -2042,8 +2058,8 @@ font-style: inherit;">in</span> shortcut_edges_clean]</span></code></pre></div>
 </div>
 </div>
 <p>Yes, but the two lines are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.</p>
-<p>A manual check of all 1’712 edges reveals that there are more shortcuts that our procedure was not able to identify. For example, the edge <code>(Bern, Zofingen)</code> cannot be identified because there is not other “Fahrt” that contains these two stations and stops somewhere in between. We manually remove such edges.</p>
-<div id="5ebb8fe6" class="cell" data-execution_count="30">
+<p>A manual check of all 1’712 edges reveals that there are more shortcuts that our procedure was not able to identify. For example, the edge <code>(Bern, Zofingen)</code> cannot be identified because there is no other “Fahrt” that contains these two stations and stops somewhere in between. We manually remove such edges. In addition, we add some edges for which I know that there is actually infrastructure (tunnels, high-speed routes) that directly connects the two nodes involved.</p>
+<div id="abc63148" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Manually remove edges.</span></span>
@@ -2054,15 +2070,37 @@ background-color: null;
 font-style: inherit;">'Zofingen'</span>))</span>
 <span id="cb51-3">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
+font-style: inherit;">'Bern Wankdorf'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Zürich HB'</span>))</span>
+<span id="cb51-4">final_edges.remove((<span class="st" style="color: #20794D;
+background-color: null;
 font-style: inherit;">'Basel Bad Bf'</span>, <span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'Schaffhausen'</span>))</span></code></pre></div>
+font-style: inherit;">'Schaffhausen'</span>))</span>
+<span id="cb51-5"></span>
+<span id="cb51-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Manually add edges.</span></span>
+<span id="cb51-7">final_edges.append((<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Biasca'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Erstfeld'</span>))</span>
+<span id="cb51-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># final_edges.append(('Frutigen', 'Visp')) # Seems to be already in there.</span></span>
+<span id="cb51-9">final_edges.append((<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Bern Wankdorf'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Rothrist'</span>))</span></code></pre></div>
 </div>
 </section>
 <section id="export-the-edgelist" class="level4">
 <h4 class="anchored" data-anchor-id="export-the-edgelist">Export the edgelist</h4>
 <p>Finally, we can export the edges as before for the other representations.</p>
-<div id="a7ee3067" class="cell" data-execution_count="31">
+<div id="cd590166" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a node dict with BPUIC as values</span></span>
@@ -2130,28 +2168,28 @@ font-style: inherit;"># edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = '
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>8530225</td>
-<td>8504387</td>
+<td>8501160</td>
+<td>8501162</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>8503056</td>
-<td>8503057</td>
+<td>8501067</td>
+<td>8501068</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>8506368</td>
-<td>8506369</td>
+<td>8500302</td>
+<td>8500301</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>8502222</td>
-<td>8502223</td>
+<td>8500113</td>
+<td>8500114</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>8501426</td>
-<td>8501425</td>
+<td>8501287</td>
+<td>8501288</td>
 </tr>
 </tbody>
 </table>
