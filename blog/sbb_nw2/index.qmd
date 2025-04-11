@@ -160,6 +160,21 @@ edges[("Olten", "Winterthur")]
 
 I can travel from Olten to Winterthur 25 times per day (without having to change trains) and the trip takes a bit more than an hour.
 
+Now, there is still a small problem (which I acutally only found out about after creating a network with `networkX`): there are two self-loops!
+
+```{python}
+print(edges[("Monthey-En Place", "Monthey-En Place")])
+print(edges[("Les Planches (Aigle)", "Les Planches (Aigle)")])
+```
+
+I checked the trips in which these stations occur and the trips actually do visit the same station twice. So, our code did the right thing, these are just two odd trips. I decided to remove those two edges:
+
+```{python}
+# Remove the two self-loops
+edges.pop(("Les Planches (Aigle)", "Les Planches (Aigle)"))
+edges.pop(("Monthey-En Place", "Monthey-En Place"))
+```
+
 Now, we import the nodelist from [Part 1](../sbb_nw/index.qmd) so that we can replace the station names in the edges by the BPUIC identifiers.
 
 ```{python}
