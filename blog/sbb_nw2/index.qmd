@@ -431,19 +431,37 @@ Are there any edges in `linien_edges` that were classified as shortcuts?
 
 Yes, but the two lines are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.
 
-A manual check of all 1'712 edges reveals that there are more shortcuts that our procedure was not able to identify. For example, the edge `(Bern, Zofingen)` cannot be identified because there is no other "Fahrt" that contains these two stations and stops somewhere in between. We manually remove such edges. In addition, we add some edges for which I know that there is actually infrastructure (tunnels, high-speed routes) that directly connects the two nodes involved.
+A manual check of the edges reveals that there are other shortcuts that our procedure was not able to identify. For example, the edge `(Bern, Zofingen)` cannot be identified because there is no other "Fahrt" that contains these two stations and stops somewhere in between. We manually remove such edges. In addition, we add some edges for which I know that there is actually infrastructure (tunnels, high-speed routes) that directly connects the two nodes involved.
 
 ```{python}
 # Manually remove edges.
 final_edges.remove(('Bern', 'Zofingen'))
 final_edges.remove(('Bern Wankdorf', 'Zürich HB'))
 final_edges.remove(('Basel Bad Bf', 'Schaffhausen'))
+final_edges.remove(('Morges', 'Yverdon-les-Bains'))
+final_edges.remove(('Aarau', 'Sissach'))
+final_edges.remove(('Bergün/Bravuogn', 'Pontresina'))
+final_edges.remove(('Interlaken West', 'Spiez'))
+final_edges.remove(('Biel/Bienne', 'Grenchen Nord'))
+final_edges.remove(('Chambrelien', 'Neuchâtel'))
+final_edges.remove(('Concise', 'Yverdon-les-Bains'))
+final_edges.remove(('Brig', 'Visp'))
+final_edges.remove(('Etoy', 'Rolle'))
+final_edges.remove(('Klosters Selfranga', 'Sagliains'))
+final_edges.remove(('Klosters Platz', 'Susch'))
 
 # Manually add edges.
 final_edges.append(('Biasca', 'Erstfeld'))
-# final_edges.append(('Frutigen', 'Visp')) # Seems to be already in there.
 final_edges.append(('Bern Wankdorf', 'Rothrist'))
+final_edges.append(('Chambrelien', 'Corcelles-Peseux'))
+final_edges.append(('Concise', 'Grandson'))
+final_edges.append(('Brig', 'Eyholz'))
+final_edges.append(('Immensee', 'Rotkreuz'))
 ```
+
+The final number of edges is thus 1'704.
+
+![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](network_SoSta.svg){width="850"}
 
 #### Export the edgelist
 
