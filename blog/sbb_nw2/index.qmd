@@ -461,7 +461,7 @@ final_edges.append(('Immensee', 'Rotkreuz'))
 
 The final number of edges is thus 1'704.
 
-![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](network_SoSta.svg){width="850"}
+![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](Network_SoSta.svg){width="850"}
 
 #### Export the edgelist
 
