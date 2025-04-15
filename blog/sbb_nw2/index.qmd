@@ -34,6 +34,7 @@ Lastly, they point out an important subgraph relationship among these representa
 As always, we begin the practical part with loading the libraries we are going to use.
 
 ```{python}
+import geopy.distance
 import pandas as pd
 from collections import Counter, defaultdict
 
@@ -408,17 +409,25 @@ linien_sorted.loc[linien_sorted['Linie'] == 290]
 
 We see here for one example (Line 290) that the stations are now nicely sorted in ascending order of `'KM'`.
 
-Now, we can create a new column that always contains the station name of the next row using the handy `shift()` method. The last row within a group will always have a missing value for that new column as there is no next station at the end of a line. So, we drop the last row of each line.
+Now, we can create a new column that always contains the station name of the next row using the handy `shift()` method. We then do the same with the `KM` column and compute the distance between any subsequent stations. We will use those distances later on as edge weights for this representation.
+
+The last row within a group will always have a missing value for those new columns as there is no next station at the end of a line. So, we drop the last row of each line.
 
 ```{python}
 # Create a new column that for each row contains the next stop within the group.
 linien_sorted["NEXT_STATION"] = linien_sorted.groupby("Linie")["STATION_NAME"].shift(-1)
 
+# Do the same for KM.
+linien_sorted["NEXT_STATION_KM"] = linien_sorted.groupby("Linie")["KM"].shift(-1)
+
+# Compute distance.
+linien_sorted["DISTANCE"] = linien_sorted["NEXT_STATION_KM"] - linien_sorted["KM"]
+
 # Drop all rows where 'NEXT_STATION' is missing
 linien_sorted = linien_sorted.dropna(subset = ["NEXT_STATION"])
 ```
 
-We extract the values of the last two columns as the edges. Importantly, we now sort the node pairs in each edge in the same way as before (alphabetically).
+We now extract the values of the columns `STATION_NAME` and `NEXT_STATION` and ignore the distances for now. We will use this to validate our approach. Importantly, we sort the node pairs in each edge in the same way as before (alphabetically).
 
 ```{python}
 # Now let's extract the edges
@@ -428,7 +437,7 @@ linien_edges = list(zip(linien_sorted['STATION_NAME'], linien_sorted['NEXT_STATI
 linien_edges = list(set((min(e[0], e[1]), max(e[0], e[1])) for e in linien_edges))
 ```
 
-We first want to check whether there are edges in `linien_edges` that are neither a shortcut nor in the final edgelist from above.
+As for the validation, we first want to check whether there are edges in `linien_edges` that are neither a shortcut nor in the final edgelist from above.
 
 ```{python}
 # Check which edges are in linien_edges but neither in final_edges nor in shortcut_edges_clean.
@@ -462,21 +471,60 @@ final_edges.remove(('Chambrelien', 'Neuchâtel'))
 final_edges.remove(('Concise', 'Yverdon-les-Bains'))
 final_edges.remove(('Brig', 'Visp'))
 final_edges.remove(('Etoy', 'Rolle'))
-final_edges.remove(('Klosters Selfranga', 'Sagliains'))
-final_edges.remove(('Klosters Platz', 'Susch'))
+final_edges.remove(('Klosters Selfranga', 'Sagliains')) # Avoid several edges representing the Vereina tunnel
+final_edges.remove(('Klosters Platz', 'Susch')) # Avoid several edges representing the Vereina tunnel
 
 # Manually add edges.
-final_edges.append(('Biasca', 'Erstfeld'))
-final_edges.append(('Bern Wankdorf', 'Rothrist'))
-final_edges.append(('Chambrelien', 'Corcelles-Peseux'))
-final_edges.append(('Concise', 'Grandson'))
-final_edges.append(('Brig', 'Eyholz'))
-final_edges.append(('Immensee', 'Rotkreuz'))
+final_edges.append(('Biasca', 'Erstfeld')) # New Gotthard tunnel
+final_edges.append(('Bern Wankdorf', 'Rothrist')) # Bahn-2000
+final_edges.append(('Chambrelien', 'Corcelles-Peseux')) # Connector that was missing
+final_edges.append(('Concise', 'Grandson')) # Connector that was missing
+final_edges.append(('Brig', 'Eyholz')) # Connector that was missing
+final_edges.append(('Immensee', 'Rotkreuz')) # Connector that was missing
+final_edges.append(('Olten', 'Rothrist')) # Connector not going through Aarburg-Oftringen
+final_edges.append(('Rothrist', 'Solothurn')) # Bahn-2000
+final_edges.append(('Aarau', 'Däniken SO')) # Eppenberg tunnel
 ```
 
-The final number of edges is thus 1'704.
+Funny thing is that the two edges, `('Chambrelien', 'Corcelles-Peseux')` and `('Concise', 'Grandson')`, that our validation procedure proposed as missing edges did actually need to be added upon further inspection. They were missing connectors when I visually inspected the network.
 
-![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](Network_SoSta.svg){width="850"}
+After these final modifications of the edgelist, the total number of edges is 1'707.
+
+#### Edge weights
+
+As edge weights, we will compute the distances between stations. We will have exact distances for the lines maintained by SBB (we already computed them above based on the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/)). For all other edges, we will simply compute the direct distance based on the coordinates of the stations.
+
+In a first step, we augment every edge in our edgelist with the *direct* distance:
+
+```{python}
+# New column with coordinates in the same column.
+nodes['coord'] = list(zip(nodes.LATITUDE, nodes.LONGITUDE))
+
+# Define a function to compute direct distance.
+def compute_distance(station1, station2):
+    return geopy.distance.geodesic(
+        nodes.loc[nodes['STATION_NAME'] == station1, "coord"].item(), 
+        nodes.loc[nodes['STATION_NAME'] == station2, "coord"].item()).km
+
+# Compute direct distances between node pairs.
+final_edges = [(e[0], e[1], compute_distance(e[0], e[1])) for e in final_edges]
+```
+
+Then, in a second step we modify every edge that appears in the validation data (based on the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/))) and fill in the *exact* distance. For this we transform the validation data into a dictionary for fast lookups. The `get()` method then allows for easy replacement of distances:
+
+```{python}
+# List of edges including distances.
+linien_edges = list(zip(linien_sorted['STATION_NAME'], linien_sorted['NEXT_STATION'], linien_sorted['DISTANCE']))
+
+# Make sure the tuples are arranged in the same way as above (and unique).
+linien_edges = list(set((min(e[0], e[1]), max(e[0], e[1]), e[2]) for e in linien_edges))
+
+# Convert to a dict.
+linien_edges_dict = {(e[0], e[1]): e[2] for e in linien_edges}
+
+# Modify edges that exist in dict with exact distance.
+final_edges = [(n1, n2, linien_edges_dict.get((n1, n2), dist)) for n1, n2, dist in final_edges]
+```
 
 #### Export the edgelist
 
@@ -486,11 +534,12 @@ Finally, we can export the edges as before for the other representations.
 # Create a node dict with BPUIC as values
 node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))
 
-# Transform edge dict to nested list and replace all station names with their BPUIC
-edges = [[node_dict[e[0]], node_dict[e[1]]] for e in final_edges]
+# Transform edge dict to nested list and replace all station names with their BPUIC.
+# Also, round the distances to 4 decimal points.
+edges = [[node_dict[e[0]], node_dict[e[1]], round(e[2], 4)] for e in final_edges]
 
 # Create a dataframe
-edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2'])
+edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','DISTANCE'])
 
 # Have a look
 edges.head()
@@ -498,6 +547,8 @@ edges.head()
 # Export edge list
 # edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = 'utf-8', index = False)
 ```
+
+![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](Network_SoSta.svg){width="850"}
 
 You can download the result here: <a href="edgelist_SoS.csv" download>Edgelist space-of-stations (CSV)</a>.
 
