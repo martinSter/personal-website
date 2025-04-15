@@ -1,13 +1,34 @@
 ---
-title: "News"
-listing:
-    contents: news/.
-    sort: date desc
-    type: default
-    categories: true
-    sort-ui: false
-    filter-ui: false
-    feed: true
-page-layout: full
-title-block-bannerrR: false
+title: "About"
+about:
+    template: trestles
+    links:
+        - icon: linkedin
+          text: LinkedIn
+          url: https://www.linkedin.com/in/martin-sterchi-553336263/
+image: about/me1.jpeg
+comments: false
 ---
+
+I am a **lecturer** at the [School of Business](https://www.fhnw.ch/de/personen/martin-sterchi) at the University of Applied Sciences and Arts Northwestern Switzerland, or short FHNW. Additionally, I hold a part-time Postdoctoral position at the Chair of [Psychological Methods, Evaluation and Statistics](https://www.psychology.uzh.ch/en/areas/meth/methoden.html) at the University of Zurich, led by Prof. Dr. Carolin Strobl.
+
+I have a background in **economics**, having studied at the Universities of Fribourg and Zurich, and hold a **PhD in Computer Science** from the University of Zurich. My doctoral research, titled [Computational Approaches to Epidemic Prevention on Contact Networks](https://www.zora.uzh.ch/id/eprint/232841/1/232841.pdf), focused on developing methods to mitigate the spread of a disease when at least partial knowledge of the underlying contact network is available.
+
+At FHNW I teach the following modules ([more info](../teaching/index.qmd)):
+
+-   **Machine Learning**: This course is designed for business students, emphasizing the *practical application* of ML to real-world problems. We primarily use the `tidymodels` framework, building on students' prior knowledge of R.
+-   **Applied Data Science**: Currently, this week-long intensive course focuses on teaching students data visualization skills in `R` using `ggplot2`.
+-   **Business Analytics**: In this core module, I introduce students to programming in `R` and guide them through the fundamentals of linear regression.
+
+My research interests are as follows:
+
+-   **Dynamical processes on networks**: My primary research interest lies in epidemic processes, which was the focus of my PhD and remains a central theme in my current work.
+-   **Monte Carlo simulations**: For many problems, analytical solutions do not exist, and as a computer scientist, I am not reluctant to use simulations to find approximate solutions.
+-   **Graph Neural Networks**: Network science has not escaped the Deep Learning revolution—and naturally, GNNs have caught my attention. Specifically, I am curious if GNNs can help address the challenge of source detection.
+-   **Explainability**: Recently, I have begun exploring model explainability, primarily through visualizations—another passion of mine. I plan to further investigate this topic, particularly in the context of models on networks.
+
+I enjoy implementing Machine Learning algorithms from scratch to deepen my understanding at the implementation level. Moreover, I can spend hours refining data visualizations—whether in base `R`, `ggplot2`, or `matplotlib`—striving for a balance of aesthetics, clarity, and engagement.
+
+I live in Switzerland together with my partner and our two adorable—yet incredibly demanding—cats.
+
+![Two bundles of joy](about/cats.jpeg){width="500"}
