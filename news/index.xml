@@ -6,8 +6,8 @@
       version="2.0">
 <channel>
 <title>Martin Sterchi</title>
-<link>https://martinsterchi.ch/</link>
-<atom:link href="https://martinsterchi.ch/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://martinsterchi.ch/news/</link>
+<atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.6.43</generator>
 <lastBuildDate>Fri, 28 Feb 2025 00:00:00 GMT</lastBuildDate>
