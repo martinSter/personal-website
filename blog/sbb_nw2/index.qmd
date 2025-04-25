@@ -508,7 +508,7 @@ def compute_distance(station1, station2):
 final_edges = [(e[0], e[1], compute_distance(e[0], e[1])) for e in final_edges]
 ```
 
-Then, in a second step we modify every edge that appears in the validation data (based on the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/))) and fill in the *exact* distance. For this we transform the validation data into a dictionary for fast lookups. The `get()` method then allows for easy replacement of distances:
+Then, in a second step we modify every edge that appears in the validation data (based on the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/)) and fill in the *exact* distance. For this we transform the validation data into a dictionary for fast lookups. The `get()` method then allows for easy replacement of distances:
 
 ```{python}
 # List of edges including distances.
@@ -526,7 +526,7 @@ final_edges = [(n1, n2, dist, linien_edges_dict.get((n1, n2), np.nan)) for n1, n
 
 #### Export the edgelist
 
-Finally, we can export the edges as before for the other representations.
+Finally, we can export the edges as before for the other representations. Note that before we export the data we correct one small mistake in the edge Baar Lindenpark - Zug. The exact distance derived from the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/) is way too large and thus we simply impute the geodesic distance for this one edge.
 
 ```{python}
 # Create a node dict with BPUIC as values
@@ -538,6 +538,9 @@ edges = [[node_dict[e[0]], node_dict[e[1]], round(e[2], 4), round(e[3], 4)] for 
 
 # Create a dataframe
 edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','DISTANCE_GEODESIC','DISTANCE_EXACT'])
+
+# Correct mistake in edge between Baar Lindenpark and Zug.
+edges.loc[(edges['BPUIC1'] == 8515993) & (edges['BPUIC2'] == 8502204), 'DISTANCE_EXACT'] = 1.0593
 
 # Have a look
 edges.head()
