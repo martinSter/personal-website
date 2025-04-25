@@ -74,7 +74,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-f4bd4a1b33be30613a82ba5a5da0402b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-3494ac04bcd88ae1d4f74800465176d8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -242,7 +242,7 @@ window.Quarto = {
 <p>The temporal network representation I develop here is based on the <strong>space-of-changes</strong> approach. In this representation, a <em>directed</em> edge connects each station to all subsequent stations for a given “Fahrt.” Instead of aggregating edges between the same pairs of stations, we retain all edges at different points in time, storing both the start time of each edge, <span class="math inline">\(t\)</span>, and the time required to traverse it, <span class="math inline">\(\delta t\)</span>. This is just one possible way to represent temporal edges (see, for instance, the 2012 overview paper by <a href="https://doi.org/10.1016/j.physrep.2012.03.001">Petter Holme and Jari Saramäki</a>).</p>
 <p>With this temporal network model, finding <strong>time-respecting paths</strong> between any two nodes closely mirrors what the SBB (Swiss railway) app does when searching for the fastest connections between stations.</p>
 <p>But let’s start the practical part now.</p>
-<div id="d67f8922" class="cell" data-execution_count="1">
+<div id="0ab787f4" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter, defaultdict</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -258,9 +258,9 @@ window.Quarto = {
 <section id="temporal-edgelist" class="level3">
 <h3 class="anchored" data-anchor-id="temporal-edgelist">Temporal edgelist</h3>
 <p>As for the <em>space-of-changes</em> representation, we start by loading the already processed “Ist-Daten” from <a href="../../blog/sbb_nw/index.html">Part 1</a> and transform all date-time elements into the right format. Also, we only need a few of the columns, so we reduce the dataframe drastically to only 4 columns.</p>
-<div id="32d4d2be" class="cell" data-execution_count="2">
+<div id="070d9c23" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the processed IST-DATEN.</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'ist-daten.csv'</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'ist-daten.csv'</span>, sep<span class="op">=</span><span class="st">";"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert BETRIEBSTAG to date format</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'BETRIEBSTAG'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'BETRIEBSTAG'</span>])</span>
@@ -293,38 +293,38 @@ window.Quarto = {
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>60402-NZ-8503000-213400</td>
-<td>Zürich HB</td>
+<td>80:800631:17230:000</td>
+<td>Basel Bad Bf</td>
+<td>2025-03-05 04:59:00</td>
 <td>NaT</td>
-<td>2025-03-05 21:34:00</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>60402-NZ-8503000-213400</td>
-<td>Basel SBB</td>
-<td>2025-03-05 22:28:00</td>
-<td>2025-03-05 23:13:00</td>
+<td>80:800631:17233:000</td>
+<td>Basel Bad Bf</td>
+<td>NaT</td>
+<td>2025-03-05 06:07:00</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>60402-NZ-8503000-213400</td>
+<td>80:800631:17234:000</td>
 <td>Basel Bad Bf</td>
-<td>2025-03-05 23:19:00</td>
-<td>2025-03-05 23:23:00</td>
+<td>2025-03-05 05:56:00</td>
+<td>NaT</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>60403-NZ-8400058-191500</td>
+<td>80:800631:17235:000</td>
 <td>Basel Bad Bf</td>
-<td>2025-03-06 06:10:00</td>
-<td>2025-03-06 06:13:00</td>
+<td>NaT</td>
+<td>2025-03-05 06:43:00</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>60403-NZ-8400058-191500</td>
-<td>Basel SBB</td>
-<td>2025-03-06 06:20:00</td>
-<td>2025-03-06 06:45:00</td>
+<td>80:800631:17236:000</td>
+<td>Basel Bad Bf</td>
+<td>2025-03-05 06:31:00</td>
+<td>NaT</td>
 </tr>
 </tbody>
 </table>
@@ -334,14 +334,14 @@ window.Quarto = {
 </div>
 <p>We now use almost the same function as for the <em>space-of-changes</em> representation in order to extract the edges between any station and all its subsequent stations in a given “Fahrt”.</p>
 <p>The only difference is that we extract, as the third element of an edge, the start time measured in minutes since the start of the day (2025-03-05 00:00:00). So, a train that departs at one minute past midnight will have the start time 1, as the following code demonstrates:</p>
-<div id="045924a8" class="cell" data-execution_count="3">
+<div id="c3fbfe34" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(pd.to_datetime(<span class="st">"2025-03-05 00:01:00"</span>) <span class="op">-</span> pd.to_datetime(<span class="st">"2025-03-05 00:00:00"</span>)).total_seconds() <span class="op">/</span> <span class="dv">60</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>1.0</code></pre>
 </div>
 </div>
 <p>Here now the function that we will use to iterate over the “Fahrten”:</p>
-<div id="3881517b" class="cell" data-execution_count="4">
+<div id="e5c97b9e" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to compute (directed) edges according to spaces-of-changes principle.</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_edges_in_groups(group):</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Empty list for results of a group.</span></span>
@@ -363,12 +363,12 @@ window.Quarto = {
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> results</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This function is applied as before for the <em>space-of-changes</em> representation:</p>
-<div id="e59fda18" class="cell" data-execution_count="5">
+<div id="8390d595" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Now apply that function group-wise.</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>edges_series <span class="op">=</span> df.groupby(<span class="st">"FAHRT_BEZEICHNER"</span>, group_keys<span class="op">=</span><span class="va">False</span>).<span class="bu">apply</span>(get_edges_in_groups)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>We can check the same “Fahrt” between Yverdon-les-Bains and Ste-Croix again.</p>
-<div id="272c1416" class="cell" data-execution_count="6">
+<div id="0888d8b0" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's check out one FAHRT.</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>edges_series[<span class="st">"85:97:9:000"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="6">
@@ -386,25 +386,25 @@ window.Quarto = {
 </div>
 <p>That train starts at 333 minutes past midnight (which is 05:33). The durations are the same as before in the <em>space-of-changes</em> representation.</p>
 <p>The final step before getting the data ready for the export is to flatten all the edges that are currently organized in the form of a Pandas series of lists.</p>
-<div id="3c88bd07" class="cell" data-execution_count="7">
+<div id="477f5a6b" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Flatten the result into one edgelist.</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>edgelist <span class="op">=</span> [x <span class="cf">for</span> l <span class="kw">in</span> edges_series.values <span class="cf">for</span> x <span class="kw">in</span> l]</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of edges:"</span>, <span class="bu">len</span>(edgelist))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of edges: 1110834</code></pre>
+<pre><code>Number of edges: 1110766</code></pre>
 </div>
 </div>
-<p>The <em>space-of-changes</em> representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal represenation of the network will have 1’110’834 edges.</p>
+<p>The <em>space-of-changes</em> representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal representation of the network will have 1’110’766 edges.</p>
 <p>The final steps are easy: we change the station names to their BPUIC numbers, we convert both the start time and the duration of an edge to integer values, and we export the dataframe as a CSV file.</p>
-<div id="11267476" class="cell" data-execution_count="8">
+<div id="c887262c" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the nodelist.</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> pd.read_csv(<span class="st">"nodelist.csv"</span>, sep <span class="op">=</span> <span class="st">";"</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with BPUIC as values</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>node_dict <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="d161cbd9" class="cell" data-execution_count="9">
+<div id="150010b0" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> [[node_dict[e[<span class="dv">0</span>]], node_dict[e[<span class="dv">1</span>]], <span class="bu">int</span>(e[<span class="dv">2</span>]), <span class="bu">int</span>(e[<span class="dv">3</span>])] <span class="cf">for</span> e <span class="kw">in</span> edgelist]</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -476,7 +476,7 @@ window.Quarto = {
 </section>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
-<p>Holme, P., &amp; Saramäki, J. (2012). Temporal networks. <em>Physics Reports</em>, 519(3), 97-125. <a href="https://doi.org/10.1016/j.physrep.2012.03.001">https://doi.org/10.1016/j.physrep.2012.03.001</a></p>
+<p>Holme, P., &amp; Saramäki, J. (2012). Temporal networks. <em>Physics Reports</em>, 519(3), 97-125. <a href="https://doi.org/10.1016/j.physrep.2012.03.001" class="uri">https://doi.org/10.1016/j.physrep.2012.03.001</a></p>
 <p><em>The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">Creative Commons</a>.</em></p>
 
 

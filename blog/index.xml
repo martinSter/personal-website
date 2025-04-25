@@ -24,7 +24,7 @@
 <p>The temporal network representation I develop here is based on the <strong>space-of-changes</strong> approach. In this representation, a <em>directed</em> edge connects each station to all subsequent stations for a given “Fahrt.” Instead of aggregating edges between the same pairs of stations, we retain all edges at different points in time, storing both the start time of each edge, <img src="https://latex.codecogs.com/png.latex?t">, and the time required to traverse it, <img src="https://latex.codecogs.com/png.latex?%5Cdelta%20t">. This is just one possible way to represent temporal edges (see, for instance, the 2012 overview paper by <a href="https://doi.org/10.1016/j.physrep.2012.03.001">Petter Holme and Jari Saramäki</a>).</p>
 <p>With this temporal network model, finding <strong>time-respecting paths</strong> between any two nodes closely mirrors what the SBB (Swiss railway) app does when searching for the fastest connections between stations.</p>
 <p>But let’s start the practical part now.</p>
-<div id="d67f8922" class="cell" data-execution_count="1">
+<div id="0ab787f4" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
@@ -60,7 +60,7 @@ font-style: inherit;">None</span>)</span></code></pre></div>
 <section id="temporal-edgelist" class="level3">
 <h3 class="anchored" data-anchor-id="temporal-edgelist">Temporal edgelist</h3>
 <p>As for the <em>space-of-changes</em> representation, we start by loading the already processed “Ist-Daten” from <a href="../../blog/sbb_nw/index.html">Part 1</a> and transform all date-time elements into the right format. Also, we only need a few of the columns, so we reduce the dataframe drastically to only 4 columns.</p>
-<div id="32d4d2be" class="cell" data-execution_count="2">
+<div id="070d9c23" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the processed IST-DATEN.</span></span>
@@ -68,7 +68,11 @@ font-style: inherit;"># Load the processed IST-DATEN.</span></span>
 background-color: null;
 font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'ist-daten.csv'</span>, low_memory<span class="op" style="color: #5E5E5E;
+font-style: inherit;">'ist-daten.csv'</span>, sep<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span>, low_memory<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
@@ -153,38 +157,38 @@ font-style: inherit;"># Check the dataframe.</span></span>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>60402-NZ-8503000-213400</td>
-<td>Zürich HB</td>
+<td>80:800631:17230:000</td>
+<td>Basel Bad Bf</td>
+<td>2025-03-05 04:59:00</td>
 <td>NaT</td>
-<td>2025-03-05 21:34:00</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>60402-NZ-8503000-213400</td>
-<td>Basel SBB</td>
-<td>2025-03-05 22:28:00</td>
-<td>2025-03-05 23:13:00</td>
+<td>80:800631:17233:000</td>
+<td>Basel Bad Bf</td>
+<td>NaT</td>
+<td>2025-03-05 06:07:00</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>60402-NZ-8503000-213400</td>
+<td>80:800631:17234:000</td>
 <td>Basel Bad Bf</td>
-<td>2025-03-05 23:19:00</td>
-<td>2025-03-05 23:23:00</td>
+<td>2025-03-05 05:56:00</td>
+<td>NaT</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>60403-NZ-8400058-191500</td>
+<td>80:800631:17235:000</td>
 <td>Basel Bad Bf</td>
-<td>2025-03-06 06:10:00</td>
-<td>2025-03-06 06:13:00</td>
+<td>NaT</td>
+<td>2025-03-05 06:43:00</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>60403-NZ-8400058-191500</td>
-<td>Basel SBB</td>
-<td>2025-03-06 06:20:00</td>
-<td>2025-03-06 06:45:00</td>
+<td>80:800631:17236:000</td>
+<td>Basel Bad Bf</td>
+<td>2025-03-05 06:31:00</td>
+<td>NaT</td>
 </tr>
 </tbody>
 </table>
@@ -194,7 +198,7 @@ font-style: inherit;"># Check the dataframe.</span></span>
 </div>
 <p>We now use almost the same function as for the <em>space-of-changes</em> representation in order to extract the edges between any station and all its subsequent stations in a given “Fahrt”.</p>
 <p>The only difference is that we extract, as the third element of an edge, the start time measured in minutes since the start of the day (2025-03-05 00:00:00). So, a train that departs at one minute past midnight will have the start time 1, as the following code demonstrates:</p>
-<div id="045924a8" class="cell" data-execution_count="3">
+<div id="c3fbfe34" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1">(pd.to_datetime(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"2025-03-05 00:01:00"</span>) <span class="op" style="color: #5E5E5E;
@@ -211,7 +215,7 @@ font-style: inherit;">60</span></span></code></pre></div>
 </div>
 </div>
 <p>Here now the function that we will use to iterate over the “Fahrten”:</p>
-<div id="3881517b" class="cell" data-execution_count="4">
+<div id="e5c97b9e" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to compute (directed) edges according to spaces-of-changes principle.</span></span>
@@ -309,7 +313,7 @@ font-weight: bold;
 font-style: inherit;">return</span> results</span></code></pre></div>
 </div>
 <p>This function is applied as before for the <em>space-of-changes</em> representation:</p>
-<div id="e59fda18" class="cell" data-execution_count="5">
+<div id="8390d595" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Now apply that function group-wise.</span></span>
@@ -326,7 +330,7 @@ background-color: null;
 font-style: inherit;">apply</span>(get_edges_in_groups)</span></code></pre></div>
 </div>
 <p>We can check the same “Fahrt” between Yverdon-les-Bains and Ste-Croix again.</p>
-<div id="272c1416" class="cell" data-execution_count="6">
+<div id="0888d8b0" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Let's check out one FAHRT.</span></span>
@@ -348,7 +352,7 @@ font-style: inherit;">"85:97:9:000"</span>]</span></code></pre></div>
 </div>
 <p>That train starts at 333 minutes past midnight (which is 05:33). The durations are the same as before in the <em>space-of-changes</em> representation.</p>
 <p>The final step before getting the data ready for the export is to flatten all the edges that are currently organized in the form of a Pandas series of lists.</p>
-<div id="3c88bd07" class="cell" data-execution_count="7">
+<div id="477f5a6b" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Flatten the result into one edgelist.</span></span>
@@ -376,12 +380,12 @@ font-style: inherit;">"Number of edges:"</span>, <span class="bu" style="color: 
 background-color: null;
 font-style: inherit;">len</span>(edgelist))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of edges: 1110834</code></pre>
+<pre><code>Number of edges: 1110766</code></pre>
 </div>
 </div>
-<p>The <em>space-of-changes</em> representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal represenation of the network will have 1’110’834 edges.</p>
+<p>The <em>space-of-changes</em> representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal representation of the network will have 1’110’766 edges.</p>
 <p>The final steps are easy: we change the station names to their BPUIC numbers, we convert both the start time and the duration of an edge to integer values, and we export the dataframe as a CSV file.</p>
-<div id="11267476" class="cell" data-execution_count="8">
+<div id="c887262c" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the nodelist.</span></span>
@@ -406,7 +410,7 @@ font-style: inherit;">dict</span>(<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span></code></pre></div>
 </div>
-<div id="d161cbd9" class="cell" data-execution_count="9">
+<div id="150010b0" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
@@ -520,7 +524,7 @@ font-style: inherit;"># edges.to_csv("edgelist_temporal.csv", sep = ';', encodin
 </section>
 <section id="references" class="level3">
 <h3 class="anchored" data-anchor-id="references">References</h3>
-<p>Holme, P., &amp; Saramäki, J. (2012). Temporal networks. <em>Physics Reports</em>, 519(3), 97-125. <a href="https://doi.org/10.1016/j.physrep.2012.03.001">https://doi.org/10.1016/j.physrep.2012.03.001</a></p>
+<p>Holme, P., &amp; Saramäki, J. (2012). Temporal networks. <em>Physics Reports</em>, 519(3), 97-125. <a href="https://doi.org/10.1016/j.physrep.2012.03.001" class="uri">https://doi.org/10.1016/j.physrep.2012.03.001</a></p>
 <p><em>The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">Creative Commons</a>.</em></p>
 
 
@@ -554,7 +558,7 @@ font-style: inherit;"># edges.to_csv("edgelist_temporal.csv", sep = ';', encodin
 </ul>
 <p>Lastly, they point out an important subgraph relationship among these representations: <em>space-of-stations</em> is a subgraph of <em>space-of-stops</em>, which in turn is a subgraph of <em>space-of-changes</em>.</p>
 <p>As always, we begin the practical part with loading the libraries we are going to use.</p>
-<div id="d9ed568e" class="cell" data-execution_count="1">
+<div id="0ba0bc9e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> geopy.distance</span>
@@ -565,36 +569,47 @@ background-color: null;
 font-style: inherit;">as</span> pd</span>
 <span id="cb1-3"><span class="im" style="color: #00769E;
 background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb1-4"><span class="im" style="color: #00769E;
+background-color: null;
 font-style: inherit;">from</span> collections <span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> Counter, defaultdict</span>
-<span id="cb1-4"></span>
-<span id="cb1-5"><span class="co" style="color: #5E5E5E;
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check versions of libraries.</span></span>
-<span id="cb1-6"><span class="bu" style="color: null;
+<span id="cb1-7"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Pandas version:"</span>, pd.__version__)</span>
-<span id="cb1-7"></span>
-<span id="cb1-8"><span class="co" style="color: #5E5E5E;
+<span id="cb1-8"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Numpy version:"</span>, np.__version__)</span>
+<span id="cb1-9"></span>
+<span id="cb1-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Make sure there is no limit on the number of columns shown.</span></span>
-<span id="cb1-9">pd.set_option(<span class="st" style="color: #20794D;
+<span id="cb1-11">pd.set_option(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'display.max_columns'</span>, <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">None</span>)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Pandas version: 2.1.4</code></pre>
+<pre><code>Pandas version: 2.1.4
+Numpy version: 1.26.4</code></pre>
 </div>
 </div>
 <p>We first present how the <em>space-of-changes</em> representation can be extracted. After that we show one way of finding the edges for the <em>space-of-stations</em> representation.</p>
 <section id="space-of-changes" class="level3">
 <h3 class="anchored" data-anchor-id="space-of-changes">Space-of-changes</h3>
 <p>We start by importing the already processed “Ist-Daten” from <a href="../../blog/sbb_nw/index.html">Part 1</a>. Since we load them from a CSV file we have to transform all date-time information into the Pandas datetime format.</p>
-<div id="c1ed30c0" class="cell" data-execution_count="2">
+<div id="9695c3a1" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the processed IST-DATEN.</span></span>
@@ -602,7 +617,11 @@ font-style: inherit;"># Load the processed IST-DATEN.</span></span>
 background-color: null;
 font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'ist-daten.csv'</span>, low_memory<span class="op" style="color: #5E5E5E;
+font-style: inherit;">'ist-daten.csv'</span>, sep<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">";"</span>, low_memory<span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span><span class="va" style="color: #111111;
 background-color: null;
@@ -652,7 +671,7 @@ background-color: null;
 font-style: inherit;">'AB_PROGNOSE'</span>])</span></code></pre></div>
 </div>
 <p>Next comes the key part of extracting the edges for the <em>space-of-changes</em> representation. We will group the rows by <code>FAHRT_BEZEICHNER</code>. Then, we will use two nested loops to create edges between any station and all subsequent stations on a given “Fahrt”. Note that in contrast to Kurant and Thiran (2006) we will extract <em>directed</em> edges. The following function specifies how the edges can be extracted for one group. It’s not very performant code and there may be smarter and more efficient ways of doing this. But it does the job.</p>
-<div id="eade4a3f" class="cell" data-execution_count="3">
+<div id="23f60b1e" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to compute (directed) edges according to spaces-of-changes principle.</span></span>
@@ -735,7 +754,7 @@ font-weight: bold;
 font-style: inherit;">return</span> results</span></code></pre></div>
 </div>
 <p>We can now apply that function to every group. On my machine, this step took roughly 10 minutes.</p>
-<div id="6cb7fdd3" class="cell" data-execution_count="4">
+<div id="d77f921f" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Now apply that function group-wise.</span></span>
@@ -752,7 +771,7 @@ background-color: null;
 font-style: inherit;">apply</span>(get_edges_in_groups)</span></code></pre></div>
 </div>
 <p>The output of the previous step is a Pandas series, as the following check confirms. We can see that every element of that series is identified with <code>FAHRT_BEZEICHNER</code> and contains a list with the edges, also including the time between the two nodes.</p>
-<div id="a5c29c47" class="cell" data-execution_count="5">
+<div id="ddbabe91" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Make sure the result is a pandas series.</span></span>
@@ -782,7 +801,7 @@ dtype: object</code></pre>
 </div>
 </div>
 <p>We perform another quick check to make sure the series contains as many elements as there are unique <code>FAHRT_BEZEICHNER</code> strings. That seems to be the case.</p>
-<div id="6bbabe8a" class="cell" data-execution_count="6">
+<div id="70328b7d" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># How many elements?</span></span>
@@ -801,15 +820,15 @@ font-style: inherit;"># Is that the number of distinct FAHRTEN?</span></span>
 background-color: null;
 font-style: inherit;">'FAHRT_BEZEICHNER'</span>]].nunique()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of elements in series: 14653</code></pre>
+<pre><code>Number of elements in series: 15005</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="6">
-<pre><code>FAHRT_BEZEICHNER    14653
+<pre><code>FAHRT_BEZEICHNER    15005
 dtype: int64</code></pre>
 </div>
 </div>
 <p>We quickly check the list of edges for one “Fahrt” to make sure it really extracted the edges in the right way.</p>
-<div id="ccebe8e6" class="cell" data-execution_count="7">
+<div id="011d813d" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Let's check out one FAHRT.</span></span>
@@ -831,7 +850,7 @@ font-style: inherit;">"85:97:9:000"</span>]</span></code></pre></div>
 </div>
 <p>This seems to be a train that goes from Yverdon-les-Bains to Ste-Croix. It stops in Vuiteboeuf, Baulmes, and Six-Fontaines before getting to Ste-Croix. There is an edge between every station and all its subsequent stations on that “Fahrt”. This is exactly what we wanted.</p>
 <p>Now, we flatten the Pandas series of lists into one edgelist.</p>
-<div id="0b3d50bc" class="cell" data-execution_count="8">
+<div id="8acb2a0b" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Flatten the result into one edgelist.</span></span>
@@ -859,11 +878,11 @@ font-style: inherit;">"Number of edges:"</span>, <span class="bu" style="color: 
 background-color: null;
 font-style: inherit;">len</span>(edgelist))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of edges: 1110834</code></pre>
+<pre><code>Number of edges: 1110766</code></pre>
 </div>
 </div>
 <p>This edgelist contains over one million edges. Note, however, that many of them are duplicates as we looped over all “Fahrten” of a given day. As in <a href="../../blog/sbb_nw/index.html">Part 1</a>, we will now aggregate all duplicate edges, counting the number of connections and the average travel time between any two nodes.</p>
-<div id="7eff0fac" class="cell" data-execution_count="9">
+<div id="8500bdce" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty dict</span></span>
@@ -953,11 +972,11 @@ font-style: inherit;">"Number of edges:"</span>, <span class="bu" style="color: 
 background-color: null;
 font-style: inherit;">len</span>(edges))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of edges: 37951</code></pre>
+<pre><code>Number of edges: 37947</code></pre>
 </div>
 </div>
-<p>We are left with 37’951 directed and weighted edges that are currently stored in a dict called <code>edges</code>. Let’s see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:</p>
-<div id="4da2504d" class="cell" data-execution_count="10">
+<p>We are left with 37’947 directed and weighted edges that are currently stored in a dict called <code>edges</code>. Let’s see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:</p>
+<div id="863aeb0b" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Test</span></span>
@@ -972,7 +991,7 @@ font-style: inherit;">"Winterthur"</span>)]</span></code></pre></div>
 </div>
 <p>I can travel from Olten to Winterthur 25 times per day (without having to change trains) and the trip takes a bit more than an hour.</p>
 <p>Now, there is still a small problem (which I acutally only found out about after creating a network with <code>networkX</code>): there are two self-loops!</p>
-<div id="54b73a63" class="cell" data-execution_count="11">
+<div id="a8de4da2" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(edges[(<span class="st" style="color: #20794D;
@@ -993,7 +1012,7 @@ font-style: inherit;">"Les Planches (Aigle)"</span>)])</span></code></pre></div>
 </div>
 </div>
 <p>I checked the trips in which these stations occur and the trips actually do visit the same station twice. So, our code did the right thing, these are just two odd trips. I decided to remove those two edges:</p>
-<div id="03aa507f" class="cell" data-execution_count="12">
+<div id="a5c5ad93" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Remove the two self-loops</span></span>
@@ -1012,7 +1031,7 @@ font-style: inherit;">"Monthey-En Place"</span>))</span></code></pre></div>
 </div>
 </div>
 <p>Now, we import the nodelist from <a href="../../blog/sbb_nw/index.html">Part 1</a> so that we can replace the station names in the edges by the BPUIC identifiers.</p>
-<div id="fa478aee" class="cell" data-execution_count="13">
+<div id="079897ff" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the nodelist.</span></span>
@@ -1038,7 +1057,7 @@ background-color: null;
 font-style: inherit;">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span></code></pre></div>
 </div>
 <p>After changing all stations names to BPUIC numbers we create a dataframe that can then be exported as a CSV file. Yay, we’re done!</p>
-<div id="d11233cf" class="cell" data-execution_count="14">
+<div id="518d397e" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
@@ -1087,7 +1106,7 @@ background-color: null;
 font-style: inherit;"># Export edge list</span></span>
 <span id="cb25-11"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># edges.to_csv("edgelist_SoC.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
+font-style: inherit;"># edges.to_csv("edgelist_SoCha.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <div>
 
@@ -1144,13 +1163,13 @@ font-style: inherit;"># edges.to_csv("edgelist_SoC.csv", sep = ';', encoding = '
 </div>
 </div>
 </div>
-<p>You can download the result here: <a href="edgelist_SoC.csv" download="">Edgelist space-of-changes (CSV)</a>.</p>
+<p>You can download the result here: <a href="edgelist_SoCha.csv" download="">Edgelist space-of-changes (CSV)</a>.</p>
 </section>
 <section id="space-of-stations" class="level3">
 <h3 class="anchored" data-anchor-id="space-of-stations">Space-of-stations</h3>
 <p>For the <em>space-of-stations</em> graph representation we make use of the fact that the <em>space-of-stations</em> graph should be a subgraph of the <em>space-of-stops</em> graph that we extracted in <a href="../../blog/sbb_nw/index.html">Part 1</a> with the latter containing additional edges that represent <strong>shortcuts</strong>. For example, the <em>space-of-stops</em> graph contains a directed edge from Olten to Basel SBB as there are nonstop trains between these two stations. However, there are also smaller, regional trains which stop at all stations in between. The key idea (also nicely shown by Kurant and Thiran) is to go through all edges in the <em>space-of-stops</em> graph and identify the ones that are shortcuts.</p>
 <p>We first load the (<em>space-of-stops</em>) edgelist from <a href="../../blog/sbb_nw/index.html">Part 1</a> and add the station names.</p>
-<div id="ceefca81" class="cell" data-execution_count="15">
+<div id="c2828862" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the space-of-stops edgelist.</span></span>
@@ -1158,7 +1177,7 @@ font-style: inherit;"># Load the space-of-stops edgelist.</span></span>
 background-color: null;
 font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">"edgelist.csv"</span>, sep <span class="op" style="color: #5E5E5E;
+font-style: inherit;">"edgelist_SoSto.csv"</span>, sep <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
@@ -1225,13 +1244,13 @@ font-style: inherit;">0</span>])</span></code></pre></div>
 1  8500010  8500090               67          6.07     Basel SBB  Basel Bad Bf
 2  8500090  8500010               67          6.39  Basel Bad Bf     Basel SBB
 3  8500010  8503000               39         57.87     Basel SBB     Zürich HB
-4  8503424  8500090               17         73.18  Schaffhausen  Basel Bad Bf
-Number of edges in space-of-stops representation: 4215</code></pre>
+4  8506286  8506271               34          3.00     Appenzell     Gontenbad
+Number of edges in space-of-stops representation: 4211</code></pre>
 </div>
 </div>
 <p>For the <em>space-of-stations</em> representation, <strong>undirected</strong> edges make the most sense. Thus, we need to make the directed edges from the <em>space-of-stops</em> representation undirected and remove all duplicates that this introduces (e.g., ‘Olten - Basel SBB’ and ‘Basel SBB - Olten’). With a little help by ChatGPT I found an elegant solution to achieve just that.</p>
 <p>More concretely, we iterate over the zip object containing the node pairs of all edges. The <code>min()</code> and <code>max()</code> functions applied to the station names will sort the station names alphabetically so that, for example, ‘Olten - Basel SBB’ and ‘Basel SBB - Olten’ are both transformed to ‘Basel SBB - Olten’. Finally, the <code>set()</code> function will get rid of all duplicates.</p>
-<div id="7d04f218" class="cell" data-execution_count="16">
+<div id="048473f1" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Get a list of unique undirected edges.</span></span>
@@ -1267,14 +1286,14 @@ font-style: inherit;">"Number of unique undirected edges:"</span>, <span class="
 background-color: null;
 font-style: inherit;">len</span>(unique_undirected_edges))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of unique undirected edges: 2154</code></pre>
+<pre><code>Number of unique undirected edges: 2152</code></pre>
 </div>
 </div>
-<p>This step leaves us with 2’154 undirected, unique edges.</p>
+<p>This step leaves us with 2’152 undirected, unique edges.</p>
 <section id="data-preprocessing-for-improved-efficiency" class="level4">
 <h4 class="anchored" data-anchor-id="data-preprocessing-for-improved-efficiency">Data preprocessing for improved efficiency</h4>
 <p>In order to make the procedure further below more efficient, we extract here all unique “Fahrten”. More specifically, we create a dictionary <code>fahrten</code> with the sequence of station names as key and the <code>FAHRT_BEZEICHNER</code> as value. Note that if a sequence of station names already exists as a key in the dict, then the value belonging to that key will be overwritten with the new <code>FAHRT_BEZEICHNER</code> but that doesn’t bother us since we just want to be able to extract one example “Fahrt” per unique sequence of stops.</p>
-<div id="1e3178fe" class="cell" data-execution_count="17">
+<div id="e825f4a0" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty dict</span></span>
@@ -1323,13 +1342,13 @@ font-style: inherit;">"Number of 'Fahrten' in whole dataframe:"</span>, df[<span
 background-color: null;
 font-style: inherit;">'FAHRT_BEZEICHNER'</span>].nunique())</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of unique 'Fahrten': 1678
-Number of 'Fahrten' in whole dataframe: 14653</code></pre>
+<pre><code>Number of unique 'Fahrten': 1686
+Number of 'Fahrten' in whole dataframe: 15005</code></pre>
 </div>
 </div>
 <p>We can see from the above output that this step drastically reduces the “Fahrten” that we will iterate over later.</p>
 <p>In the following code chunk we filter the “Ist-Daten” (<code>df</code>) loaded earlier so that only the unique “Fahrten” are left.</p>
-<div id="27a1db6a" class="cell" data-execution_count="18">
+<div id="e7f99b5b" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Reduce the dataframe to the 'Fahrten' in list of values of dict.</span></span>
@@ -1349,11 +1368,11 @@ font-style: inherit;">"Remaining number of rows:"</span>, df.shape[<span class="
 background-color: null;
 font-style: inherit;">0</span>])</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Remaining number of rows: 17597</code></pre>
+<pre><code>Remaining number of rows: 17603</code></pre>
 </div>
 </div>
 <p>Another little trick to make things more efficent later is to create a dictionary with station names as keys and a list with all <code>FAHRT_BEZEICHNER</code> strings a station name is part of as values (kind of an <em>inverted index</em>).</p>
-<div id="12d449ba" class="cell" data-execution_count="19">
+<div id="74232726" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># defaultdict with lists</span></span>
@@ -1396,7 +1415,7 @@ font-style: inherit;">dict</span>(result_dict)</span></code></pre></div>
 <h4 class="anchored" data-anchor-id="identify-shortcuts">Identify shortcuts</h4>
 <p>Next, we perform the key step in extracting the edges for the <em>space-of-stations</em> representation: we need to identify all edges that are shortcuts, passing train stations without stopping.</p>
 <p>We first define a custom function that determines whether any two station names <code>a</code> and <code>b</code> are adjacent in a sequence (list) of station names <code>lst</code>.</p>
-<div id="b3ea7ee6" class="cell" data-execution_count="20">
+<div id="67f307fb" class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to check whether elements a and b are NOT adjacent in lst.</span></span>
@@ -1441,7 +1460,7 @@ font-style: inherit;">1</span>:]))</span></code></pre></div>
 <li>If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and move on to the next edge.</li>
 </ul></li>
 </ol>
-<div id="1e8de516" class="cell" data-execution_count="21">
+<div id="e56ae934" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty list for shortcuts.</span></span>
@@ -1543,11 +1562,11 @@ font-style: inherit;">"Number of shortcut edges:"</span>, <span class="bu" style
 background-color: null;
 font-style: inherit;">len</span>(shortcut_edges))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of shortcut edges: 442</code></pre>
+<pre><code>Number of shortcut edges: 443</code></pre>
 </div>
 </div>
-<p>A total of 442 edges are identified as shortcuts. Let’s have a look at the first one:</p>
-<div id="d9538bde" class="cell" data-execution_count="22">
+<p>A total of 443 edges are identified as shortcuts. Let’s have a look at the first one:</p>
+<div id="9c6a1f59" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check first shortcut.</span></span>
@@ -1572,35 +1591,33 @@ font-style: inherit;">0</span>], <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'STATION_NAME'</span>]</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>('ch:1:sjyid:100001:17321-001', ('Basel SBB', 'Pratteln'))</code></pre>
+<pre><code>('ch:1:sjyid:100001:18776-001', ('Meilen', 'Männedorf'))</code></pre>
 </div>
 <div class="cell-output cell-output-display" data-execution_count="22">
-<pre><code>52195                   Delémont
-52196                     Laufen
-52197                    Zwingen
-52198                 Grellingen
-52199                  Duggingen
-52200                   Aesch BL
-52201          Dornach-Arlesheim
-52202               Münchenstein
-52203            Basel Dreispitz
-52204                  Basel SBB
-52205                    Muttenz
-52206                   Pratteln
-52207    Frenkendorf-Füllinsdorf
-52208                    Liestal
-52209                     Lausen
-52210                    Itingen
-52211                    Sissach
-52212               Gelterkinden
-52213                    Tecknau
-52214                      Olten
+<pre><code>14911         Rapperswil SG
+14912             Kempraten
+14913              Feldbach
+14914               Uerikon
+14915                 Stäfa
+14916             Männedorf
+14917               Uetikon
+14918                Meilen
+14919    Zürich Stadelhofen
+14920             Zürich HB
+14921     Zürich Hardbrücke
+14922       Zürich Oerlikon
+14923               Opfikon
+14924       Kloten Balsberg
+14925                Kloten
+14926           Bassersdorf
+14927            Effretikon
+14928            Winterthur
 Name: STATION_NAME, dtype: object</code></pre>
 </div>
 </div>
 <p>From the whole sequence of stations, we can see that the edge identified as a shortcut is, in fact, a connection that is not consecutive.</p>
 <p>Finally, we remove the <code>FAHRT_BEZEICHNER</code> from <code>shortcut_edges</code> and create the final edge list without shortcuts.</p>
-<div id="32b99f80" class="cell" data-execution_count="23">
+<div id="6ed9ca05" class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Extract only edges</span></span>
@@ -1646,16 +1663,16 @@ font-style: inherit;">"Number of edges:"</span>, <span class="bu" style="color: 
 background-color: null;
 font-style: inherit;">len</span>(final_edges))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Number of edges: 1712</code></pre>
+<pre><code>Number of edges: 1709</code></pre>
 </div>
 </div>
-<p>We have a final number of edges of <img src="https://latex.codecogs.com/png.latex?2154-442=1712">.</p>
+<p>We have a final number of edges of <img src="https://latex.codecogs.com/png.latex?2152-443=1709">.</p>
 </section>
 <section id="validate-with-liniendaten" class="level4">
 <h4 class="anchored" data-anchor-id="validate-with-liniendaten">Validate with “Liniendaten”</h4>
 <p>The extraction of the edges in the <em>space-of-stations</em> representation was a bit more complex than for <em>space-of-changes</em> or <em>space-of-stops</em>. That’s why I would like to run some checks.</p>
 <p>We can validate some of the edges we extracted with another dataset from the <a href="https://data.sbb.ch/pages/home/">Open Data Portal of SBB</a>. The dataset <a href="https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/">Linie (Betriebspunkte)</a> contains all railway “lines” maintained by SBB with all “Betriebspunkte” (including stations) that are located along these lines. Let’s load this dataset:</p>
-<div id="e776e526" class="cell" data-execution_count="24">
+<div id="df256ed3" class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data about "Linien mit Betriebspunkten"</span></span>
@@ -1696,7 +1713,7 @@ font-style: inherit;">"Shape of dataframe:"</span>, linien.shape)</span></code><
 </div>
 </div>
 <p>Let’s have a look:</p>
-<div id="cf33ce3b" class="cell" data-execution_count="25">
+<div id="8f8b16b6" class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Have a look at the dataframe</span></span>
@@ -1764,7 +1781,7 @@ font-style: inherit;"># Have a look at the dataframe</span></span>
 </div>
 </div>
 <p>The rows in that dataset are not just stations but also other “Betriebspunkte” (important locations that are needed to run the infrastructure). But we can identify the stations among the “Betriebspunkte” by joining the <code>nodes</code> dataframe on BPUIC and only keeping the entries for which there was a matching row in <code>nodes</code>.</p>
-<div id="5e190b25" class="cell" data-execution_count="26">
+<div id="ab6c9c91" class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Join the rows of nodelist based on BPUIC.</span></span>
@@ -1821,7 +1838,7 @@ Number of remaining rows: 905</code></pre>
 </div>
 </div>
 <p>Next, we group the rows by <code>'Linie'</code> and sort them in ascending order by <code>'KM'</code> (where along the line is the “Betriebspunkt” located, in terms of kilometres) so that the stations for each line are sorted in the right order.</p>
-<div id="6c6aa6aa" class="cell" data-execution_count="27">
+<div id="719a3e41" class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to sort entries within a group in ascending order of KM</span></span>
@@ -1954,7 +1971,7 @@ font-style: inherit;">290</span>]</span></code></pre></div>
 <p>We see here for one example (Line 290) that the stations are now nicely sorted in ascending order of <code>'KM'</code>.</p>
 <p>Now, we can create a new column that always contains the station name of the next row using the handy <code>shift()</code> method. We then do the same with the <code>KM</code> column and compute the distance between any subsequent stations. We will use those distances later on as edge weights for this representation.</p>
 <p>The last row within a group will always have a missing value for those new columns as there is no next station at the end of a line. So, we drop the last row of each line.</p>
-<div id="b638823e" class="cell" data-execution_count="28">
+<div id="7852203f" class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a new column that for each row contains the next stop within the group.</span></span>
@@ -2016,7 +2033,7 @@ background-color: null;
 font-style: inherit;">"NEXT_STATION"</span>])</span></code></pre></div>
 </div>
 <p>We now extract the values of the columns <code>STATION_NAME</code> and <code>NEXT_STATION</code> and ignore the distances for now. We will use this to validate our approach. Importantly, we sort the node pairs in each edge in the same way as before (alphabetically).</p>
-<div id="0a7ecd1e" class="cell" data-execution_count="29">
+<div id="eda200a9" class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Now let's extract the edges</span></span>
@@ -2062,7 +2079,7 @@ font-weight: bold;
 font-style: inherit;">in</span> linien_edges))</span></code></pre></div>
 </div>
 <p>As for the validation, we first want to check whether there are edges in <code>linien_edges</code> that are neither a shortcut nor in the final edgelist from above.</p>
-<div id="28875c5f" class="cell" data-execution_count="30">
+<div id="052c2785" class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check which edges are in linien_edges but neither in final_edges nor in shortcut_edges_clean.</span></span>
@@ -2092,22 +2109,22 @@ background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> shortcut_edges_clean]</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="30">
-<pre><code>[('Koblenz', 'Laufenburg'),
- ('Niederbipp', 'Solothurn'),
+<pre><code>[('La Chaux-de-Fonds', 'Tavannes'),
  ('Langenthal', 'Niederbipp'),
- ('Chambrelien', 'Corcelles-Peseux'),
- ('Concise', 'Grandson'),
- ('Bauma', 'Hinwil'),
+ ('Koblenz', 'Laufenburg'),
  ('Neuhausen Rheinfall', 'Rafz'),
- ('Büren an der Aare', 'Solothurn'),
+ ('Niederbipp', 'Solothurn'),
  ('Solothurn', 'Zollikofen'),
- ('La Chaux-de-Fonds', 'Tavannes'),
- ('Dietfurt', 'Kaltbrunn')]</code></pre>
+ ('Chambrelien', 'Corcelles-Peseux'),
+ ('Büren an der Aare', 'Solothurn'),
+ ('Dietfurt', 'Kaltbrunn'),
+ ('Bauma', 'Hinwil'),
+ ('Concise', 'Grandson')]</code></pre>
 </div>
 </div>
 <p>There are some candidate edges but I checked all of them manually in the train schedule and none of them seem to have direct train connections. It could be that some of these are old train lines that are not active anymore.</p>
 <p>Are there any edges in <code>linien_edges</code> that were classified as shortcuts?</p>
-<div id="62b7ef0d" class="cell" data-execution_count="31">
+<div id="b9279721" class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Are there any edges that I classified as shortcuts?</span></span>
@@ -2125,12 +2142,12 @@ background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> shortcut_edges_clean]</span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
-<pre><code>[('Niederbipp', 'Oensingen'), ('Chur', 'Landquart')]</code></pre>
+<pre><code>[('Brig', 'Visp'), ('Chur', 'Landquart'), ('Niederbipp', 'Oensingen')]</code></pre>
 </div>
 </div>
-<p>Yes, but the two lines are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.</p>
+<p>Yes, but the three connections are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Brig and Visp there is a small station called Eyholz. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.</p>
 <p>A manual check of the edges reveals that there are other shortcuts that our procedure was not able to identify. For example, the edge <code>(Bern, Zofingen)</code> cannot be identified because there is no other “Fahrt” that contains these two stations and stops somewhere in between. We manually remove such edges. In addition, we add some edges for which I know that there is actually infrastructure (tunnels, high-speed routes) that directly connects the two nodes involved.</p>
-<div id="dc08e4f7" class="cell" data-execution_count="32">
+<div id="78cd64ed" class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Manually remove edges.</span></span>
@@ -2146,129 +2163,105 @@ background-color: null;
 font-style: inherit;">'Zürich HB'</span>))</span>
 <span id="cb55-4">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'Basel Bad Bf'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Schaffhausen'</span>))</span>
-<span id="cb55-5">final_edges.remove((<span class="st" style="color: #20794D;
-background-color: null;
 font-style: inherit;">'Morges'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Yverdon-les-Bains'</span>))</span>
-<span id="cb55-6">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-5">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Aarau'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Sissach'</span>))</span>
-<span id="cb55-7">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-6">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Bergün/Bravuogn'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Pontresina'</span>))</span>
-<span id="cb55-8">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-7">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Interlaken West'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Spiez'</span>))</span>
-<span id="cb55-9">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-8">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Biel/Bienne'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Grenchen Nord'</span>))</span>
-<span id="cb55-10">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-9">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Chambrelien'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Neuchâtel'</span>))</span>
-<span id="cb55-11">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-10">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Concise'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Yverdon-les-Bains'</span>))</span>
-<span id="cb55-12">final_edges.remove((<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Brig'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Visp'</span>))</span>
-<span id="cb55-13">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-11">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Etoy'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Rolle'</span>))</span>
-<span id="cb55-14">final_edges.remove((<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Klosters Selfranga'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Sagliains'</span>)) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Avoid several edges representing the Vereina tunnel</span></span>
-<span id="cb55-15">final_edges.remove((<span class="st" style="color: #20794D;
+<span id="cb55-12">final_edges.remove((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Klosters Platz'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Susch'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Avoid several edges representing the Vereina tunnel</span></span>
-<span id="cb55-16"></span>
-<span id="cb55-17"><span class="co" style="color: #5E5E5E;
+<span id="cb55-13"></span>
+<span id="cb55-14"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Manually add edges.</span></span>
-<span id="cb55-18">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-15">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Biasca'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Erstfeld'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># New Gotthard tunnel</span></span>
-<span id="cb55-19">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-16">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Bern Wankdorf'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Rothrist'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Bahn-2000</span></span>
-<span id="cb55-20">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-17">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Chambrelien'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Corcelles-Peseux'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Connector that was missing</span></span>
-<span id="cb55-21">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-18">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Concise'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Grandson'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Connector that was missing</span></span>
-<span id="cb55-22">final_edges.append((<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Brig'</span>, <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'Eyholz'</span>)) <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;"># Connector that was missing</span></span>
-<span id="cb55-23">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-19">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Immensee'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Rotkreuz'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Connector that was missing</span></span>
-<span id="cb55-24">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-20">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Olten'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Rothrist'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Connector not going through Aarburg-Oftringen</span></span>
-<span id="cb55-25">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-21">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Rothrist'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Solothurn'</span>)) <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Bahn-2000</span></span>
-<span id="cb55-26">final_edges.append((<span class="st" style="color: #20794D;
+<span id="cb55-22">final_edges.append((<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Aarau'</span>, <span class="st" style="color: #20794D;
 background-color: null;
@@ -2277,13 +2270,13 @@ background-color: null;
 font-style: inherit;"># Eppenberg tunnel</span></span></code></pre></div>
 </div>
 <p>Funny thing is that the two edges, <code>('Chambrelien', 'Corcelles-Peseux')</code> and <code>('Concise', 'Grandson')</code>, that our validation procedure proposed as missing edges did actually need to be added upon further inspection. They were missing connectors when I visually inspected the network.</p>
-<p>After these final modifications of the edgelist, the total number of edges is 1’707.</p>
+<p>After these final modifications of the edgelist, the total number of edges is 1’706.</p>
 </section>
 <section id="edge-weights" class="level4">
 <h4 class="anchored" data-anchor-id="edge-weights">Edge weights</h4>
 <p>As edge weights, we will compute the distances between stations. We will have exact distances for the lines maintained by SBB (we already computed them above based on the dataset <a href="https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/">Linie (Betriebspunkte)</a>). For all other edges, we will simply compute the direct distance based on the coordinates of the stations.</p>
 <p>In a first step, we augment every edge in our edgelist with the <em>direct</em> distance:</p>
-<div id="c5cc4a12" class="cell" data-execution_count="33">
+<div id="3f5ce36b" class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># New column with coordinates in the same column.</span></span>
@@ -2345,7 +2338,7 @@ font-weight: bold;
 font-style: inherit;">in</span> final_edges]</span></code></pre></div>
 </div>
 <p>Then, in a second step we modify every edge that appears in the validation data (based on the dataset <a href="https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/">Linie (Betriebspunkte)</a>)) and fill in the <em>exact</em> distance. For this we transform the validation data into a dictionary for fast lookups. The <code>get()</code> method then allows for easy replacement of distances:</p>
-<div id="acf0cde0" class="cell" data-execution_count="34">
+<div id="4d503abe" class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># List of edges including distances.</span></span>
@@ -2415,10 +2408,10 @@ font-style: inherit;">in</span> linien_edges}</span>
 <span id="cb57-9"></span>
 <span id="cb57-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># Modify edges that exist in dict with exact distance.</span></span>
+font-style: inherit;"># Add exact distance for edges that exist in dict with exact distance.</span></span>
 <span id="cb57-11">final_edges <span class="op" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">=</span> [(n1, n2, linien_edges_dict.get((n1, n2), dist)) <span class="cf" style="color: #003B4F;
+font-style: inherit;">=</span> [(n1, n2, dist, linien_edges_dict.get((n1, n2), np.nan)) <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> n1, n2, dist <span class="kw" style="color: #003B4F;
@@ -2430,7 +2423,7 @@ font-style: inherit;">in</span> final_edges]</span></code></pre></div>
 <section id="export-the-edgelist" class="level4">
 <h4 class="anchored" data-anchor-id="export-the-edgelist">Export the edgelist</h4>
 <p>Finally, we can export the edges as before for the other representations.</p>
-<div id="8acc07ee" class="cell" data-execution_count="35">
+<div id="89c4feca" class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a node dict with BPUIC as values</span></span>
@@ -2460,6 +2453,12 @@ font-style: inherit;">round</span>(e[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>], <span class="dv" style="color: #AD0000;
 background-color: null;
+font-style: inherit;">4</span>), <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">round</span>(e[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>], <span class="dv" style="color: #AD0000;
+background-color: null;
 font-style: inherit;">4</span>)] <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
@@ -2481,7 +2480,9 @@ font-style: inherit;">'BPUIC1'</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'BPUIC2'</span>,<span class="st" style="color: #20794D;
 background-color: null;
-font-style: inherit;">'DISTANCE'</span>])</span>
+font-style: inherit;">'DISTANCE_GEODESIC'</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'DISTANCE_EXACT'</span>])</span>
 <span id="cb58-10"></span>
 <span id="cb58-11"><span class="co" style="color: #5E5E5E;
 background-color: null;
@@ -2493,7 +2494,7 @@ background-color: null;
 font-style: inherit;"># Export edge list</span></span>
 <span id="cb58-15"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
+font-style: inherit;"># edges.to_csv("edgelist_SoSta.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="35">
 <div>
 
@@ -2504,39 +2505,45 @@ font-style: inherit;"># edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = '
 <th data-quarto-table-cell-role="th"></th>
 <th data-quarto-table-cell-role="th">BPUIC1</th>
 <th data-quarto-table-cell-role="th">BPUIC2</th>
-<th data-quarto-table-cell-role="th">DISTANCE</th>
+<th data-quarto-table-cell-role="th">DISTANCE_GEODESIC</th>
+<th data-quarto-table-cell-role="th">DISTANCE_EXACT</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
-<td>8508206</td>
-<td>8508207</td>
-<td>3.3756</td>
+<td>8502182</td>
+<td>8502196</td>
+<td>0.4745</td>
+<td>NaN</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
-<td>8501396</td>
-<td>8501397</td>
-<td>1.9016</td>
+<td>8501120</td>
+<td>8504000</td>
+<td>2.2298</td>
+<td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>8500123</td>
-<td>8500124</td>
-<td>5.2648</td>
+<td>8500215</td>
+<td>8500216</td>
+<td>2.2300</td>
+<td>2.2609</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>8507003</td>
-<td>8507005</td>
-<td>5.0797</td>
+<td>8502123</td>
+<td>8502103</td>
+<td>2.2295</td>
+<td>NaN</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>8505473</td>
-<td>8505467</td>
-<td>2.0085</td>
+<td>8501178</td>
+<td>8501175</td>
+<td>2.2188</td>
+<td>NaN</td>
 </tr>
 </tbody>
 </table>
@@ -2550,7 +2557,7 @@ font-style: inherit;"># edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = '
 <figcaption>The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).</figcaption>
 </figure>
 </div>
-<p>You can download the result here: <a href="edgelist_SoS.csv" download="">Edgelist space-of-stations (CSV)</a>.</p>
+<p>You can download the result here: <a href="edgelist_SoSta.csv" download="">Edgelist space-of-stations (CSV)</a>.</p>
 </section>
 </section>
 <section id="references" class="level3">
@@ -3097,7 +3104,7 @@ font-style: inherit;">1</span>)</span>
 <section id="load-and-preprocess-ist-daten" class="level3">
 <h3 class="anchored" data-anchor-id="load-and-preprocess-ist-daten">Load and preprocess “Ist-Daten”</h3>
 <p>Here, we will load and preprocess the “Ist-Daten” from which we can derive the edges of our network. First, I import some Python libraries and print their version number for better reproducibility of this code.</p>
-<div id="6da96b39" class="cell" data-execution_count="1">
+<div id="91f40988" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
 background-color: null;
 font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
@@ -3142,7 +3149,7 @@ Pandas version: 2.1.4</code></pre>
 </div>
 </div>
 <p>Let’s now load the data. You can see in the filename that I downloaded the “Ist-Daten” from the SBB portal for March 5, 2025. You can get the data for any day you want <a href="https://data.opentransportdata.swiss/de/dataset/istdaten">here</a>.</p>
-<div id="2bc4b841" class="cell" data-execution_count="2">
+<div id="72cbf448" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data</span></span>
@@ -3161,7 +3168,7 @@ background-color: null;
 font-style: inherit;">False</span>)</span></code></pre></div>
 </div>
 <p>To get a feeling for the data, let’s check the number of rows and columns.</p>
-<div id="13679881" class="cell" data-execution_count="3">
+<div id="2cb07ba0" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Number of rows and columns</span></span>
@@ -3173,7 +3180,7 @@ font-style: inherit;">print</span>(df.shape)</span></code></pre></div>
 </div>
 </div>
 <p>Ok, it’s actually a pretty big dataset: it has over 2.5 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.</p>
-<div id="e50b9ce2" class="cell" data-execution_count="4">
+<div id="c612d916" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Missing values per column</span></span>
@@ -3206,7 +3213,7 @@ dtype: int64</code></pre>
 </div>
 </div>
 <p>We can see that some columns contain many missing values. The only one I worry about for now is the column <code>PRODUKT_ID</code>. If you look through these rows (I don’t show that here), you can see that they should all be of type “Zug” (train). Thus, we impute accordingly:</p>
-<div id="4072cdd8" class="cell" data-execution_count="5">
+<div id="0f64c84d" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Impute 'Zug'</span></span>
@@ -3221,7 +3228,7 @@ background-color: null;
 font-style: inherit;">'Zug'</span></span></code></pre></div>
 </div>
 <p>There are quite a few date-timestamp columns that are not yet in the proper format. Thus, we now convert them to datetime formats:</p>
-<div id="45d418b0" class="cell" data-execution_count="6">
+<div id="4d7e3d44" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Convert BETRIEBSTAG to date format</span></span>
@@ -3316,7 +3323,7 @@ background-color: null;
 font-style: inherit;">.%m.%Y %H:%M:%S"</span>)</span></code></pre></div>
 </div>
 <p>Now is a good time to finally have a look at the dataframe:</p>
-<div id="225d76e6" class="cell" data-execution_count="7">
+<div id="b48354f7" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Let's look at first few rows</span></span>
@@ -3501,7 +3508,7 @@ font-style: inherit;"># Let's look at first few rows</span></span>
 <li><code>DURCHFAHRT_TF</code>: Is true if the vehicle does not stop even if a stop was scheduled.</li>
 </ul>
 <p>Let’s now have a look at the values in the column <code>PRODUKT_ID</code>:</p>
-<div id="26879ef7" class="cell" data-execution_count="8">
+<div id="cc8c3ec4" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at PRODUKT_ID</span></span>
@@ -3521,7 +3528,7 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>We can see that trains are only the third most frequent category in this data. However, as mentioned before, we want to keep it simple and now reduce the dataset to only trains.</p>
-<div id="6e4a0db1" class="cell" data-execution_count="9">
+<div id="1510c29c" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># First we reduce to only trains</span></span>
@@ -3536,7 +3543,7 @@ background-color: null;
 font-style: inherit;">"Zug"</span>]</span></code></pre></div>
 </div>
 <p>In a next step, we remove all rows where the corresponding train has been cancelled.</p>
-<div id="36e0d5c1" class="cell" data-execution_count="10">
+<div id="de258dbc" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Filter out all entries with FAELLT_AUS_TF == True</span></span>
@@ -3550,15 +3557,115 @@ font-style: inherit;">==</span> <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">False</span>]</span></code></pre></div>
 </div>
-<p>Let’s explore the data a bit more before we move to the second dataset. Let’s check out the most frequent values that occur in the column <code>BETREIBER_NAME</code>:</p>
-<div id="99537764" class="cell" data-execution_count="11">
+<p>When I was doing some analysis with a first version of that network, I noticed that it contains edges in both directions between Klosters Selfranga and Sagliains. Upon further inspection I found out that this corresponds to a car shuttle train. All such connections are marked with “ATZ” in the variable <code>LINIEN_TEXT</code> which probably stands for “Autozug”. We remove these connections:</p>
+<div id="00aeb158" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
+font-style: inherit;"># Filter out all entries with LINIEN_TEXT == "ATZ"</span></span>
+<span id="cb15-2">df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> df[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'LINIEN_TEXT'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ATZ"</span>]</span></code></pre></div>
+</div>
+<p>Another problem I spotted was that certain stations are split up into two based on which company is running what part of the station. I actually computed geodesic distances between any pair of stations to identify the problematic ones. I decided to manually change three cases. In the following code chunk you can see that I merge Brig and Brig Bahnhofplatz, Lugano and Lugano FLP, as well as Locarno and Locarno FART.</p>
+<div id="e2c2e673" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Merge stations in Brig, Lugano, Locarno</span></span>
+<span id="cb16-2">df.loc[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'HALTESTELLEN_NAME'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Brig Bahnhofplatz"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BPUIC"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8501609</span></span>
+<span id="cb16-3">df.loc[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'HALTESTELLEN_NAME'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lugano FLP"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BPUIC"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8505300</span></span>
+<span id="cb16-4">df.loc[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'HALTESTELLEN_NAME'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Locarno FART"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BPUIC"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8505400</span></span>
+<span id="cb16-5"></span>
+<span id="cb16-6">df.loc[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'HALTESTELLEN_NAME'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Brig Bahnhofplatz"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HALTESTELLEN_NAME"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Brig"</span></span>
+<span id="cb16-7">df.loc[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'HALTESTELLEN_NAME'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lugano FLP"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HALTESTELLEN_NAME"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Lugano"</span></span>
+<span id="cb16-8">df.loc[df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'HALTESTELLEN_NAME'</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Locarno FART"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"HALTESTELLEN_NAME"</span>] <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Locarno"</span></span></code></pre></div>
+</div>
+<p>Let’s explore the data a bit more before we move to the second dataset. Let’s check out the most frequent values that occur in the column <code>BETREIBER_NAME</code>:</p>
+<div id="c6337b86" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
 font-style: inherit;"># Look at BETREIBER_NAME</span></span>
-<span id="cb15-2">df[<span class="st" style="color: #20794D;
+<span id="cb17-2">df[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"BETREIBER_NAME"</span>].value_counts().head()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>BETREIBER_NAME
 Schweizerische Bundesbahnen SBB    63850
 BLS AG (bls)                       16256
@@ -3569,14 +3676,14 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>As expected, SBB is the company serving the largest number of stations. What about the column <code>VERKEHRSMITTEL_TEXT</code>?</p>
-<div id="7d372405" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+<div id="8c13e97b" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at VERKEHRSMITTEL_TEXT</span></span>
-<span id="cb17-2">df[<span class="st" style="color: #20794D;
+<span id="cb19-2">df[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"VERKEHRSMITTEL_TEXT"</span>].value_counts().head()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>VERKEHRSMITTEL_TEXT
 S     103331
 R      34435
@@ -3587,14 +3694,14 @@ Name: count, dtype: int64</code></pre>
 </div>
 </div>
 <p>We can see that the most frequent type of trains are S-Bahns (<code>S</code>). Finally, let’s check the most frequent train stations that occur in the data:</p>
-<div id="423233af" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><span class="co" style="color: #5E5E5E;
+<div id="470ca6d7" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at HALTESTELLEN_NAME</span></span>
-<span id="cb19-2">df[<span class="st" style="color: #20794D;
+<span id="cb21-2">df[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"HALTESTELLEN_NAME"</span>].value_counts().head()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="13">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>HALTESTELLEN_NAME
 Zürich HB          2239
 Bern               1709
@@ -3609,11 +3716,11 @@ Name: count, dtype: int64</code></pre>
 <section id="load-and-preprocess-dienststellen-daten" class="level3">
 <h3 class="anchored" data-anchor-id="load-and-preprocess-dienststellen-daten">Load and preprocess “Dienststellen-Daten”</h3>
 <p>Fortunately, we can go through the second dataset a bit more quickly. We again start by loading it and checking the dimensions of the dataframe.</p>
-<div id="f858a364" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><span class="co" style="color: #5E5E5E;
+<div id="e74e361a" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data</span></span>
-<span id="cb21-2">ds <span class="op" style="color: #5E5E5E;
+<span id="cb23-2">ds <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
 background-color: null;
@@ -3626,11 +3733,11 @@ background-color: null;
 font-style: inherit;">=</span> <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">False</span>)</span>
-<span id="cb21-3"></span>
-<span id="cb21-4"><span class="co" style="color: #5E5E5E;
+<span id="cb23-3"></span>
+<span id="cb23-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Number of rows and columns</span></span>
-<span id="cb21-5"><span class="bu" style="color: null;
+<span id="cb23-5"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(ds.shape)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3638,14 +3745,14 @@ font-style: inherit;">print</span>(ds.shape)</span></code></pre></div>
 </div>
 </div>
 <p>The data contains a column <code>validTo</code> that allows us to filter out all stations that are not valid anymore (closed down?). We check the values that appear in this column and see that all stations should be valid as of March 6, 2025. This is no surprise as we use the dataset of currently valid stations.</p>
-<div id="accbbaeb" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
+<div id="c7b4a774" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Check 'validTo' values.</span></span>
-<span id="cb23-2">ds[<span class="st" style="color: #20794D;
+<span id="cb25-2">ds[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'validTo'</span>].unique()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>array(['9999-12-31', '2025-12-13', '2025-04-06', '2026-12-12',
        '2025-08-29', '2027-12-11', '2025-03-16', '2025-05-30',
        '2099-12-31', '2028-12-09', '2025-09-30', '2030-12-14',
@@ -3655,11 +3762,11 @@ font-style: inherit;">'validTo'</span>].unique()</span></code></pre></div>
 </div>
 </div>
 <p>Let’s also quickly make sure that we have unique rows (based on ‘number’).</p>
-<div id="40480636" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
+<div id="821ec43b" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Is the number of unique 'number' (= BPUIC) values equal to the number of rows?</span></span>
-<span id="cb25-2"><span class="bu" style="color: null;
+<span id="cb27-2"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">len</span>(pd.unique(ds[<span class="st" style="color: #20794D;
 background-color: null;
@@ -3668,16 +3775,16 @@ background-color: null;
 font-style: inherit;">==</span> ds.shape[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>]</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>True</code></pre>
 </div>
 </div>
 <p>Finally, we keep only the columns we need (identifier, official name, and geo coordinates).</p>
-<div id="5f6abda3" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><span class="co" style="color: #5E5E5E;
+<div id="8dc66c9c" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Keep only the relevant columns</span></span>
-<span id="cb27-2">ds <span class="op" style="color: #5E5E5E;
+<span id="cb29-2">ds <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> ds[[<span class="st" style="color: #20794D;
 background-color: null;
@@ -3696,12 +3803,12 @@ background-color: null;
 font-style: inherit;">"wgs84North"</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"height"</span>]]</span>
-<span id="cb27-3"></span>
-<span id="cb27-4"><span class="co" style="color: #5E5E5E;
+<span id="cb29-3"></span>
+<span id="cb29-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Show first few rows</span></span>
-<span id="cb27-5">ds.head()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<span id="cb29-5">ds.head()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
 
@@ -3785,11 +3892,11 @@ font-style: inherit;"># Show first few rows</span></span>
 <section id="load-and-preprocess-average-traffic-data" class="level3">
 <h3 class="anchored" data-anchor-id="load-and-preprocess-average-traffic-data">Load and preprocess average traffic data</h3>
 <p>This part is also fairly easy. We load the data and check the dimensions, as always.</p>
-<div id="88eb6d1b" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><span class="co" style="color: #5E5E5E;
+<div id="b6b3cf0f" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Load the data</span></span>
-<span id="cb28-2">ds_freq <span class="op" style="color: #5E5E5E;
+<span id="cb30-2">ds_freq <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.read_csv(<span class="st" style="color: #20794D;
 background-color: null;
@@ -3802,11 +3909,11 @@ background-color: null;
 font-style: inherit;">=</span> <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">False</span>)</span>
-<span id="cb28-3"></span>
-<span id="cb28-4"><span class="co" style="color: #5E5E5E;
+<span id="cb30-3"></span>
+<span id="cb30-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Number of rows and columns</span></span>
-<span id="cb28-5"><span class="bu" style="color: null;
+<span id="cb30-5"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(ds_freq.shape)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3814,11 +3921,11 @@ font-style: inherit;">print</span>(ds_freq.shape)</span></code></pre></div>
 </div>
 </div>
 <p>If you actually have a look at the data, you see that many stations have several measurements made at different times (and the times of measurements are identified by <code>Jahr_Annee_Anno</code>). We only want to keep the most recent measurements for every station:</p>
-<div id="c30b088f" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><span class="co" style="color: #5E5E5E;
+<div id="80b746ba" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># For every station, we only keep the most recent measurements.</span></span>
-<span id="cb30-2">ds_freq <span class="op" style="color: #5E5E5E;
+<span id="cb32-2">ds_freq <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> ds_freq.loc[ds_freq.groupby(<span class="st" style="color: #20794D;
 background-color: null;
@@ -3827,16 +3934,16 @@ background-color: null;
 font-style: inherit;">'Jahr_Annee_Anno'</span>].idxmax()]</span></code></pre></div>
 </div>
 <p>Checking the data types of all columns reveals that there is still a problem with the measurement columns <code>DTV_TJM_TGM</code>, <code>DWV_TMJO_TFM</code>, and <code>DNWV_TMJNO_TMGNL</code>. They are currently of type <code>object</code> because they contain the thousand separator <code>’</code>. We thus remove all instances of this characters and transform these columns to integers.</p>
-<div id="3c2b4848" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><span class="co" style="color: #5E5E5E;
+<div id="55b1732f" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Data types of columns</span></span>
-<span id="cb31-2">ds_freq.dtypes</span>
-<span id="cb31-3"></span>
-<span id="cb31-4"><span class="co" style="color: #5E5E5E;
+<span id="cb33-2">ds_freq.dtypes</span>
+<span id="cb33-3"></span>
+<span id="cb33-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Remove thousand separator and make integers out of it.</span></span>
-<span id="cb31-5">ds_freq[<span class="st" style="color: #20794D;
+<span id="cb33-5">ds_freq[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'DTV_TJM_TGM'</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3851,7 +3958,7 @@ background-color: null;
 font-style: inherit;">''</span>).astype(<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">int</span>)</span>
-<span id="cb31-6">ds_freq[<span class="st" style="color: #20794D;
+<span id="cb33-6">ds_freq[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'DWV_TMJO_TFM'</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3866,7 +3973,7 @@ background-color: null;
 font-style: inherit;">''</span>).astype(<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">int</span>)</span>
-<span id="cb31-7">ds_freq[<span class="st" style="color: #20794D;
+<span id="cb33-7">ds_freq[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'DNWV_TMJNO_TMGNL'</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3883,11 +3990,11 @@ background-color: null;
 font-style: inherit;">int</span>)</span></code></pre></div>
 </div>
 <p>Finally, we keep only the relevant columns.</p>
-<div id="44b3606d" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><span class="co" style="color: #5E5E5E;
+<div id="0aced18e" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Keep only the relevant columns</span></span>
-<span id="cb32-2">ds_freq <span class="op" style="color: #5E5E5E;
+<span id="cb34-2">ds_freq <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> ds_freq[[<span class="st" style="color: #20794D;
 background-color: null;
@@ -3899,12 +4006,12 @@ font-style: inherit;">"DWV_TMJO_TFM"</span>,<span class="st" style="color: #2079
 background-color: null;
 font-style: inherit;">"DNWV_TMJNO_TMGNL"</span>]]</span></code></pre></div>
 </div>
-<div id="ca82eef1" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><span class="co" style="color: #5E5E5E;
+<div id="9523a8ec" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Show first few rows</span></span>
-<span id="cb33-2">ds_freq.head()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<span id="cb35-2">ds_freq.head()</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
 <div>
 
 
@@ -3971,11 +4078,11 @@ font-style: inherit;"># Show first few rows</span></span>
 <section id="combine-the-three-datasets" class="level3">
 <h3 class="anchored" data-anchor-id="combine-the-three-datasets">Combine the three datasets</h3>
 <p>We first merge the traffic data to the “Dienststellen-Daten”:</p>
-<div id="e1facc75" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><span class="co" style="color: #5E5E5E;
+<div id="d47c3449" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Join to 'ds'</span></span>
-<span id="cb34-2">ds <span class="op" style="color: #5E5E5E;
+<span id="cb36-2">ds <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.merge(ds, ds_freq, left_on <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -3990,11 +4097,11 @@ background-color: null;
 font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'left'</span>)</span>
-<span id="cb34-3"></span>
-<span id="cb34-4"><span class="co" style="color: #5E5E5E;
+<span id="cb36-3"></span>
+<span id="cb36-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Drop 'UIC'</span></span>
-<span id="cb34-5">ds <span class="op" style="color: #5E5E5E;
+<span id="cb36-5">ds <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> ds.drop(<span class="st" style="color: #20794D;
 background-color: null;
@@ -4003,11 +4110,11 @@ background-color: null;
 font-style: inherit;">=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)</span>
-<span id="cb34-6"></span>
-<span id="cb34-7"><span class="co" style="color: #5E5E5E;
+<span id="cb36-6"></span>
+<span id="cb36-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Better column names</span></span>
-<span id="cb34-8">ds.columns <span class="op" style="color: #5E5E5E;
+<span id="cb36-8">ds.columns <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
 background-color: null;
@@ -4020,7 +4127,7 @@ background-color: null;
 font-style: inherit;">'MUNICIPALITY'</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'COMPANY'</span>,</span>
-<span id="cb34-9">              <span class="st" style="color: #20794D;
+<span id="cb36-9">              <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'LONGITUDE'</span>,<span class="st" style="color: #20794D;
 background-color: null;
@@ -4029,18 +4136,18 @@ background-color: null;
 font-style: inherit;">'ELEVATION'</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'AVG_DAILY_TRAFFIC'</span>,</span>
-<span id="cb34-10">              <span class="st" style="color: #20794D;
+<span id="cb36-10">              <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'AVG_DAILY_TRAFFIC_WEEKDAYS'</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'AVG_DAILY_TRAFFIC_WEEKENDS'</span>]</span></code></pre></div>
 </div>
 <p>Then we merge the “Dienststellen-Daten” to the “Ist-Daten” via the <code>BPUIC</code> variable:</p>
-<div id="0f346b81" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><span class="co" style="color: #5E5E5E;
+<div id="381bf8aa" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Left-join with station names and coordinates</span></span>
-<span id="cb35-2">df <span class="op" style="color: #5E5E5E;
+<span id="cb37-2">df <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.merge(df, ds, on <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4053,11 +4160,11 @@ background-color: null;
 font-style: inherit;">'left'</span>)</span></code></pre></div>
 </div>
 <p>Unfortunately, there are some rows (18) for which <code>HALTESTELLEN_NAME</code> is missing. But fortunately, we know which stations are affected based on the <code>STATION_NAME</code> column that we have just merged from <code>ds</code>.</p>
-<div id="b5a6c8c2" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><span class="co" style="color: #5E5E5E;
+<div id="56f99744" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># There are 18 missing values for 'HALTESTELLEN_NAME' which we impute from 'STATION_NAME'.</span></span>
-<span id="cb36-2">df.loc[df[<span class="st" style="color: #20794D;
+<span id="cb38-2">df.loc[df[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'HALTESTELLEN_NAME'</span>].isna(), <span class="st" style="color: #20794D;
 background-color: null;
@@ -4074,14 +4181,14 @@ font-style: inherit;">"STATION_NAME"</span>]</span></code></pre></div>
 <section id="convert-it-to-a-network" class="level3">
 <h3 class="anchored" data-anchor-id="convert-it-to-a-network">Convert it to a network</h3>
 <p>As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called “Fahrt” in German) then typically consists of several stops along the way. However, there are some “Fahrten” with only one entry. Presumably these are mostly foreign trains that have their final destination at some border station. I decided to remove those entries:</p>
-<div id="84c670a9" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><span class="co" style="color: #5E5E5E;
+<div id="7f934160" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry</span></span>
-<span id="cb37-2"><span class="co" style="color: #5E5E5E;
+<span id="cb39-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># It's mostly trains that stop at a place at the border (I think)</span></span>
-<span id="cb37-3">df_filtered <span class="op" style="color: #5E5E5E;
+<span id="cb39-3">df_filtered <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> df.groupby(<span class="st" style="color: #20794D;
 background-color: null;
@@ -4097,11 +4204,11 @@ background-color: null;
 font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>)</span>
-<span id="cb37-4"></span>
-<span id="cb37-5"><span class="co" style="color: #5E5E5E;
+<span id="cb39-4"></span>
+<span id="cb39-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># How many rows do we loose with that?</span></span>
-<span id="cb37-6"><span class="bu" style="color: null;
+<span id="cb39-6"><span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">print</span>(df.shape[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -4116,15 +4223,15 @@ font-style: inherit;">0</span>])</span></code></pre></div>
 </div>
 <p>This preprocessing step removes 420 rows.</p>
 <p>Now we group the rows by <code>FAHRT_BEZEICHNER</code> so that each group is one “Fahrt”. In every group we sort the stops along the way in an ascending order of the departure time.</p>
-<div id="d4d186d5" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><span class="co" style="color: #5E5E5E;
+<div id="8836202b" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Function to sort entries within a group in ascending order of ABFAHRTSZEIT</span></span>
-<span id="cb39-2"><span class="kw" style="color: #003B4F;
+<span id="cb41-2"><span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">def</span> sort_data(group):</span>
-<span id="cb39-3">    <span class="cf" style="color: #003B4F;
+<span id="cb41-3">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">return</span> group.sort_values(<span class="st" style="color: #20794D;
@@ -4134,11 +4241,11 @@ background-color: null;
 font-style: inherit;">=</span> <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">True</span>)</span>
-<span id="cb39-4"></span>
-<span id="cb39-5"><span class="co" style="color: #5E5E5E;
+<span id="cb41-4"></span>
+<span id="cb41-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Sort for each group</span></span>
-<span id="cb39-6">df_sorted <span class="op" style="color: #5E5E5E;
+<span id="cb41-6">df_sorted <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> df_filtered.groupby(<span class="st" style="color: #20794D;
 background-color: null;
@@ -4151,11 +4258,11 @@ background-color: null;
 font-style: inherit;">apply</span>(sort_data)</span></code></pre></div>
 </div>
 <p>Let’s have a look at one “Fahrt” to get a better idea:</p>
-<div id="4c49b7fe" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><span class="co" style="color: #5E5E5E;
+<div id="a02d3997" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at one example Fahrt</span></span>
-<span id="cb40-2">df_sorted.loc[[<span class="st" style="color: #20794D;
+<span id="cb42-2">df_sorted.loc[[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'85:22:1083:000'</span>],[<span class="st" style="color: #20794D;
 background-color: null;
@@ -4166,7 +4273,7 @@ background-color: null;
 font-style: inherit;">'HALTESTELLEN_NAME'</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'ABFAHRTSZEIT'</span>]]</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="28">
+<div class="cell-output cell-output-display" data-execution_count="30">
 <div>
 
 
@@ -4271,45 +4378,45 @@ font-style: inherit;">'ABFAHRTSZEIT'</span>]]</span></code></pre></div>
 <p>We now have enough knowledge about the data that we can extract the edges in a for loop. Basically, what we do is to loop over the rows of a given “Fahrt”, starting with the second row and extracting the edges as</p>
 <p><code>(previous station, current station, travel time between stations)</code>.</p>
 <p>The Python code for this looks as follows:</p>
-<div id="66e7dfc6" class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><span class="co" style="color: #5E5E5E;
+<div id="ed00516d" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty list</span></span>
-<span id="cb41-2">edgelist <span class="op" style="color: #5E5E5E;
+<span id="cb43-2">edgelist <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> []</span>
-<span id="cb41-3"></span>
-<span id="cb41-4"><span class="co" style="color: #5E5E5E;
+<span id="cb43-3"></span>
+<span id="cb43-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Variables to store previous row and its index</span></span>
-<span id="cb41-5">prev_row <span class="op" style="color: #5E5E5E;
+<span id="cb43-5">prev_row <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">None</span></span>
-<span id="cb41-6">prev_idx <span class="op" style="color: #5E5E5E;
+<span id="cb43-6">prev_idx <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="va" style="color: #111111;
 background-color: null;
 font-style: inherit;">None</span></span>
-<span id="cb41-7"></span>
-<span id="cb41-8"><span class="co" style="color: #5E5E5E;
+<span id="cb43-7"></span>
+<span id="cb43-8"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Loop over rows of dataframe</span></span>
-<span id="cb41-9"><span class="cf" style="color: #003B4F;
+<span id="cb43-9"><span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> i, row <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> df_sorted.iterrows():</span>
-<span id="cb41-10">    <span class="co" style="color: #5E5E5E;
+<span id="cb43-10">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Only start with second row</span></span>
-<span id="cb41-11">    <span class="co" style="color: #5E5E5E;
+<span id="cb43-11">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Only if the two rows belong to the same Fahrt</span></span>
-<span id="cb41-12">    <span class="cf" style="color: #003B4F;
+<span id="cb43-12">    <span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">if</span> prev_idx <span class="kw" style="color: #003B4F;
@@ -4328,16 +4435,16 @@ background-color: null;
 font-style: inherit;">==</span> i[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>]:</span>
-<span id="cb41-13">        <span class="co" style="color: #5E5E5E;
+<span id="cb43-13">        <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Add edge to edgelist assuming it's a directed edge</span></span>
-<span id="cb41-14">        edgelist.append((prev_row[<span class="st" style="color: #20794D;
+<span id="cb43-14">        edgelist.append((prev_row[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'STATION_NAME'</span>], </span>
-<span id="cb41-15">                         row[<span class="st" style="color: #20794D;
+<span id="cb43-15">                         row[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'STATION_NAME'</span>], </span>
-<span id="cb41-16">                         (row[<span class="st" style="color: #20794D;
+<span id="cb43-16">                         (row[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'ANKUNFTSZEIT'</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4348,74 +4455,74 @@ background-color: null;
 font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">60</span>))</span>
-<span id="cb41-17">    <span class="co" style="color: #5E5E5E;
+<span id="cb43-17">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Set current row and row index to previous ones</span></span>
-<span id="cb41-18">    prev_idx <span class="op" style="color: #5E5E5E;
+<span id="cb43-18">    prev_idx <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> i[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>]</span>
-<span id="cb41-19">    prev_row <span class="op" style="color: #5E5E5E;
+<span id="cb43-19">    prev_row <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> row</span></code></pre></div>
 </div>
 <p>To get a better idea, let’s have a look at the first list element:</p>
-<div id="c7f28e47" class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><span class="co" style="color: #5E5E5E;
+<div id="e3cf0985" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># First list element</span></span>
-<span id="cb42-2">edgelist[<span class="dv" style="color: #AD0000;
+<span id="cb44-2">edgelist[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>]</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="30">
+<div class="cell-output cell-output-display" data-execution_count="32">
 <pre><code>('Zürich HB', 'Basel SBB', 54.0)</code></pre>
 </div>
 </div>
 <p>We are still not quite done yet. The problem is that the <code>edgelist</code> contains many duplicated entries as, for example, the stretch Zürich HB - Basel SBB is served by many different trains on a given day.</p>
 <p>What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary.</p>
-<div id="c55e1539" class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><span class="co" style="color: #5E5E5E;
+<div id="2103a484" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Empty dict</span></span>
-<span id="cb44-2">edges <span class="op" style="color: #5E5E5E;
+<span id="cb46-2">edges <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> {}</span>
-<span id="cb44-3"></span>
-<span id="cb44-4"><span class="co" style="color: #5E5E5E;
+<span id="cb46-3"></span>
+<span id="cb46-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Loop over elements in edgelist</span></span>
-<span id="cb44-5"><span class="cf" style="color: #003B4F;
+<span id="cb46-5"><span class="cf" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">for</span> i <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> edgelist:</span>
-<span id="cb44-6">    <span class="co" style="color: #5E5E5E;
+<span id="cb46-6">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create key</span></span>
-<span id="cb44-7">    key <span class="op" style="color: #5E5E5E;
+<span id="cb46-7">    key <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (i[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>], i[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>])</span>
-<span id="cb44-8">    <span class="co" style="color: #5E5E5E;
+<span id="cb46-8">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Get previous entries in dict (if there are any)</span></span>
-<span id="cb44-9">    prev <span class="op" style="color: #5E5E5E;
+<span id="cb46-9">    prev <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> edges.get(key, (<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>))</span>
-<span id="cb44-10">    <span class="co" style="color: #5E5E5E;
+<span id="cb46-10">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Update values in dict</span></span>
-<span id="cb44-11">    edges[key] <span class="op" style="color: #5E5E5E;
+<span id="cb46-11">    edges[key] <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> (prev[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -4430,11 +4537,11 @@ background-color: null;
 font-style: inherit;">+</span> i[<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>])</span>
-<span id="cb44-12"></span>
-<span id="cb44-13"><span class="co" style="color: #5E5E5E;
+<span id="cb46-12"></span>
+<span id="cb46-13"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Divide summed up travel times by number of trips</span></span>
-<span id="cb44-14">edges <span class="op" style="color: #5E5E5E;
+<span id="cb46-14">edges <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> {k: (v[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -4457,26 +4564,48 @@ font-weight: bold;
 font-style: inherit;">in</span> edges.items()}</span></code></pre></div>
 </div>
 <p>Let’s look at the entry for the stretch between Zürich and Basel again:</p>
-<div id="588c647e" class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><span class="co" style="color: #5E5E5E;
+<div id="f958fc0b" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Look at some element in dict</span></span>
-<span id="cb45-2">edges[(<span class="st" style="color: #20794D;
+<span id="cb47-2">edges[(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Zürich HB'</span>, <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'Basel SBB'</span>)]</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="34">
 <pre><code>(36, 54.0)</code></pre>
 </div>
 </div>
 <p>There are 36 trips between these two stations (in this direction) and they take 54 minutes on average.</p>
+<p>Another issue that I spotted when I was trying to visualize this network was two edges between Basel Bad Bf and Schaffhausen. When I consulted the SBB timetable I saw that these supposedly nonstop connections actually stop at quite a few stations in Germany. But because these stops are in Germany they do not appear in the data. As a conclusion of all this, I decided to remove these two edges:</p>
+<div id="f416a057" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Remove the two edges between Basel Bad Bf and Schaffhausen</span></span>
+<span id="cb49-2"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">del</span> edges[(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Basel Bad Bf'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Schaffhausen'</span>)]</span>
+<span id="cb49-3"><span class="kw" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">del</span> edges[(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Schaffhausen'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'Basel Bad Bf'</span>)]</span></code></pre></div>
+</div>
 <p>We are now ready to create the final node list (and export it). First, we reduce <code>ds</code> to the train stations that actually appear in the edges (it still contains many bus and tram stops and other things).</p>
-<div id="ca9fa464" class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><span class="co" style="color: #5E5E5E;
+<div id="26f506ca" class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Set of stations that appear in edgelist</span></span>
-<span id="cb47-2">stations_in_edgelist <span class="op" style="color: #5E5E5E;
+<span id="cb50-2">stations_in_edgelist <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="bu" style="color: null;
 background-color: null;
@@ -4485,25 +4614,25 @@ background-color: null;
 font-style: inherit;">sum</span>(<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">list</span>(edges.keys()), ()))</span>
-<span id="cb47-3"></span>
-<span id="cb47-4"><span class="co" style="color: #5E5E5E;
+<span id="cb50-3"></span>
+<span id="cb50-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Reduces nodes dataframe to only places in edgelist</span></span>
-<span id="cb47-5">nodes <span class="op" style="color: #5E5E5E;
+<span id="cb50-5">nodes <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> ds[ds[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'STATION_NAME'</span>].isin(stations_in_edgelist)]</span></code></pre></div>
 </div>
 <p>Second, we quickly check the number of missing values again.</p>
-<div id="1233d34b" class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><span class="co" style="color: #5E5E5E;
+<div id="3c115ed6" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Missing values per column</span></span>
-<span id="cb48-2">nodes.isna().<span class="bu" style="color: null;
+<span id="cb51-2">nodes.isna().<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">sum</span>()</span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="34">
+<div class="cell-output cell-output-display" data-execution_count="37">
 <pre><code>BPUIC                           0
 STATION_NAME                    0
 CANTON                         21
@@ -4512,18 +4641,18 @@ COMPANY                         0
 LONGITUDE                       0
 LATITUDE                        0
 ELEVATION                       1
-AVG_DAILY_TRAFFIC             500
-AVG_DAILY_TRAFFIC_WEEKDAYS    500
-AVG_DAILY_TRAFFIC_WEEKENDS    500
+AVG_DAILY_TRAFFIC             496
+AVG_DAILY_TRAFFIC_WEEKDAYS    496
+AVG_DAILY_TRAFFIC_WEEKENDS    496
 dtype: int64</code></pre>
 </div>
 </div>
 <p>There are still some issues here. The one we can solve is the missing elevation. The station Tirano (in Italy) has no value for this column. We simply impute manually (Tirano’s elevation is approximately 441m).</p>
-<div id="7a0af632" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><span class="co" style="color: #5E5E5E;
+<div id="e14dba50" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Impute missing elevation for Tirano</span></span>
-<span id="cb50-2">nodes.loc[nodes[<span class="st" style="color: #20794D;
+<span id="cb53-2">nodes.loc[nodes[<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'STATION_NAME'</span>] <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4538,19 +4667,19 @@ background-color: null;
 font-style: inherit;">441</span></span></code></pre></div>
 </div>
 <p>The missing values for <code>CANTON</code> and <code>MUNICIPALITY</code> concern municipalities abroad (in Germany and Italy mostly). The 500 missing values in the traffic columns are stations are run by smaller companies or stations abroad. There is nothing we can do about all these missing values.</p>
-<div id="5ea41ac4" class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><span class="co" style="color: #5E5E5E;
+<div id="7e0a9eaf" class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Have a look</span></span>
-<span id="cb51-2">nodes.head()</span>
-<span id="cb51-3"></span>
-<span id="cb51-4"><span class="co" style="color: #5E5E5E;
+<span id="cb54-2">nodes.head()</span>
+<span id="cb54-3"></span>
+<span id="cb54-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Export node list</span></span>
-<span id="cb51-5"><span class="co" style="color: #5E5E5E;
+<span id="cb54-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="36">
+<div class="cell-output cell-output-display" data-execution_count="39">
 <div>
 
 
@@ -4649,22 +4778,22 @@ font-style: inherit;"># nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = 
 </div>
 </div>
 <p>Before we export the edges, we change the station names in the edgelist to the BPUIC to make the edges more compact. Then we transform the dictionary into a dataframe which can finally be exported.</p>
-<div id="f8502889" class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><span class="co" style="color: #5E5E5E;
+<div id="f1586e2d" class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a node dict with BPUIC as values</span></span>
-<span id="cb52-2">node_dict <span class="op" style="color: #5E5E5E;
+<span id="cb55-2">node_dict <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> <span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">dict</span>(<span class="bu" style="color: null;
 background-color: null;
 font-style: inherit;">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span>
-<span id="cb52-3"></span>
-<span id="cb52-4"><span class="co" style="color: #5E5E5E;
+<span id="cb55-3"></span>
+<span id="cb55-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
-<span id="cb52-5">edges <span class="op" style="color: #5E5E5E;
+<span id="cb55-5">edges <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> [[node_dict[k[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -4681,11 +4810,11 @@ font-style: inherit;">for</span> k,v <span class="kw" style="color: #003B4F;
 background-color: null;
 font-weight: bold;
 font-style: inherit;">in</span> edges.items()]</span>
-<span id="cb52-6"></span>
-<span id="cb52-7"><span class="co" style="color: #5E5E5E;
+<span id="cb55-6"></span>
+<span id="cb55-7"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Create a dataframe</span></span>
-<span id="cb52-8">edges <span class="op" style="color: #5E5E5E;
+<span id="cb55-8">edges <span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">=</span> pd.DataFrame(edges, columns <span class="op" style="color: #5E5E5E;
 background-color: null;
@@ -4698,19 +4827,19 @@ background-color: null;
 font-style: inherit;">'NUM_CONNECTIONS'</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">'AVG_DURATION'</span>])</span>
-<span id="cb52-9"></span>
-<span id="cb52-10"><span class="co" style="color: #5E5E5E;
+<span id="cb55-9"></span>
+<span id="cb55-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Have a look</span></span>
-<span id="cb52-11">edges.head()</span>
-<span id="cb52-12"></span>
-<span id="cb52-13"><span class="co" style="color: #5E5E5E;
+<span id="cb55-11">edges.head()</span>
+<span id="cb55-12"></span>
+<span id="cb55-13"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Export edge list</span></span>
-<span id="cb52-14"><span class="co" style="color: #5E5E5E;
+<span id="cb55-14"><span class="co" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="37">
+font-style: inherit;"># edges.to_csv("edgelist_SoSto.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="40">
 <div>
 
 
@@ -4755,10 +4884,10 @@ font-style: inherit;"># edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>8503424</td>
-<td>8500090</td>
-<td>17</td>
-<td>73.18</td>
+<td>8506286</td>
+<td>8506271</td>
+<td>34</td>
+<td>3.00</td>
 </tr>
 </tbody>
 </table>
@@ -4766,7 +4895,7 @@ font-style: inherit;"># edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-
 </div>
 </div>
 </div>
-<p>Feel free to download the final results: <a href="nodelist.csv" download="">Nodelist (CSV)</a> and <a href="edgelist.csv" download="">Edgelist (CSV)</a>.</p>
+<p>Feel free to download the final results: <a href="nodelist.csv" download="">Nodelist (CSV)</a> and <a href="edgelist_SoSto.csv" download="">Edgelist (CSV)</a>.</p>
 <p><em>The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.en">Creative Commons</a>.</em></p>
 
 
