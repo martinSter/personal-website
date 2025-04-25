@@ -144,6 +144,26 @@ In a next step, we remove all rows where the corresponding train has been cancel
 df = df[df['FAELLT_AUS_TF'] == False]
 ```
 
+When I was doing some analysis with a first version of that network, I noticed that it contains edges in both directions between Klosters Selfranga and Sagliains. Upon further inspection I found out that this corresponds to a car shuttle train. All such connections are marked with "ATZ" in the variable `LINIEN_TEXT` which probably stands for "Autozug". We remove these connections:
+
+```{python}
+# Filter out all entries with LINIEN_TEXT == "ATZ"
+df = df[df['LINIEN_TEXT'] != "ATZ"]
+```
+
+Another problem I spotted was that certain stations are split up into two based on which company is running what part of the station. I actually computed geodesic distances between any pair of stations to identify the problematic ones. I decided to manually change three cases. In the following code chunk you can see that I merge Brig and Brig Bahnhofplatz, Lugano and Lugano FLP, as well as Locarno and Locarno FART.
+
+```{python}
+# Merge stations in Brig, Lugano, Locarno
+df.loc[df['HALTESTELLEN_NAME'] == "Brig Bahnhofplatz", "BPUIC"] = 8501609
+df.loc[df['HALTESTELLEN_NAME'] == "Lugano FLP", "BPUIC"] = 8505300
+df.loc[df['HALTESTELLEN_NAME'] == "Locarno FART", "BPUIC"] = 8505400
+
+df.loc[df['HALTESTELLEN_NAME'] == "Brig Bahnhofplatz", "HALTESTELLEN_NAME"] = "Brig"
+df.loc[df['HALTESTELLEN_NAME'] == "Lugano FLP", "HALTESTELLEN_NAME"] = "Lugano"
+df.loc[df['HALTESTELLEN_NAME'] == "Locarno FART", "HALTESTELLEN_NAME"] = "Locarno"
+```
+
 Let's explore the data a bit more before we move to the second dataset. Let's check out the most frequent values that occur in the column `BETREIBER_NAME`:
 
 ```{python}
@@ -387,6 +407,14 @@ edges[('Zürich HB', 'Basel SBB')]
 
 There are 36 trips between these two stations (in this direction) and they take 54 minutes on average.
 
+Another issue that I spotted when I was trying to visualize this network was two edges between Basel Bad Bf and Schaffhausen. When I consulted the SBB timetable I saw that these supposedly nonstop connections actually stop at quite a few stations in Germany. But because these stops are in Germany they do not appear in the data. As a conclusion of all this, I decided to remove these two edges:
+
+```{python}
+# Remove the two edges between Basel Bad Bf and Schaffhausen
+del edges[('Basel Bad Bf', 'Schaffhausen')]
+del edges[('Schaffhausen', 'Basel Bad Bf')]
+```
+
 We are now ready to create the final node list (and export it). First, we reduce `ds` to the train stations that actually appear in the edges (it still contains many bus and tram stops and other things).
 
 ```{python}
@@ -437,9 +465,9 @@ edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','NUM_CONNECTIONS','AVG_
 edges.head()
 
 # Export edge list
-# edges.to_csv("edgelist.csv", sep = ';', encoding = 'utf-8', index = False)
+# edges.to_csv("edgelist_SoSto.csv", sep = ';', encoding = 'utf-8', index = False)
 ```
 
-Feel free to download the final results: <a href="nodelist.csv" download>Nodelist (CSV)</a> and <a href="edgelist.csv" download>Edgelist (CSV)</a>.
+Feel free to download the final results: <a href="nodelist.csv" download>Nodelist (CSV)</a> and <a href="edgelist_SoSto.csv" download>Edgelist (CSV)</a>.
 
 *The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*

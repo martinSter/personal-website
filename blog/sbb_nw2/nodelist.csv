@@ -951,7 +951,6 @@ BPUIC;STATION_NAME;CANTON;MUNICIPALITY;COMPANY;LONGITUDE;LATITUDE;ELEVATION;AVG_
 8505307;Chiasso;Ticino;Chiasso;Swiss Federal Railways SBB;9.03144956231;45.83216802637;237.0;8600.0;9600.0;6100.0
 8505350;Sattel;Schwyz;Sattel;Schweizerische Südostbahn (sob);8.63394335401;47.08161915834;792.8;;;
 8505390;Serocca;Ticino;Agno;Lugano-Ponte Tresa;8.90457000364;46.00851999695;286.0;;;
-8505391;Lugano FLP;Ticino;Lugano;Lugano-Ponte Tresa;8.94760000626;46.0044900023;334.1;;;
 8505392;Magliaso Paese;Ticino;Magliaso;Lugano-Ponte Tresa;8.89058000477;45.9834099984;279.3;;;
 8505393;Cappella-Agnuzzo;Ticino;Collina d'Oro;Lugano-Ponte Tresa;8.92444999754;45.99325999356;341.3;;;
 8505394;Bioggio;Ticino;Bioggio;Lugano-Ponte Tresa;8.90889000394;46.01210999847;292.4;;;
@@ -973,7 +972,6 @@ BPUIC;STATION_NAME;CANTON;MUNICIPALITY;COMPANY;LONGITUDE;LATITUDE;ELEVATION;AVG_
 8505415;S. Antonino;Ticino;Sant'Antonino;Swiss Federal Railways SBB;8.96952064604;46.15904913855;211.272;1200.0;1300.0;740.0
 8505417;Minusio;Ticino;Minusio;Swiss Federal Railways SBB;8.81956634223;46.17400592476;202.268;;;
 8505467;Solduno S. Martino;Ticino;Locarno;Ferrovie Autolinee Regionali Ticinesi;8.77036999387;46.171999996;223.4;;;
-8505470;Locarno FART;Ticino;Muralto;Ferrovie Autolinee Regionali Ticinesi;8.80263638485;46.17264501119;206.0;;;
 8505472;Solduno;Ticino;Locarno;Ferrovie Autolinee Regionali Ticinesi;8.77760932104;46.16947235109;222.0;;;
 8505473;Ponte Brolla;Ticino;Locarno;Ferrovie Autolinee Regionali Ticinesi;8.75331000243;46.18563999895;254.5;;;
 8505491;Tegna;Ticino;Terre di Pedemonte;Ferrovie Autolinee Regionali Ticinesi;8.74276367116;46.18602415806;255.0;;;
@@ -1446,7 +1444,6 @@ BPUIC;STATION_NAME;CANTON;MUNICIPALITY;COMPANY;LONGITUDE;LATITUDE;ELEVATION;AVG_
 8509076;Davos Glaris;Graubünden;Davos;Rhätische Bahn;9.77992999436;46.7455699991;1454.5;120.0;120.0;120.0
 8509077;Davos Monstein;Graubünden;Davos;Rhätische Bahn;9.76000999675;46.71591000206;1346.9;49.0;49.0;49.0
 8509078;Davos Wiesen;Graubünden;Davos;Rhätische Bahn;9.71584000191;46.6954899978;1196.8;80.0;70.0;100.0
-8509095;Klosters Selfranga;Graubünden;Klosters;Rhätische Bahn;9.88424999733;46.85578999675;1280.2;;;
 8509150;Chur Altstadt;Graubünden;Chur;Rhätische Bahn;9.5317301563;46.84741598326;595.4;220.0;210.0;220.0
 8509152;Lüen-Castiel;Graubünden;Arosa;Rhätische Bahn;9.61334000084;46.83170999558;936.8;90.0;90.0;90.0
 8509153;St. Peter-Molinis;Graubünden;Arosa;Rhätische Bahn;9.65384999333;46.82914999442;1156.7;110.0;110.0;120.0
@@ -1534,7 +1531,6 @@ BPUIC;STATION_NAME;CANTON;MUNICIPALITY;COMPANY;LONGITUDE;LATITUDE;ELEVATION;AVG_
 8509418;Mühlehorn;Glarus;Glarus Nord;Swiss Federal Railways SBB;9.1730180523;47.11784024455;426.2;180.0;180.0;170.0
 8510470;Matten b. Interlaken;Bern;Matten bei Interlaken;Berner Oberland-Bahnen;7.87286037877;46.67413729034;575.0;;;
 8510670;Trélex dépôt;Vaud;Trélex;Nyon-St-Cergue-Morez;6.208841;46.406611;477.52;;;
-8515296;Brig Bahnhofplatz;Valais;Brig-Glis;Matterhorn Gotthard Bahn (fo);7.98638354897;46.31900817454;672.25;;;
 8515992;Baar Neufeld;Zug;Baar;Swiss Federal Railways SBB;8.51778078343;47.1884929513;435.0;870.0;1200.0;160.0
 8515993;Baar Lindenpark;Zug;Baar;Swiss Federal Railways SBB;8.51705846014;47.18313669447;428.0;1200.0;1500.0;530.0
 8515994;Zug Fridbach;Zug;Zug;Swiss Federal Railways SBB;8.51229178194;47.15658113784;432.0;300.0;350.0;180.0

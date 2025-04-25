@@ -38,7 +38,7 @@ As for the *space-of-changes* representation, we start by loading the already pr
 
 ```{python}
 # Load the processed IST-DATEN.
-df = pd.read_csv('ist-daten.csv', low_memory=False)
+df = pd.read_csv('ist-daten.csv', sep=";", low_memory=False)
 
 # Convert BETRIEBSTAG to date format
 df['BETRIEBSTAG'] = pd.to_datetime(df['BETRIEBSTAG'])
@@ -95,7 +95,7 @@ This function is applied as before for the *space-of-changes* representation:
 edges_series = df.groupby("FAHRT_BEZEICHNER", group_keys=False).apply(get_edges_in_groups)
 ```
 
-We can check the same "Fahrt" between Yverdon-les-Bains and Ste-Croix again. 
+We can check the same "Fahrt" between Yverdon-les-Bains and Ste-Croix again.
 
 ```{python}
 # Let's check out one FAHRT.
@@ -113,7 +113,7 @@ edgelist = [x for l in edges_series.values for x in l]
 print("Number of edges:", len(edgelist))
 ```
 
-The *space-of-changes* representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal represenation of the network will have 1'110'834 edges.
+The *space-of-changes* representation code now aggregated duplicate edges. Crucially, this step is omitted here as we want to keep the temporal represenation of edges. Thus, our temporal representation of the network will have 1'110'766 edges.
 
 The final steps are easy: we change the station names to their BPUIC numbers, we convert both the start time and the duration of an edge to integer values, and we export the dataframe as a CSV file.
 
@@ -143,6 +143,6 @@ You can download the result here: <a href="edgelist_temporal.csv" download>Tempo
 
 ### References
 
-Holme, P., & Saramäki, J. (2012). Temporal networks. *Physics Reports*, 519(3), 97-125. [https://doi.org/10.1016/j.physrep.2012.03.001](https://doi.org/10.1016/j.physrep.2012.03.001)
+Holme, P., & Saramäki, J. (2012). Temporal networks. *Physics Reports*, 519(3), 97-125. <https://doi.org/10.1016/j.physrep.2012.03.001>
 
 *The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*

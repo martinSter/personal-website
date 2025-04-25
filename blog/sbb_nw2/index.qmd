@@ -36,10 +36,12 @@ As always, we begin the practical part with loading the libraries we are going t
 ```{python}
 import geopy.distance
 import pandas as pd
+import numpy as np
 from collections import Counter, defaultdict
 
 # Check versions of libraries.
 print("Pandas version:", pd.__version__)
+print("Numpy version:", np.__version__)
 
 # Make sure there is no limit on the number of columns shown.
 pd.set_option('display.max_columns', None)
@@ -53,7 +55,7 @@ We start by importing the already processed "Ist-Daten" from [Part 1](../sbb_nw/
 
 ```{python}
 # Load the processed IST-DATEN.
-df = pd.read_csv('ist-daten.csv', low_memory=False)
+df = pd.read_csv('ist-daten.csv', sep=";", low_memory=False)
 
 # Convert BETRIEBSTAG to date format
 df['BETRIEBSTAG'] = pd.to_datetime(df['BETRIEBSTAG'])
@@ -152,7 +154,7 @@ edges = {k: (v[0], round(v[1]/v[0], 2)) for k, v in edges.items()}
 print("Number of edges:", len(edges))
 ```
 
-We are left with 37'951 directed and weighted edges that are currently stored in a dict called `edges`. Let's see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:
+We are left with 37'947 directed and weighted edges that are currently stored in a dict called `edges`. Let's see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:
 
 ```{python}
 # Test
@@ -199,10 +201,10 @@ edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','NUM_CONNECTIONS','AVG_
 edges.head()
 
 # Export edge list
-# edges.to_csv("edgelist_SoC.csv", sep = ';', encoding = 'utf-8', index = False)
+# edges.to_csv("edgelist_SoCha.csv", sep = ';', encoding = 'utf-8', index = False)
 ```
 
-You can download the result here: <a href="edgelist_SoC.csv" download>Edgelist space-of-changes (CSV)</a>.
+You can download the result here: <a href="edgelist_SoCha.csv" download>Edgelist space-of-changes (CSV)</a>.
 
 ### Space-of-stations
 
@@ -212,7 +214,7 @@ We first load the (*space-of-stops*) edgelist from [Part 1](../sbb_nw/index.qmd)
 
 ```{python}
 # Load the space-of-stops edgelist.
-edges = pd.read_csv("edgelist.csv", sep = ";")
+edges = pd.read_csv("edgelist_SoSto.csv", sep = ";")
 
 # Create a node dict with station names as values.
 node_dict = dict(zip(nodes.BPUIC, nodes.STATION_NAME))
@@ -238,7 +240,7 @@ unique_undirected_edges = list(set((min(e1, e2), max(e1, e2)) for e1, e2 in zip(
 print("Number of unique undirected edges:", len(unique_undirected_edges))
 ```
 
-This step leaves us with 2'154 undirected, unique edges.
+This step leaves us with 2'152 undirected, unique edges.
 
 #### Data preprocessing for improved efficiency
 
@@ -329,7 +331,7 @@ for idx, edge in enumerate(unique_undirected_edges):
 print("Number of shortcut edges:", len(shortcut_edges))
 ```
 
-A total of 442 edges are identified as shortcuts. Let's have a look at the first one:
+A total of 443 edges are identified as shortcuts. Let's have a look at the first one:
 
 ```{python}
 # Check first shortcut.
@@ -353,7 +355,7 @@ final_edges = [e for e in unique_undirected_edges if e not in shortcut_edges_cle
 print("Number of edges:", len(final_edges))
 ```
 
-We have a final number of edges of $2154-442=1712$.
+We have a final number of edges of $2152-443=1709$.
 
 #### Validate with "Liniendaten"
 
@@ -453,7 +455,7 @@ Are there any edges in `linien_edges` that were classified as shortcuts?
 [x for x in linien_edges if x in shortcut_edges_clean]
 ```
 
-Yes, but the two lines are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.
+Yes, but the three connections are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Brig and Visp there is a small station called Eyholz. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.
 
 A manual check of the edges reveals that there are other shortcuts that our procedure was not able to identify. For example, the edge `(Bern, Zofingen)` cannot be identified because there is no other "Fahrt" that contains these two stations and stops somewhere in between. We manually remove such edges. In addition, we add some edges for which I know that there is actually infrastructure (tunnels, high-speed routes) that directly connects the two nodes involved.
 
@@ -461,7 +463,6 @@ A manual check of the edges reveals that there are other shortcuts that our proc
 # Manually remove edges.
 final_edges.remove(('Bern', 'Zofingen'))
 final_edges.remove(('Bern Wankdorf', 'Zürich HB'))
-final_edges.remove(('Basel Bad Bf', 'Schaffhausen'))
 final_edges.remove(('Morges', 'Yverdon-les-Bains'))
 final_edges.remove(('Aarau', 'Sissach'))
 final_edges.remove(('Bergün/Bravuogn', 'Pontresina'))
@@ -469,9 +470,7 @@ final_edges.remove(('Interlaken West', 'Spiez'))
 final_edges.remove(('Biel/Bienne', 'Grenchen Nord'))
 final_edges.remove(('Chambrelien', 'Neuchâtel'))
 final_edges.remove(('Concise', 'Yverdon-les-Bains'))
-final_edges.remove(('Brig', 'Visp'))
 final_edges.remove(('Etoy', 'Rolle'))
-final_edges.remove(('Klosters Selfranga', 'Sagliains')) # Avoid several edges representing the Vereina tunnel
 final_edges.remove(('Klosters Platz', 'Susch')) # Avoid several edges representing the Vereina tunnel
 
 # Manually add edges.
@@ -479,7 +478,6 @@ final_edges.append(('Biasca', 'Erstfeld')) # New Gotthard tunnel
 final_edges.append(('Bern Wankdorf', 'Rothrist')) # Bahn-2000
 final_edges.append(('Chambrelien', 'Corcelles-Peseux')) # Connector that was missing
 final_edges.append(('Concise', 'Grandson')) # Connector that was missing
-final_edges.append(('Brig', 'Eyholz')) # Connector that was missing
 final_edges.append(('Immensee', 'Rotkreuz')) # Connector that was missing
 final_edges.append(('Olten', 'Rothrist')) # Connector not going through Aarburg-Oftringen
 final_edges.append(('Rothrist', 'Solothurn')) # Bahn-2000
@@ -488,7 +486,7 @@ final_edges.append(('Aarau', 'Däniken SO')) # Eppenberg tunnel
 
 Funny thing is that the two edges, `('Chambrelien', 'Corcelles-Peseux')` and `('Concise', 'Grandson')`, that our validation procedure proposed as missing edges did actually need to be added upon further inspection. They were missing connectors when I visually inspected the network.
 
-After these final modifications of the edgelist, the total number of edges is 1'707.
+After these final modifications of the edgelist, the total number of edges is 1'706.
 
 #### Edge weights
 
@@ -522,8 +520,8 @@ linien_edges = list(set((min(e[0], e[1]), max(e[0], e[1]), e[2]) for e in linien
 # Convert to a dict.
 linien_edges_dict = {(e[0], e[1]): e[2] for e in linien_edges}
 
-# Modify edges that exist in dict with exact distance.
-final_edges = [(n1, n2, linien_edges_dict.get((n1, n2), dist)) for n1, n2, dist in final_edges]
+# Add exact distance for edges that exist in dict with exact distance.
+final_edges = [(n1, n2, dist, linien_edges_dict.get((n1, n2), np.nan)) for n1, n2, dist in final_edges]
 ```
 
 #### Export the edgelist
@@ -536,21 +534,21 @@ node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))
 
 # Transform edge dict to nested list and replace all station names with their BPUIC.
 # Also, round the distances to 4 decimal points.
-edges = [[node_dict[e[0]], node_dict[e[1]], round(e[2], 4)] for e in final_edges]
+edges = [[node_dict[e[0]], node_dict[e[1]], round(e[2], 4), round(e[3], 4)] for e in final_edges]
 
 # Create a dataframe
-edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','DISTANCE'])
+edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','DISTANCE_GEODESIC','DISTANCE_EXACT'])
 
 # Have a look
 edges.head()
 
 # Export edge list
-# edges.to_csv("edgelist_SoS.csv", sep = ';', encoding = 'utf-8', index = False)
+# edges.to_csv("edgelist_SoSta.csv", sep = ';', encoding = 'utf-8', index = False)
 ```
 
 ![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](Network_SoSta.svg){width="850"}
 
-You can download the result here: <a href="edgelist_SoS.csv" download>Edgelist space-of-stations (CSV)</a>.
+You can download the result here: <a href="edgelist_SoSta.csv" download>Edgelist space-of-stations (CSV)</a>.
 
 ### References
 
