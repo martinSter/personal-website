@@ -482,11 +482,14 @@ final_edges.append(('Immensee', 'Rotkreuz')) # Connector that was missing
 final_edges.append(('Olten', 'Rothrist')) # Connector not going through Aarburg-Oftringen
 final_edges.append(('Rothrist', 'Solothurn')) # Bahn-2000
 final_edges.append(('Aarau', 'Däniken SO')) # Eppenberg tunnel
+final_edges.append(('Liestal', 'Muttenz')) # Adler tunnel
+final_edges.append(('Thalwil', 'Zürich HB')) # Zimmerberg tunnel
+final_edges.append(('Zürich Altstetten', 'Zürich HB')) # Separate infrastructure connecting the two stations
 ```
 
 Funny thing is that the two edges, `('Chambrelien', 'Corcelles-Peseux')` and `('Concise', 'Grandson')`, that our validation procedure proposed as missing edges did actually need to be added upon further inspection. They were missing connectors when I visually inspected the network.
 
-After these final modifications of the edgelist, the total number of edges is 1'706.
+After these final modifications of the edgelist, the total number of edges is 1'709, since we add and remove exactly 11 edges (which is a coincidence).
 
 #### Edge weights
 
