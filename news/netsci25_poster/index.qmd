@@ -1,0 +1,16 @@
+---
+title: "NetSci 2025"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2025-05-30
+categories: ["Conferences"]
+image: graph.png
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+Feel free to download our poster: <a href="Poster_NetSci25.pdf" download>Download Poster (PDF)</a>.
