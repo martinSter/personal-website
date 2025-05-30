@@ -9,8 +9,27 @@
 <link>https://martinsterchi.ch/news/</link>
 <atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.6.43</generator>
-<lastBuildDate>Fri, 28 Feb 2025 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.7.31</generator>
+<lastBuildDate>Fri, 30 May 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>NetSci 2025</title>
+  <dc:creator>Martin Sterchi</dc:creator>
+  <link>https://martinsterchi.ch/news/netsci25_poster/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Feel free to download our poster: <a href="Poster_NetSci25.pdf" download="">Download Poster (PDF)</a>.</p>
+
+
+
+ ]]></description>
+  <category>Conferences</category>
+  <guid>https://martinsterchi.ch/news/netsci25_poster/</guid>
+  <pubDate>Fri, 30 May 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://martinsterchi.ch/news/netsci25_poster/graph.png" medium="image" type="image/png" height="109" width="144"/>
+</item>
 <item>
   <title>First blogpost</title>
   <dc:creator>Martin Sterchi</dc:creator>

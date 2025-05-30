@@ -2,54 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://martinsterchi.ch/publications/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.283Z</lastmod>
+    <lastmod>2025-05-30T13:22:04.347Z</lastmod>
   </url>
   <url>
-    <loc>https://martinsterchi.ch/news/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.281Z</lastmod>
+    <loc>https://martinsterchi.ch/news/netsci25_poster/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/news/snf_epi/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.283Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.281Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/blog/sbb_nw3/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.191Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/blog/sbb_nw/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.021Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/code/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.281Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/blog/sbb_nw2/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.038Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/blog/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.020Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/blog/kmeans_imgseg/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.020Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/news/netsci25/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.282Z</lastmod>
-  </url>
-  <url>
-    <loc>https://martinsterchi.ch/news/blog/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.281Z</lastmod>
+    <lastmod>2025-05-30T13:22:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://martinsterchi.ch/teaching/index.html</loc>
-    <lastmod>2025-04-26T08:30:48.293Z</lastmod>
+    <lastmod>2025-05-30T13:22:04.357Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/code/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.342Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/blog/sbb_nw/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.079Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/blog/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.078Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/blog/kmeans_imgseg/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.078Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/blog/sbb_nw3/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.250Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/blog/sbb_nw2/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.096Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.342Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/news/blog/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.342Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/news/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.342Z</lastmod>
+  </url>
+  <url>
+    <loc>https://martinsterchi.ch/news/netsci25/index.html</loc>
+    <lastmod>2025-05-30T13:22:04.343Z</lastmod>
   </url>
 </urlset>
