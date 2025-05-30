@@ -5,7 +5,7 @@ author:
     email: martin.sterchi@fhnw.ch
 date: 2025-05-30
 categories: ["Conferences"]
-image: graph.png
+image: image.PNG
 format:
   html:
     df-print: paged
@@ -13,4 +13,4 @@ format:
 google-scholar: false
 ---
 
-Feel free to download our poster: <a href="Poster_NetSci25.pdf" download>Download Poster (PDF)</a>.
+Feel free to download our poster: <a href="Poster_NetSci25.pdf" download>Poster (PDF)</a>.
