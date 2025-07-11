@@ -9,8 +9,8 @@
 <link>https://martinsterchi.ch/news/</link>
 <atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.7.31</generator>
-<lastBuildDate>Fri, 30 May 2025 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.7.32</generator>
+<lastBuildDate>Fri, 11 Jul 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>NetSci 2025</title>
   <dc:creator>Martin Sterchi</dc:creator>
@@ -20,14 +20,35 @@
 
 
 
-<p>Feel free to download our poster: <a href="Poster_NetSci25.pdf" download="">Poster (PDF)</a>.</p>
+<p>My colleague Lorenz Hilfiker and I attended this year’s NetSci conference in Maastricht, NL. We were pleased to present our preliminary work on GNNs for the source detection problem as a poster and to receive valuable feedback from the NetSci community.</p>
+<p><img src="https://martinsterchi.ch/news/netsci25_poster/FotoNetSci25.jpg" height="600"></p>
+<p>Besides enjoying the conference, we also had a chance to explore Maastricht a bit. Here are some impressions:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci25_poster/Maastricht1.jpg" class="img-fluid"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci25_poster/Maastricht4.jpg" class="img-fluid"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci25_poster/Maastricht3.jpg" class="img-fluid"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci25_poster/Maastricht2.jpg" class="img-fluid"></p>
+</div>
+</div>
+</div>
+<p>Feel free to download our poster: <a href="Poster_NetSci25.pdf" download="">Poster (PDF)</a>. We hope to publish a paper soon.</p>
 
 
 
  ]]></description>
   <category>Conferences</category>
   <guid>https://martinsterchi.ch/news/netsci25_poster/</guid>
-  <pubDate>Fri, 30 May 2025 00:00:00 GMT</pubDate>
+  <pubDate>Fri, 11 Jul 2025 00:00:00 GMT</pubDate>
   <media:content url="https://martinsterchi.ch/news/netsci25_poster/image.PNG" medium="image"/>
 </item>
 <item>
