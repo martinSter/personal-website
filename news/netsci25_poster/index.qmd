@@ -3,7 +3,7 @@ title: "NetSci 2025"
 author:
   - name: Martin Sterchi
     email: martin.sterchi@fhnw.ch
-date: 2025-05-30
+date: 2025-07-11
 categories: ["Conferences"]
 image: image.PNG
 format:
@@ -13,4 +13,22 @@ format:
 google-scholar: false
 ---
 
-Feel free to download our poster: <a href="Poster_NetSci25.pdf" download>Poster (PDF)</a>.
+My colleague Lorenz Hilfiker and I attended this year's NetSci conference in Maastricht, NL. We were pleased to present our preliminary work on GNNs for the source detection problem as a poster and to receive valuable feedback from the NetSci community.
+
+![](FotoNetSci25.jpg){height=600}
+
+Besides enjoying the conference, we also had a chance to explore Maastricht a bit. Here are some impressions:
+
+::: {layout-ncol=2}
+
+![](Maastricht1.jpg)
+
+![](Maastricht4.jpg)
+
+![](Maastricht3.jpg)
+
+![](Maastricht2.jpg)
+
+:::
+
+Feel free to download our poster: <a href="Poster_NetSci25.pdf" download>Poster (PDF)</a>. We hope to publish a paper soon.
