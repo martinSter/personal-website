@@ -1,0 +1,24 @@
+---
+title: "New Publication Out"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2025-11-17
+categories: ["Publications"]
+image: Network_SoSta.png
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+Together with my colleagues Emily Raubach and Lorenz Hilfiker, I have published a new paper in the Elsevier journal *Data in Brief*. The article presents the different network representations that I previously introduced on my blog. The journal's purpose is to make research datasets accessible to the community by providing the data as well as documentation and metadata in a clear and structured way.
+
+In our paper, we describe the four network representations in detail, explain how the raw data were processed to construct them, and provide some initial descriptive analyses. Our hope is that this work will make the datasets more useful to others and encourage their application in a variety of research contexts.
+
+We also plan to build on these datasets in our own future work. One direction we are particularly excited about is combining the networks with a metapopulation disease model for Switzerland. For some time, I have wanted to explore whether the effect of public transportation on the spread of the flu through the country can be measured.
+
+Full citation:
+
+Sterchi, M., Raubach, E., Hilfiker, L. (2025). **SwissRailNet: Four representations of a spatially embedded railway network dataset**. *Data in Brief*. <https://doi.org/10.1016/j.dib.2025.112266>
