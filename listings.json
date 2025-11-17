@@ -11,6 +11,7 @@
   {
     "listing": "/news/index.html",
     "items": [
+      "/news/data_in_brief/index.html",
       "/news/netsci25_poster/index.html",
       "/news/blog/index.html",
       "/news/netsci25/index.html",

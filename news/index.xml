@@ -10,7 +10,30 @@
 <atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
 <generator>quarto-1.8.26</generator>
-<lastBuildDate>Fri, 11 Jul 2025 00:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 17 Nov 2025 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>New Publication Out</title>
+  <dc:creator>Martin Sterchi</dc:creator>
+  <link>https://martinsterchi.ch/news/data_in_brief/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Together with my colleagues Emily Raubach and Lorenz Hilfiker, I have published a new paper in the Elsevier journal <em>Data in Brief</em>. The article presents the different network representations that I previously introduced on my blog. The journal’s purpose is to make research datasets accessible to the community by providing the data as well as documentation and metadata in a clear and structured way.</p>
+<p>In our paper, we describe the four network representations in detail, explain how the raw data were processed to construct them, and provide some initial descriptive analyses. Our hope is that this work will make the datasets more useful to others and encourage their application in a variety of research contexts.</p>
+<p>We also plan to build on these datasets in our own future work. One direction we are particularly excited about is combining the networks with a metapopulation disease model for Switzerland. For some time, I have wanted to explore whether the effect of public transportation on the spread of the flu through the country can be measured.</p>
+<p>Full citation:</p>
+<p>Sterchi, M., Raubach, E., Hilfiker, L. (2025). <strong>SwissRailNet: Four representations of a spatially embedded railway network dataset</strong>. <em>Data in Brief</em>. <a href="https://doi.org/10.1016/j.dib.2025.112266" class="uri">https://doi.org/10.1016/j.dib.2025.112266</a></p>
+
+
+
+ ]]></description>
+  <category>Publications</category>
+  <guid>https://martinsterchi.ch/news/data_in_brief/</guid>
+  <pubDate>Mon, 17 Nov 2025 00:00:00 GMT</pubDate>
+  <media:content url="https://martinsterchi.ch/news/data_in_brief/Network_SoSta.png" medium="image" type="image/png" height="93" width="144"/>
+</item>
 <item>
   <title>NetSci 2025</title>
   <dc:creator>Martin Sterchi</dc:creator>
