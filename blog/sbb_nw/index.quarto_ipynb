@@ -1,0 +1,968 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"SBB Network Analysis - Part 1\"\n",
+        "author:\n",
+        "  - name: Martin Sterchi\n",
+        "    email: martin.sterchi@fhnw.ch\n",
+        "date: 2025-02-28\n",
+        "categories: [\"Networks\"]\n",
+        "image: sbb_hb.jpg\n",
+        "format:\n",
+        "  html:\n",
+        "    df-print: paged\n",
+        "    toc: true\n",
+        "google-scholar: false\n",
+        "---\n",
+        "\n",
+        "*Update 10.03.2025: I updated the analysis in this blog so that it runs on more recent data. More precisely, I use the train traffic data from March 5, 2025 to construct the network. Moreover, I now properly reference the source data and I have added a bunch of additional node attributes. The most interesting new node attributes are average passenger frequency data for all stations.*\n",
+        "\n",
+        "For quite some time I have been wondering if there are some interesting Swiss data that would serve as the basis for some fun network analysis. As a fan of public transportation and a long-time owner of a Swiss train pass (\"GA\"), the answer should have been obvious much sooner: the **Swiss railway network**.\n",
+        "\n",
+        "I wanted to create a (static) network in which *each node corresponds to a train station* and *each directed edge between any two nodes, A and B, means there is at least one train going nonstop from A to B*. Ideally, the edge would also be attributed with some weight representing the importance of the edge (e.g., how many trains go nonstop from A to B on a given day).\n",
+        "\n",
+        "The structure of this post is as follows. I will first introduce the three datasets that I used to create the network. I will then show how to load and preprocess each one of them and how to join them. Finally, I will present how to transform those data into a form that is suitable for network analysis. The following image shows a visualization of the network data resulting from this post.\n",
+        "\n",
+        "![The Swiss railway network with a geographic layout (created using Gephi).](network.svg){width=\"850\"}\n",
+        "\n",
+        "This is the first part of a series that will cover all kinds of fun network analysis based on the Swiss railway network.\n",
+        "\n",
+        "### Data sources\n",
+        "\n",
+        "It was not that obvious how a network with nodes and edges following the definitions given above could be constructed based on data from the Swiss Federal Railways (abbreviated by the German speakers in Switzerland as **SBB**). With some help from SBB Experts and the [Open Data Plattform Mobility Switzerland](https://opentransportdata.swiss/en/), I finally found the right data.\n",
+        "\n",
+        "The first and most important dataset is called [Ist-Daten](https://data.opentransportdata.swiss/de/dataset/istdaten) and, for a given day, contains all regular stops of all trains in Switzerland with their planned and effective arrival and departure times. From this data, we can infer all nonstop stretches of any train in Switzerland. A description of this dataset can be found [here](https://opentransportdata.swiss/de/cookbook/actual-data/).\n",
+        "\n",
+        "Note that the \"Ist-Daten\" not only contain the data for trains but also for all other public transport (buses, trams, and even boats). To keep things simple we will focus on the train network.\n",
+        "\n",
+        "The second dataset is the [Dienststellen-Daten](https://data.opentransportdata.swiss/de/dataset/service-points-actual-date) which basically allows to add node attributes such as the geographic coordinates of a node (i.e., a train station). A description of this dataset can be found [here](https://opentransportdata.swiss/de/cookbook/service-points/).\n",
+        "\n",
+        "The third dataset is a [statistic of the average number of passengers boarding and alighting](https://data.opentransportdata.swiss/en/dataset/einundaus). It will allow us to add further interesting node attributes.\n",
+        "\n",
+        "### Load and preprocess \"Ist-Daten\"\n",
+        "\n",
+        "Here, we will load and preprocess the \"Ist-Daten\" from which we can derive the edges of our network. First, I import some Python libraries and print their version number for better reproducibility of this code."
+      ],
+      "id": "72d435ad"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from collections import Counter\n",
+        "\n",
+        "# Check versions of libraries.\n",
+        "print(\"NumPy version:\", np.__version__)\n",
+        "print(\"Pandas version:\", pd.__version__)\n",
+        "\n",
+        "# Make sure there is no limit on the number of columns shown.\n",
+        "pd.set_option('display.max_columns', None)"
+      ],
+      "id": "26f66439",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Let's now load the data. You can see in the filename that I downloaded the \"Ist-Daten\" from the SBB portal for March 5, 2025. You can get the data for any day you want [here](https://data.opentransportdata.swiss/de/dataset/istdaten)."
+      ],
+      "id": "c1af8137"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the data\n",
+        "df = pd.read_csv('2025-03-05_istdaten.csv', sep=\";\", low_memory=False)"
+      ],
+      "id": "3d287ea9",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "To get a feeling for the data, let's check the number of rows and columns."
+      ],
+      "id": "ea0d7bd8"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Number of rows and columns\n",
+        "print(df.shape)"
+      ],
+      "id": "81b780a4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Ok, it's actually a pretty big dataset: it has over 2.5 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport."
+      ],
+      "id": "26f7324b"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Missing values per column\n",
+        "df.isna().sum()"
+      ],
+      "id": "4ba81f34",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We can see that some columns contain many missing values. The only one I worry about for now is the column `PRODUKT_ID`. If you look through these rows (I don't show that here), you can see that they should all be of type \"Zug\" (train). Thus, we impute accordingly:"
+      ],
+      "id": "b76e4abb"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Impute 'Zug'\n",
+        "df.loc[df[\"PRODUKT_ID\"].isna(), \"PRODUKT_ID\"] = 'Zug'"
+      ],
+      "id": "dd6b6c9c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "There are quite a few date-timestamp columns that are not yet in the proper format. Thus, we now convert them to datetime formats:"
+      ],
+      "id": "626382ae"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Convert BETRIEBSTAG to date format\n",
+        "df['BETRIEBSTAG'] = pd.to_datetime(df['BETRIEBSTAG'], format = \"%d.%m.%Y\")\n",
+        "\n",
+        "# Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format\n",
+        "df['ANKUNFTSZEIT'] = pd.to_datetime(df['ANKUNFTSZEIT'], format = \"%d.%m.%Y %H:%M\")\n",
+        "df['AN_PROGNOSE'] = pd.to_datetime(df['AN_PROGNOSE'], format = \"%d.%m.%Y %H:%M:%S\")\n",
+        "df['ABFAHRTSZEIT'] = pd.to_datetime(df['ABFAHRTSZEIT'], format = \"%d.%m.%Y %H:%M\")\n",
+        "df['AB_PROGNOSE'] = pd.to_datetime(df['AB_PROGNOSE'], format = \"%d.%m.%Y %H:%M:%S\")"
+      ],
+      "id": "34373f6c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Now is a good time to finally have a look at the dataframe:"
+      ],
+      "id": "c0da96af"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Let's look at first few rows\n",
+        "df.head()"
+      ],
+      "id": "5ddb12d8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "But what do all these columns mean? I have browsed the metadata a bit and found the following explanations (that I hopefully accurately reproduce in English):\n",
+        "\n",
+        "-   `BETRIEBSTAG`: Simply the day on which the data were recorded.\n",
+        "-   `FAHRT_BEZEICHNER`: This is some elaborate identifier in the format \\[UIC-Countrycode\\]:\\[GO-Number\\]:\\[VM-Number\\]:\\[Extended Reference\\].\n",
+        "-   `BETREIBER_ID`: \\[UIC-Countrycode\\]:\\[GO-Number\\]. GO is short for \"Geschäftsorganisation\". For foreign organizations it is not a GO-Number but a TU-Number with TU meaning \"Transportunternehmen\". It is basically an ID for the company running that particular train.\n",
+        "-   `BETREIBER_ABK`: The abbreviation for the company running the train.\n",
+        "-   `BETREIBER_NAME`: The full name of the company running the train.\n",
+        "-   `PRODUKT_ID`: Type of public transport.\n",
+        "-   `LINIEN_ID`: The ID for the route of that train.\n",
+        "-   `LINIEN_TEXT`: The public ID for the route of that train.\n",
+        "-   `UMLAUF_ID`: An ID for a \"Umlauf\" which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.\n",
+        "-   `ZUSATZFAHRT_TF`: Is true if it is an extraordinary (not usually scheduled) trip.\n",
+        "-   `FAELLT_AUS_TF`: Is true if the trip is cancelled.\n",
+        "-   `BPUIC`: The ID of the station.\n",
+        "-   `HALTESTELLEN_NAME`: The name of the station.\n",
+        "-   `ANKUNFTSZEIT`: Planned time of arrival at the station.\n",
+        "-   `AN_PROGNOSE`: Prediction of time of arrival at the station.\n",
+        "-   `AN_PROGNOSE_STATUS`: Status of that prediction. Possible values are: \"UNBEKANNT\", \"leer\", \"PROGNOSE\", \"GESCHAETZT\", \"REAL\". If the value of that column is \"REAL\", it means that the predicted time of arrival is the time the train actually arrived at the station.\n",
+        "-   `ABFAHRTSZEIT`, `AB_PROGNOSE`, `AB_PROGNOSE_STATUS`: Same definitions as for arrival but here for departure from the station.\n",
+        "-   `DURCHFAHRT_TF`: Is true if the vehicle does not stop even if a stop was scheduled.\n",
+        "\n",
+        "Let's now have a look at the values in the column `PRODUKT_ID`:"
+      ],
+      "id": "966aa892"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Look at PRODUKT_ID\n",
+        "df[\"PRODUKT_ID\"].value_counts()"
+      ],
+      "id": "cf0ff5ee",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We can see that trains are only the third most frequent category in this data. However, as mentioned before, we want to keep it simple and now reduce the dataset to only trains."
+      ],
+      "id": "d90d0c20"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# First we reduce to only trains\n",
+        "df = df[df['PRODUKT_ID'] == \"Zug\"]"
+      ],
+      "id": "d030642c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "In a next step, we remove all rows where the corresponding train has been cancelled."
+      ],
+      "id": "6b1e5b21"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Filter out all entries with FAELLT_AUS_TF == True\n",
+        "df = df[df['FAELLT_AUS_TF'] == False]"
+      ],
+      "id": "dfbdd459",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "When I was doing some analysis with a first version of that network, I noticed that it contains edges in both directions between Klosters Selfranga and Sagliains. Upon further inspection I found out that this corresponds to a car shuttle train. All such connections are marked with \"ATZ\" in the variable `LINIEN_TEXT` which probably stands for \"Autozug\". We remove these connections:"
+      ],
+      "id": "3eef0c00"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Filter out all entries with LINIEN_TEXT == \"ATZ\"\n",
+        "df = df[df['LINIEN_TEXT'] != \"ATZ\"]"
+      ],
+      "id": "48f46564",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Another problem I spotted was that certain stations are split up into two based on which company is running what part of the station. I actually computed geodesic distances between any pair of stations to identify the problematic ones. I decided to manually change three cases. In the following code chunk you can see that I merge Brig and Brig Bahnhofplatz, Lugano and Lugano FLP, as well as Locarno and Locarno FART."
+      ],
+      "id": "28af5d80"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Merge stations in Brig, Lugano, Locarno\n",
+        "df.loc[df['HALTESTELLEN_NAME'] == \"Brig Bahnhofplatz\", \"BPUIC\"] = 8501609\n",
+        "df.loc[df['HALTESTELLEN_NAME'] == \"Lugano FLP\", \"BPUIC\"] = 8505300\n",
+        "df.loc[df['HALTESTELLEN_NAME'] == \"Locarno FART\", \"BPUIC\"] = 8505400\n",
+        "\n",
+        "df.loc[df['HALTESTELLEN_NAME'] == \"Brig Bahnhofplatz\", \"HALTESTELLEN_NAME\"] = \"Brig\"\n",
+        "df.loc[df['HALTESTELLEN_NAME'] == \"Lugano FLP\", \"HALTESTELLEN_NAME\"] = \"Lugano\"\n",
+        "df.loc[df['HALTESTELLEN_NAME'] == \"Locarno FART\", \"HALTESTELLEN_NAME\"] = \"Locarno\""
+      ],
+      "id": "43ac1891",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Let's explore the data a bit more before we move to the second dataset. Let's check out the most frequent values that occur in the column `BETREIBER_NAME`:"
+      ],
+      "id": "a26dcd73"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Look at BETREIBER_NAME\n",
+        "df[\"BETREIBER_NAME\"].value_counts().head()"
+      ],
+      "id": "7263190e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "As expected, SBB is the company serving the largest number of stations. What about the column `VERKEHRSMITTEL_TEXT`?"
+      ],
+      "id": "2f1348e2"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Look at VERKEHRSMITTEL_TEXT\n",
+        "df[\"VERKEHRSMITTEL_TEXT\"].value_counts().head()"
+      ],
+      "id": "748fcd0d",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We can see that the most frequent type of trains are S-Bahns (`S`). Finally, let's check the most frequent train stations that occur in the data:"
+      ],
+      "id": "b527d94d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Look at HALTESTELLEN_NAME\n",
+        "df[\"HALTESTELLEN_NAME\"].value_counts().head()"
+      ],
+      "id": "a90fa730",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Unsurprisingly, Zürich and Bern are the most frequent values occuring in the data.\n",
+        "\n",
+        "### Load and preprocess \"Dienststellen-Daten\"\n",
+        "\n",
+        "Fortunately, we can go through the second dataset a bit more quickly. We again start by loading it and checking the dimensions of the dataframe."
+      ],
+      "id": "95ec4615"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the data\n",
+        "ds = pd.read_csv('actual_date-swiss-only-service_point-2025-03-06.csv', sep = \";\", low_memory = False)\n",
+        "\n",
+        "# Number of rows and columns\n",
+        "print(ds.shape)"
+      ],
+      "id": "5e247afa",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The data contains a column `validTo` that allows us to filter out all stations that are not valid anymore (closed down?). We check the values that appear in this column and see that all stations should be valid as of March 6, 2025. This is no surprise as we use the dataset of currently valid stations."
+      ],
+      "id": "870e6019"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Check 'validTo' values.\n",
+        "ds['validTo'].unique()"
+      ],
+      "id": "741be7e1",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Let's also quickly make sure that we have unique rows (based on 'number')."
+      ],
+      "id": "708af3a1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Is the number of unique 'number' (= BPUIC) values equal to the number of rows?\n",
+        "len(pd.unique(ds['number'])) == ds.shape[0]"
+      ],
+      "id": "f5342703",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Finally, we keep only the columns we need (identifier, official name, and geo coordinates)."
+      ],
+      "id": "cabf1bf4"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Keep only the relevant columns\n",
+        "ds = ds[[\"number\",\"designationOfficial\",\"cantonName\",\"municipalityName\",\"businessOrganisationDescriptionEn\",\"wgs84East\",\"wgs84North\",\"height\"]]\n",
+        "\n",
+        "# Show first few rows\n",
+        "ds.head()"
+      ],
+      "id": "d1869781",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Load and preprocess average traffic data\n",
+        "\n",
+        "This part is also fairly easy. We load the data and check the dimensions, as always."
+      ],
+      "id": "b13a6530"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the data\n",
+        "ds_freq = pd.read_csv('t01x-sbb-cff-ffs-frequentia-2023.csv', sep = \";\", low_memory = False)\n",
+        "\n",
+        "# Number of rows and columns\n",
+        "print(ds_freq.shape)"
+      ],
+      "id": "9c8b5fac",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "If you actually have a look at the data, you see that many stations have several measurements made at different times (and the times of measurements are identified by `Jahr_Annee_Anno`). We only want to keep the most recent measurements for every station:"
+      ],
+      "id": "2679063c"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# For every station, we only keep the most recent measurements.\n",
+        "ds_freq = ds_freq.loc[ds_freq.groupby('UIC')['Jahr_Annee_Anno'].idxmax()]"
+      ],
+      "id": "15b0d77e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Checking the data types of all columns reveals that there is still a problem with the measurement columns `DTV_TJM_TGM`, `DWV_TMJO_TFM`, and `DNWV_TMJNO_TMGNL`. They are currently of type `object` because they contain the thousand separator `’`. We thus remove all instances of this characters and transform these columns to integers."
+      ],
+      "id": "0dc51317"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Data types of columns\n",
+        "ds_freq.dtypes\n",
+        "\n",
+        "# Remove thousand separator and make integers out of it.\n",
+        "ds_freq['DTV_TJM_TGM'] = ds_freq['DTV_TJM_TGM'].str.replace('’', '').astype(int)\n",
+        "ds_freq['DWV_TMJO_TFM'] = ds_freq['DWV_TMJO_TFM'].str.replace('’', '').astype(int)\n",
+        "ds_freq['DNWV_TMJNO_TMGNL'] = ds_freq['DNWV_TMJNO_TMGNL'].str.replace('’', '').astype(int)"
+      ],
+      "id": "c26acfa5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Finally, we keep only the relevant columns."
+      ],
+      "id": "d25243a3"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Keep only the relevant columns\n",
+        "ds_freq = ds_freq[[\"UIC\",\"DTV_TJM_TGM\",\"DWV_TMJO_TFM\",\"DNWV_TMJNO_TMGNL\"]]"
+      ],
+      "id": "37001cf1",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Show first few rows\n",
+        "ds_freq.head()"
+      ],
+      "id": "d6607f6a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "But what exactly are these three measurement variables? The source dataset provides the following definitions:\n",
+        "\n",
+        "-   `DTV_TJM_TGM`: \"Average daily traffic (Monday to Sunday).\"\n",
+        "-   `DWV_TMJO_TFM`: \"Average traffic on weekdays (Monday to Friday).\"\n",
+        "-   `DNWV_TMJNO_TMGNL`: \"Average non-work day traffic (Saturdays, Sundays and public holidays).\"\n",
+        "\n",
+        "It is further mentioned that all passengers boarding and exiting the trains are counted. That also means that passengers who switch trains are counted twice. For larger stations, the data may not cover all trains arriving and departing at the corresponding station. For example, the numbers for Bern do not include the traffic generated by the regional train company RBS.\n",
+        "\n",
+        "### Combine the three datasets\n",
+        "\n",
+        "We first merge the traffic data to the \"Dienststellen-Daten\":"
+      ],
+      "id": "1177de48"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Join to 'ds'\n",
+        "ds = pd.merge(ds, ds_freq, left_on = 'number', right_on = 'UIC', how = 'left')\n",
+        "\n",
+        "# Drop 'UIC'\n",
+        "ds = ds.drop('UIC', axis=1)\n",
+        "\n",
+        "# Better column names\n",
+        "ds.columns = ['BPUIC','STATION_NAME','CANTON','MUNICIPALITY','COMPANY',\n",
+        "              'LONGITUDE','LATITUDE','ELEVATION','AVG_DAILY_TRAFFIC',\n",
+        "              'AVG_DAILY_TRAFFIC_WEEKDAYS','AVG_DAILY_TRAFFIC_WEEKENDS']"
+      ],
+      "id": "edeaab34",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Then we merge the \"Dienststellen-Daten\" to the \"Ist-Daten\" via the `BPUIC` variable:"
+      ],
+      "id": "28668452"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Left-join with station names and coordinates\n",
+        "df = pd.merge(df, ds, on = 'BPUIC', how = 'left')"
+      ],
+      "id": "bbfb1439",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Unfortunately, there are some rows (18) for which `HALTESTELLEN_NAME` is missing. But fortunately, we know which stations are affected based on the `STATION_NAME` column that we have just merged from `ds`."
+      ],
+      "id": "4d3dce17"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# There are 18 missing values for 'HALTESTELLEN_NAME' which we impute from 'STATION_NAME'.\n",
+        "df.loc[df['HALTESTELLEN_NAME'].isna(), \"HALTESTELLEN_NAME\"] = df.loc[df['HALTESTELLEN_NAME'].isna(), \"STATION_NAME\"]"
+      ],
+      "id": "e6531c96",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Now, we are finally ready to start extracting the network from this data!\n",
+        "\n",
+        "### Convert it to a network\n",
+        "\n",
+        "As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called \"Fahrt\" in German) then typically consists of several stops along the way. However, there are some \"Fahrten\" with only one entry. Presumably these are mostly foreign trains that have their final destination at some border station. I decided to remove those entries:"
+      ],
+      "id": "08c3ef71"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry\n",
+        "# It's mostly trains that stop at a place at the border (I think)\n",
+        "df_filtered = df.groupby('FAHRT_BEZEICHNER').filter(lambda g: len(g) > 1)\n",
+        "\n",
+        "# How many rows do we loose with that?\n",
+        "print(df.shape[0] - df_filtered.shape[0])"
+      ],
+      "id": "869e8e8b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This preprocessing step removes 420 rows.\n",
+        "\n",
+        "Now we group the rows by `FAHRT_BEZEICHNER` so that each group is one \"Fahrt\". In every group we sort the stops along the way in an ascending order of the departure time."
+      ],
+      "id": "598bdc2d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Function to sort entries within a group in ascending order of ABFAHRTSZEIT\n",
+        "def sort_data(group):\n",
+        "    return group.sort_values('ABFAHRTSZEIT', ascending = True)\n",
+        "\n",
+        "# Sort for each group\n",
+        "df_sorted = df_filtered.groupby('FAHRT_BEZEICHNER', group_keys=True).apply(sort_data)"
+      ],
+      "id": "c43095c6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Let's have a look at one \"Fahrt\" to get a better idea:"
+      ],
+      "id": "34ee07d9"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Look at one example Fahrt\n",
+        "df_sorted.loc[['85:22:1083:000'],['BETREIBER_NAME','LINIEN_TEXT','HALTESTELLEN_NAME','ABFAHRTSZEIT']]"
+      ],
+      "id": "38f8c2a6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This is a train that goes from Gossau to Appenzell with many stops in-between. In Appenzell the `ABFAHRTSZEIT` is missing as that \"Fahrt\" ends there (the train will most likely go back in the other direction, but that will be a new \"Fahrt\").\n",
+        "\n",
+        "We now have enough knowledge about the data that we can extract the edges in a for loop. Basically, what we do is to loop over the rows of a given \"Fahrt\", starting with the second row and extracting the edges as\n",
+        "\n",
+        "`(previous station, current station, travel time between stations)`.\n",
+        "\n",
+        "The Python code for this looks as follows:"
+      ],
+      "id": "04596086"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Empty list\n",
+        "edgelist = []\n",
+        "\n",
+        "# Variables to store previous row and its index\n",
+        "prev_row = None\n",
+        "prev_idx = None\n",
+        "\n",
+        "# Loop over rows of dataframe\n",
+        "for i, row in df_sorted.iterrows():\n",
+        "    # Only start with second row\n",
+        "    # Only if the two rows belong to the same Fahrt\n",
+        "    if prev_idx is not None and prev_idx == i[0]:\n",
+        "        # Add edge to edgelist assuming it's a directed edge\n",
+        "        edgelist.append((prev_row['STATION_NAME'], \n",
+        "                         row['STATION_NAME'], \n",
+        "                         (row['ANKUNFTSZEIT'] - prev_row['ABFAHRTSZEIT']).total_seconds() / 60))\n",
+        "    # Set current row and row index to previous ones\n",
+        "    prev_idx = i[0]\n",
+        "    prev_row = row"
+      ],
+      "id": "be3e2e1e",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "To get a better idea, let's have a look at the first list element:"
+      ],
+      "id": "cdb44cae"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# First list element\n",
+        "edgelist[0]"
+      ],
+      "id": "855acf6c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We are still not quite done yet. The problem is that the `edgelist` contains many duplicated entries as, for example, the stretch Zürich HB - Basel SBB is served by many different trains on a given day.\n",
+        "\n",
+        "What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary."
+      ],
+      "id": "6520b7a7"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Empty dict\n",
+        "edges = {}\n",
+        "\n",
+        "# Loop over elements in edgelist\n",
+        "for i in edgelist:\n",
+        "    # Create key\n",
+        "    key = (i[0], i[1])\n",
+        "    # Get previous entries in dict (if there are any)\n",
+        "    prev = edges.get(key, (0, 0))\n",
+        "    # Update values in dict\n",
+        "    edges[key] = (prev[0] + 1, prev[1] + i[2])\n",
+        "\n",
+        "# Divide summed up travel times by number of trips\n",
+        "edges = {k: (v[0], round(v[1]/v[0], 2)) for k, v in edges.items()}"
+      ],
+      "id": "5fbceaea",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Let's look at the entry for the stretch between Zürich and Basel again:"
+      ],
+      "id": "589537f0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Look at some element in dict\n",
+        "edges[('Zürich HB', 'Basel SBB')]"
+      ],
+      "id": "b58d7ba0",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "There are 36 trips between these two stations (in this direction) and they take 54 minutes on average.\n",
+        "\n",
+        "Another issue that I spotted when I was trying to visualize this network was two edges between Basel Bad Bf and Schaffhausen. When I consulted the SBB timetable I saw that these supposedly nonstop connections actually stop at quite a few stations in Germany. But because these stops are in Germany they do not appear in the data. As a conclusion of all this, I decided to remove these two edges:"
+      ],
+      "id": "65184f04"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Remove the two edges between Basel Bad Bf and Schaffhausen\n",
+        "del edges[('Basel Bad Bf', 'Schaffhausen')]\n",
+        "del edges[('Schaffhausen', 'Basel Bad Bf')]"
+      ],
+      "id": "0a0a1fac",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We are now ready to create the final node list (and export it). First, we reduce `ds` to the train stations that actually appear in the edges (it still contains many bus and tram stops and other things)."
+      ],
+      "id": "1cf09cd4"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Set of stations that appear in edgelist\n",
+        "stations_in_edgelist = set(sum(list(edges.keys()), ()))\n",
+        "\n",
+        "# Reduces nodes dataframe to only places in edgelist\n",
+        "nodes = ds[ds['STATION_NAME'].isin(stations_in_edgelist)]"
+      ],
+      "id": "d6080a28",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Second, we quickly check the number of missing values again."
+      ],
+      "id": "61b8cead"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Missing values per column\n",
+        "nodes.isna().sum()"
+      ],
+      "id": "54054d51",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "There are still some issues here. The one we can solve is the missing elevation. The station Tirano (in Italy) has no value for this column. We simply impute manually (Tirano's elevation is approximately 441m)."
+      ],
+      "id": "0abcdc77"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Impute missing elevation for Tirano\n",
+        "nodes.loc[nodes['STATION_NAME'] == \"Tirano\", \"ELEVATION\"] = 441"
+      ],
+      "id": "e2d157b3",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The missing values for `CANTON` and `MUNICIPALITY` concern municipalities abroad (in Germany and Italy mostly). The 500 missing values in the traffic columns are stations are run by smaller companies or stations abroad. There is nothing we can do about all these missing values."
+      ],
+      "id": "d123f2ed"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Have a look\n",
+        "nodes.head()\n",
+        "\n",
+        "# Export node list\n",
+        "# nodes.sort_values(\"BPUIC\").to_csv(\"nodelist.csv\", sep = ';', encoding = 'utf-8', index = False)"
+      ],
+      "id": "e15b1bf9",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Before we export the edges, we change the station names in the edgelist to the BPUIC to make the edges more compact. Then we transform the dictionary into a dataframe which can finally be exported."
+      ],
+      "id": "c31b2f5e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Create a node dict with BPUIC as values\n",
+        "node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))\n",
+        "\n",
+        "# Transform edge dict to nested list and replace all station names with their BPUIC\n",
+        "edges = [[node_dict[k[0]], node_dict[k[1]], v[0], v[1]] for k,v in edges.items()]\n",
+        "\n",
+        "# Create a dataframe\n",
+        "edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','NUM_CONNECTIONS','AVG_DURATION'])\n",
+        "\n",
+        "# Have a look\n",
+        "edges.head()\n",
+        "\n",
+        "# Export edge list\n",
+        "# edges.to_csv(\"edgelist_SoSto.csv\", sep = ';', encoding = 'utf-8', index = False)"
+      ],
+      "id": "b51c4b11",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Feel free to download the final results: <a href=\"nodelist.csv\" download>Nodelist (CSV)</a> and <a href=\"edgelist_SoSto.csv\" download>Edgelist (CSV)</a>.\n",
+        "\n",
+        "*The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*"
+      ],
+      "id": "d5189565"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "C:\\Users\\martin.sterchi\\AppData\\Local\\anaconda3\\share\\jupyter\\kernels\\python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

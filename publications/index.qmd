@@ -4,23 +4,25 @@ title: "Publications"
 
 ### Journals
 
--   Sterchi, M., Hilfiker, L., Grütter, R., Bernstein, A. (2023). **Active Querying Approach to Epidemic Source Detection on Contact Networks**. *Scientific Reports*, 13(1). [https://doi.org/10.1038/s41598-023-38282-8](https://doi.org/10.1038/s41598-023-38282-8)
+-   Sterchi, M., Raubach, E., Hilfiker, L. (2025). **SwissRailNet: Four representations of a spatially embedded railway network dataset**. *Data in Brief*. <https://doi.org/10.1016/j.dib.2025.112266>
 
--   Sterchi, M., Sarasua, C., Grütter, R., Bernstein, A. (2021). **Outbreak detection for temporal contact data**. *Applied Network Science*, 6(17). [https://doi.org/10.1007/s41109-021-00360-z](https://doi.org/10.1007/s41109-021-00360-z)
+-   Sterchi, M., Hilfiker, L., Grütter, R., Bernstein, A. (2023). **Active Querying Approach to Epidemic Source Detection on Contact Networks**. *Scientific Reports*, 13(1). <https://doi.org/10.1038/s41598-023-38282-8>
 
--   Sterchi, M., Faverjon, C., Sarasua, C., Vargas, ME., Berezowski, J., Bernstein, A., Grütter, R., Nathues, H. (2019). **The pig transport network in Switzerland: Structure, patterns, and implications for the transmission of infectious diseases between animal holdings**. *PLOS ONE*, 14(5): e0217974. [https://doi.org/10.1371/journal.pone.0217974](https://doi.org/10.1371/journal.pone.0217974)
+-   Sterchi, M., Sarasua, C., Grütter, R., Bernstein, A. (2021). **Outbreak detection for temporal contact data**. *Applied Network Science*, 6(17). <https://doi.org/10.1007/s41109-021-00360-z>
 
--   Faverjon, C., Bernstein, A., Grütter, R., Nathues, C., Nathues, H., Sarasua, C., Sterchi, M., Vargas, ME., Berezowski, J. (2019). **A Transdisciplinary Approach Supporting the Implementation of a Big Data Project in Livestock Production: An Example From the Swiss Pig Production Industry**. *Frontiers in Veterinary Science*, 6(215). [https://doi.org/10.3389/fvets.2019.00215](https://doi.org/10.3389/fvets.2019.00215)
+-   Sterchi, M., Faverjon, C., Sarasua, C., Vargas, ME., Berezowski, J., Bernstein, A., Grütter, R., Nathues, H. (2019). **The pig transport network in Switzerland: Structure, patterns, and implications for the transmission of infectious diseases between animal holdings**. *PLOS ONE*, 14(5): e0217974. <https://doi.org/10.1371/journal.pone.0217974>
 
--   Stöckli, S., Messner, C., Sterchi, M., Dorn, M. (2019). **Unreliable is Better: Theoretical and Practical Impulses for Performance Management**. *Die Unternehmung*, 73(2), 167-180. [https://www.jstor.org/stable/26696764](https://www.jstor.org/stable/26696764)
+-   Faverjon, C., Bernstein, A., Grütter, R., Nathues, C., Nathues, H., Sarasua, C., Sterchi, M., Vargas, ME., Berezowski, J. (2019). **A Transdisciplinary Approach Supporting the Implementation of a Big Data Project in Livestock Production: An Example From the Swiss Pig Production Industry**. *Frontiers in Veterinary Science*, 6(215). <https://doi.org/10.3389/fvets.2019.00215>
 
--   Hulliger, B. & Sterchi, M. (2018). **A survey-based design of a pricing system for psychotherapy**. *Health Economics Review*, 8(29), 2-11. [https://doi.org/10.1186/s13561-018-0213-7](https://doi.org/10.1186/s13561-018-0213-7)
+-   Stöckli, S., Messner, C., Sterchi, M., Dorn, M. (2019). **Unreliable is Better: Theoretical and Practical Impulses for Performance Management**. *Die Unternehmung*, 73(2), 167-180. <https://www.jstor.org/stable/26696764>
+
+-   Hulliger, B. & Sterchi, M. (2018). **A survey-based design of a pricing system for psychotherapy**. *Health Economics Review*, 8(29), 2-11. <https://doi.org/10.1186/s13561-018-0213-7>
 
 ### Proceedings
 
--   Sterchi, M., Sarasua, C., Grütter, R., Bernstein, A. (2019). **Maximizing the Likelihood of Detecting Outbreaks in Temporal Networks**. In: *Proceedings of the 8th International Conference on Complex Networks and Their Applications*, COMPLEX NETWORKS, 2019. Oral Presentation. [https://doi.org/10.1007/978-3-030-36683-4_39](https://doi.org/10.1007/978-3-030-36683-4_39)
+-   Sterchi, M., Sarasua, C., Grütter, R., Bernstein, A. (2019). **Maximizing the Likelihood of Detecting Outbreaks in Temporal Networks**. In: *Proceedings of the 8th International Conference on Complex Networks and Their Applications*, COMPLEX NETWORKS, 2019. Oral Presentation. <https://doi.org/10.1007/978-3-030-36683-4_39>
 
--   Sterchi, M. & Wolf, M. (2017). **Weighted Least Squares and Adaptive Least Squares: Further Empirical Evidence**. In: Kreinovic, Vladik; Sriboonchitta, Songsak; Huynh, Van-Nam. *Robustness in Econometrics*. Cham: Springer, 135-167. [https://doi.org/10.1007/978-3-319-50742-2_9](https://doi.org/10.1007/978-3-319-50742-2_9)
+-   Sterchi, M. & Wolf, M. (2017). **Weighted Least Squares and Adaptive Least Squares: Further Empirical Evidence**. In: Kreinovic, Vladik; Sriboonchitta, Songsak; Huynh, Van-Nam. *Robustness in Econometrics*. Cham: Springer, 135-167. <https://doi.org/10.1007/978-3-319-50742-2_9>
 
 ### Abstracts
 

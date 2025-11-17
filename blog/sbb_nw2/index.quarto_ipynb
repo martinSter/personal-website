@@ -1,0 +1,1004 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"SBB Network Analysis - Part 2\"\n",
+        "author:\n",
+        "  - name: Martin Sterchi\n",
+        "    email: martin.sterchi@fhnw.ch\n",
+        "date: 2025-03-31\n",
+        "categories: [\"Networks\"]\n",
+        "image: sbb_hb.jpg\n",
+        "format:\n",
+        "  html:\n",
+        "    df-print: paged\n",
+        "    toc: true\n",
+        "google-scholar: false\n",
+        "---\n",
+        "\n",
+        "In [Part 1](../sbb_nw/index.qmd) of this series on the Swiss train network, I demonstrated how to construct a directed network where nodes represent stations, and a directed edge exists whenever at least one nonstop train connection links two stations.\n",
+        "\n",
+        "For some time, I believed this was the most intuitive graph representation for this context. However, after reading an insightful 2006 paper by [Maciej Kurant and Patrick Thiran](https://arxiv.org/abs/physics/0510151), I discovered that public transport networks can be represented in (at least) three distinct ways. The graph representation I introduced in [Part 1](../sbb_nw/index.qmd) aligns with what they call the **space-of-stops** representation.\n",
+        "\n",
+        "Yet, depending on the specific questions being asked, two other graph representations can also be useful. In the **space-of-changes** representation proposed by Kurant and Thiran (2006), an edge exists between any two stations connected by a train on a given \"Fahrt\", even if the train makes stops at other stations in between.\n",
+        "\n",
+        "The third representation, **space-of-stations**, includes an undirected edge between two stations only if they are directly connected by railway tracks, with no other station in between. This approach offers a more infrastructure-focused perspective on the network.\n",
+        "\n",
+        "Crucially, all three representations share the same set of nodes—namely, all active train stations. What differs is how the edges are defined.\n",
+        "\n",
+        "Kurant and Thiran (2006) also highlight how the shortest path length is interpreted differently in each representation:\n",
+        "\n",
+        "-   *space-of-stops*: The number of train stops on a journey between two stations.\n",
+        "-   *space-of-changes*: The number of times a traveler must change trains between two stations.\n",
+        "-   *space-of-stations*: The number of stations passed through between two stations.\n",
+        "\n",
+        "Lastly, they point out an important subgraph relationship among these representations: *space-of-stations* is a subgraph of *space-of-stops*, which in turn is a subgraph of *space-of-changes*.\n",
+        "\n",
+        "As always, we begin the practical part with loading the libraries we are going to use."
+      ],
+      "id": "238703db"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import geopy.distance\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "from collections import Counter, defaultdict\n",
+        "\n",
+        "# Check versions of libraries.\n",
+        "print(\"Pandas version:\", pd.__version__)\n",
+        "print(\"Numpy version:\", np.__version__)\n",
+        "\n",
+        "# Make sure there is no limit on the number of columns shown.\n",
+        "pd.set_option('display.max_columns', None)"
+      ],
+      "id": "a36ab614",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We first present how the *space-of-changes* representation can be extracted. After that we show one way of finding the edges for the *space-of-stations* representation.\n",
+        "\n",
+        "### Space-of-changes\n",
+        "\n",
+        "We start by importing the already processed \"Ist-Daten\" from [Part 1](../sbb_nw/index.qmd). Since we load them from a CSV file we have to transform all date-time information into the Pandas datetime format."
+      ],
+      "id": "ed189fd1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the processed IST-DATEN.\n",
+        "df = pd.read_csv('ist-daten.csv', sep=\";\", low_memory=False)\n",
+        "\n",
+        "# Convert BETRIEBSTAG to date format\n",
+        "df['BETRIEBSTAG'] = pd.to_datetime(df['BETRIEBSTAG'])\n",
+        "\n",
+        "# Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format\n",
+        "df['ANKUNFTSZEIT'] = pd.to_datetime(df['ANKUNFTSZEIT'])\n",
+        "df['AN_PROGNOSE'] = pd.to_datetime(df['AN_PROGNOSE'])\n",
+        "df['ABFAHRTSZEIT'] = pd.to_datetime(df['ABFAHRTSZEIT'])\n",
+        "df['AB_PROGNOSE'] = pd.to_datetime(df['AB_PROGNOSE'])"
+      ],
+      "id": "a163592c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Next comes the key part of extracting the edges for the *space-of-changes* representation. We will group the rows by `FAHRT_BEZEICHNER`. Then, we will use two nested loops to create edges between any station and all subsequent stations on a given \"Fahrt\". Note that in contrast to Kurant and Thiran (2006) we will extract *directed* edges. The following function specifies how the edges can be extracted for one group. It's not very performant code and there may be smarter and more efficient ways of doing this. But it does the job."
+      ],
+      "id": "300acfbf"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Function to compute (directed) edges according to spaces-of-changes principle.\n",
+        "def get_edges_in_groups(group):\n",
+        "    # Empty list for results of a group.\n",
+        "    results = []\n",
+        "    # Loop over all rows in group.\n",
+        "    for i in range(len(group)):\n",
+        "        # Nested loop over all subsequent rows.\n",
+        "        for j in range(i + 1, len(group)):\n",
+        "            # Now, append edge to results list.\n",
+        "            results.append((\n",
+        "                group.iloc[i][\"STATION_NAME\"], # Station of origin\n",
+        "                group.iloc[j][\"STATION_NAME\"], # Station of destination\n",
+        "                (group.iloc[j]['ANKUNFTSZEIT'] - group.iloc[i]['ABFAHRTSZEIT']).total_seconds() / 60 # Time (minutes)\n",
+        "            ))\n",
+        "    # Return list.\n",
+        "    return results"
+      ],
+      "id": "25fe7886",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We can now apply that function to every group. On my machine, this step took roughly 10 minutes."
+      ],
+      "id": "8ff46653"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Now apply that function group-wise.\n",
+        "edges_series = df.groupby(\"FAHRT_BEZEICHNER\", group_keys=False).apply(get_edges_in_groups)"
+      ],
+      "id": "376ef9d8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The output of the previous step is a Pandas series, as the following check confirms. We can see that every element of that series is identified with `FAHRT_BEZEICHNER` and contains a list with the edges, also including the time between the two nodes."
+      ],
+      "id": "ea57f0ba"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Make sure the result is a pandas series.\n",
+        "print(\"Is pandas series:\", isinstance(edges_series, pd.Series))\n",
+        "\n",
+        "# Check first few elements:\n",
+        "edges_series.head()"
+      ],
+      "id": "a4b533d7",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We perform another quick check to make sure the series contains as many elements as there are unique `FAHRT_BEZEICHNER` strings. That seems to be the case."
+      ],
+      "id": "fb697c97"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# How many elements?\n",
+        "print(\"Number of elements in series:\", len(edges_series))\n",
+        "\n",
+        "# Is that the number of distinct FAHRTEN?\n",
+        "df[['FAHRT_BEZEICHNER']].nunique()"
+      ],
+      "id": "0f0a06a9",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We quickly check the list of edges for one \"Fahrt\" to make sure it really extracted the edges in the right way."
+      ],
+      "id": "e06e7f68"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Let's check out one FAHRT.\n",
+        "edges_series[\"85:97:9:000\"]"
+      ],
+      "id": "2f8c6e49",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This seems to be a train that goes from Yverdon-les-Bains to Ste-Croix. It stops in Vuiteboeuf, Baulmes, and Six-Fontaines before getting to Ste-Croix. There is an edge between every station and all its subsequent stations on that \"Fahrt\". This is exactly what we wanted.\n",
+        "\n",
+        "Now, we flatten the Pandas series of lists into one edgelist."
+      ],
+      "id": "92ebd84f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Flatten the result into one edgelist.\n",
+        "edgelist = [x for l in edges_series.values for x in l]\n",
+        "\n",
+        "print(\"Number of edges:\", len(edgelist))"
+      ],
+      "id": "0c703427",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This edgelist contains over one million edges. Note, however, that many of them are duplicates as we looped over all \"Fahrten\" of a given day. As in [Part 1](../sbb_nw/index.qmd), we will now aggregate all duplicate edges, counting the number of connections and the average travel time between any two nodes."
+      ],
+      "id": "711dbc62"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Empty dict\n",
+        "edges = {}\n",
+        "\n",
+        "# Loop over elements in edgelist\n",
+        "for i in edgelist:\n",
+        "    # Create key\n",
+        "    key = (i[0], i[1])\n",
+        "    # Get previous entries in dict (if there are any)\n",
+        "    prev = edges.get(key, (0, 0))\n",
+        "    # Update values in dict\n",
+        "    edges[key] = (prev[0] + 1, prev[1] + i[2])\n",
+        "\n",
+        "# Divide summed up travel times by number of trips\n",
+        "edges = {k: (v[0], round(v[1]/v[0], 2)) for k, v in edges.items()}\n",
+        "\n",
+        "print(\"Number of edges:\", len(edges))"
+      ],
+      "id": "dca3510f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We are left with 37'947 directed and weighted edges that are currently stored in a dict called `edges`. Let's see how long it takes to get from Olten to Winterthur and how many connections there are on a given day:"
+      ],
+      "id": "5a853ac5"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Test\n",
+        "edges[(\"Olten\", \"Winterthur\")]"
+      ],
+      "id": "d26b61e8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "I can travel from Olten to Winterthur 25 times per day (without having to change trains) and the trip takes a bit more than an hour.\n",
+        "\n",
+        "Now, there is still a small problem (which I acutally only found out about after creating a network with `networkX`): there are two self-loops!"
+      ],
+      "id": "43186341"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "print(edges[(\"Monthey-En Place\", \"Monthey-En Place\")])\n",
+        "print(edges[(\"Les Planches (Aigle)\", \"Les Planches (Aigle)\")])"
+      ],
+      "id": "94541d62",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "I checked the trips in which these stations occur and the trips actually do visit the same station twice. So, our code did the right thing, these are just two odd trips. I decided to remove those two edges:"
+      ],
+      "id": "6d5d78fe"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Remove the two self-loops\n",
+        "edges.pop((\"Les Planches (Aigle)\", \"Les Planches (Aigle)\"))\n",
+        "edges.pop((\"Monthey-En Place\", \"Monthey-En Place\"))"
+      ],
+      "id": "60eed406",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Now, we import the nodelist from [Part 1](../sbb_nw/index.qmd) so that we can replace the station names in the edges by the BPUIC identifiers."
+      ],
+      "id": "eef5b876"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the nodelist.\n",
+        "nodes = pd.read_csv(\"nodelist.csv\", sep = \";\")\n",
+        "\n",
+        "# Create a node dict with BPUIC as values\n",
+        "node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))"
+      ],
+      "id": "2175e9a5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "After changing all stations names to BPUIC numbers we create a dataframe that can then be exported as a CSV file. Yay, we're done!"
+      ],
+      "id": "006a6ae0"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Transform edge dict to nested list and replace all station names with their BPUIC\n",
+        "edges = [[node_dict[k[0]], node_dict[k[1]], v[0], v[1]] for k,v in edges.items()]\n",
+        "\n",
+        "# Create a dataframe\n",
+        "edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','NUM_CONNECTIONS','AVG_DURATION'])\n",
+        "\n",
+        "# Have a look\n",
+        "edges.head()\n",
+        "\n",
+        "# Export edge list\n",
+        "# edges.to_csv(\"edgelist_SoCha.csv\", sep = ';', encoding = 'utf-8', index = False)"
+      ],
+      "id": "18107915",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "You can download the result here: <a href=\"edgelist_SoCha.csv\" download>Edgelist space-of-changes (CSV)</a>.\n",
+        "\n",
+        "### Space-of-stations\n",
+        "\n",
+        "For the *space-of-stations* graph representation we make use of the fact that the *space-of-stations* graph should be a subgraph of the *space-of-stops* graph that we extracted in [Part 1](../sbb_nw/index.qmd) with the latter containing additional edges that represent **shortcuts**. For example, the *space-of-stops* graph contains a directed edge from Olten to Basel SBB as there are nonstop trains between these two stations. However, there are also smaller, regional trains which stop at all stations in between. The key idea (also nicely shown by Kurant and Thiran) is to go through all edges in the *space-of-stops* graph and identify the ones that are shortcuts.\n",
+        "\n",
+        "We first load the (*space-of-stops*) edgelist from [Part 1](../sbb_nw/index.qmd) and add the station names."
+      ],
+      "id": "e2a67d33"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the space-of-stops edgelist.\n",
+        "edges = pd.read_csv(\"edgelist_SoSto.csv\", sep = \";\")\n",
+        "\n",
+        "# Create a node dict with station names as values.\n",
+        "node_dict = dict(zip(nodes.BPUIC, nodes.STATION_NAME))\n",
+        "\n",
+        "# Add actual station names.\n",
+        "edges[\"STATION1\"] = [node_dict[v] for v in edges[\"BPUIC1\"]]\n",
+        "edges[\"STATION2\"] = [node_dict[v] for v in edges[\"BPUIC2\"]]\n",
+        "\n",
+        "# Check out the dataframe.\n",
+        "print(edges.head())\n",
+        "\n",
+        "print(\"Number of edges in space-of-stops representation:\", edges.shape[0])"
+      ],
+      "id": "24078c05",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "For the *space-of-stations* representation, **undirected** edges make the most sense. Thus, we need to make the directed edges from the *space-of-stops* representation undirected and remove all duplicates that this introduces (e.g., 'Olten - Basel SBB' and 'Basel SBB - Olten'). With a little help by ChatGPT I found an elegant solution to achieve just that.\n",
+        "\n",
+        "More concretely, we iterate over the zip object containing the node pairs of all edges. The `min()` and `max()` functions applied to the station names will sort the station names alphabetically so that, for example, 'Olten - Basel SBB' and 'Basel SBB - Olten' are both transformed to 'Basel SBB - Olten'. Finally, the `set()` function will get rid of all duplicates."
+      ],
+      "id": "3a30f85e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Get a list of unique undirected edges.\n",
+        "unique_undirected_edges = list(set((min(e1, e2), max(e1, e2)) for e1, e2 in zip(edges[\"STATION1\"], edges[\"STATION2\"])))\n",
+        "\n",
+        "print(\"Number of unique undirected edges:\", len(unique_undirected_edges))"
+      ],
+      "id": "36b65d35",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This step leaves us with 2'152 undirected, unique edges.\n",
+        "\n",
+        "#### Data preprocessing for improved efficiency\n",
+        "\n",
+        "In order to make the procedure further below more efficient, we extract here all unique \"Fahrten\". More specifically, we create a dictionary `fahrten` with the sequence of station names as key and the `FAHRT_BEZEICHNER` as value. Note that if a sequence of station names already exists as a key in the dict, then the value belonging to that key will be overwritten with the new `FAHRT_BEZEICHNER` but that doesn't bother us since we just want to be able to extract one example \"Fahrt\" per unique sequence of stops."
+      ],
+      "id": "c350a810"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Empty dict\n",
+        "fahrten = {}\n",
+        "\n",
+        "# Loop over grouped df.\n",
+        "# If the same key (sequence of stops) reappears, the value will be overwritte.\n",
+        "# But that behavior is desired: we only want to keep one FAHRT_BEZEICHNER per key.\n",
+        "for fahrt, group in df.groupby('FAHRT_BEZEICHNER'):\n",
+        "    fahrten[tuple(group['STATION_NAME'])] = fahrt\n",
+        "\n",
+        "print(\"Number of unique 'Fahrten':\", len(fahrten))\n",
+        "print(\"Number of 'Fahrten' in whole dataframe:\", df['FAHRT_BEZEICHNER'].nunique())"
+      ],
+      "id": "37f1ce29",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We can see from the above output that this step drastically reduces the \"Fahrten\" that we will iterate over later.\n",
+        "\n",
+        "In the following code chunk we filter the \"Ist-Daten\" (`df`) loaded earlier so that only the unique \"Fahrten\" are left."
+      ],
+      "id": "d96c27de"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Reduce the dataframe to the 'Fahrten' in list of values of dict.\n",
+        "df = df[df['FAHRT_BEZEICHNER'].isin(list(fahrten.values()))]\n",
+        "\n",
+        "print(\"Remaining number of rows:\", df.shape[0])"
+      ],
+      "id": "7eb15d0c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Another little trick to make things more efficent later is to create a dictionary with station names as keys and a list with all `FAHRT_BEZEICHNER` strings a station name is part of as values (kind of an *inverted index*)."
+      ],
+      "id": "b887370b"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# defaultdict with lists\n",
+        "result_dict = defaultdict(list)\n",
+        "\n",
+        "# Iterate over rows\n",
+        "for _, row in df.iterrows():\n",
+        "    # Create a dict with stations as keys and FAHRT_BEZEICHNER as values.\n",
+        "    result_dict[row['STATION_NAME']].append(row['FAHRT_BEZEICHNER'])\n",
+        "\n",
+        "# Convert back to normal dict.\n",
+        "result_dict = dict(result_dict)"
+      ],
+      "id": "3e6b8f0b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Identify shortcuts\n",
+        "\n",
+        "Next, we perform the key step in extracting the edges for the *space-of-stations* representation: we need to identify all edges that are shortcuts, passing train stations without stopping.\n",
+        "\n",
+        "We first define a custom function that determines whether any two station names `a` and `b` are adjacent in a sequence (list) of station names `lst`."
+      ],
+      "id": "d777e55a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Function to check whether elements a and b are NOT adjacent in lst.\n",
+        "def is_shortcut(lst, a, b):\n",
+        "    return not any((x, y) == (a, b) or (x, y) == (b, a) for x, y in zip(lst, lst[1:]))"
+      ],
+      "id": "21a5afc4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Then, we iterate over all undirected, unique edges that we prepared above. For each edge we go through the following steps:\n",
+        "\n",
+        "1.  We get the `FAHRT_BEZEICHNER` strings for all \"Fahrten\" which both nodes of the edge are part of. For this we use the *inverted index*-style dictionary we created above.\n",
+        "2.  Then we perform an inner loop over the \"Fahrten\" extracted in the first step.\n",
+        "    -   We first extract the sequence of stations of a \"Fahrt\".\n",
+        "    -   We use our custom function from above to check whether the two nodes are adjacent in the sequence of stations.\n",
+        "    -   If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and move on to the next edge."
+      ],
+      "id": "3239a114"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Empty list for shortcuts.\n",
+        "shortcut_edges = []\n",
+        "\n",
+        "# Loop over list of undirected edges.\n",
+        "for idx, edge in enumerate(unique_undirected_edges):\n",
+        "    # Find all 'Fahrten' in which both stations of the edge appear.\n",
+        "    intersection = list(set(result_dict[edge[0]]) & set(result_dict[edge[1]]))\n",
+        "    # Initialize shortcut to False\n",
+        "    shortcut = False\n",
+        "    # Loop over 'Fahrten' in which both stations of the edge appear.\n",
+        "    for fahrt in intersection:\n",
+        "        # Get the sequence of stations in current 'Fahrt'.\n",
+        "        seq_of_stations = df.loc[df['FAHRT_BEZEICHNER'] == fahrt, 'STATION_NAME'].tolist()\n",
+        "        # Check whether the edge represents a shortcut in that sequence.\n",
+        "        shortcut = is_shortcut(seq_of_stations, edge[0], edge[1])\n",
+        "        # If it is a shortcut, we add it to the list and break the inner loop.\n",
+        "        if shortcut:\n",
+        "            # Add to list and break the loop.\n",
+        "            shortcut_edges.append((fahrt, edge))\n",
+        "            break\n",
+        "\n",
+        "print(\"Number of shortcut edges:\", len(shortcut_edges))"
+      ],
+      "id": "e48b2388",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "A total of 443 edges are identified as shortcuts. Let's have a look at the first one:"
+      ],
+      "id": "344573aa"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Check first shortcut.\n",
+        "print(shortcut_edges[0])\n",
+        "\n",
+        "# Check the 'Fahrt' in which it was detected as a shortcut.\n",
+        "df.loc[df['FAHRT_BEZEICHNER'] == shortcut_edges[0][0], 'STATION_NAME']"
+      ],
+      "id": "5b8cb223",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "From the whole sequence of stations, we can see that the edge identified as a shortcut is, in fact, a connection that is not consecutive.\n",
+        "\n",
+        "Finally, we remove the `FAHRT_BEZEICHNER` from `shortcut_edges` and create the final edge list without shortcuts."
+      ],
+      "id": "0003b829"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Extract only edges\n",
+        "shortcut_edges_clean = [i[1] for i in shortcut_edges]\n",
+        "\n",
+        "# Get the final list of non-shortcut edges.\n",
+        "final_edges = [e for e in unique_undirected_edges if e not in shortcut_edges_clean]\n",
+        "\n",
+        "print(\"Number of edges:\", len(final_edges))"
+      ],
+      "id": "fa139551",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We have a final number of edges of $2152-443=1709$.\n",
+        "\n",
+        "#### Validate with \"Liniendaten\"\n",
+        "\n",
+        "The extraction of the edges in the *space-of-stations* representation was a bit more complex than for *space-of-changes* or *space-of-stops*. That's why I would like to run some checks.\n",
+        "\n",
+        "We can validate some of the edges we extracted with another dataset from the [Open Data Portal of SBB](https://data.sbb.ch/pages/home/). The dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/) contains all railway \"lines\" maintained by SBB with all \"Betriebspunkte\" (including stations) that are located along these lines. Let's load this dataset:"
+      ],
+      "id": "c1325a20"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Load the data about \"Linien mit Betriebspunkten\"\n",
+        "linien = pd.read_csv('linie-mit-betriebspunkten.csv', sep = \";\")\n",
+        "\n",
+        "# Reduce to relevant columns\n",
+        "linien = linien[[\"Name Haltestelle\",\"Linie\",\"KM\",\"Linien Text\",\"BPUIC\"]]\n",
+        "\n",
+        "print(\"Shape of dataframe:\", linien.shape)"
+      ],
+      "id": "95ce248f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Let's have a look:"
+      ],
+      "id": "f53d76df"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Have a look at the dataframe\n",
+        "linien.head()"
+      ],
+      "id": "2c3e2ec4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The rows in that dataset are not just stations but also other \"Betriebspunkte\" (important locations that are needed to run the infrastructure). But we can identify the stations among the \"Betriebspunkte\" by joining the `nodes` dataframe on BPUIC and only keeping the entries for which there was a matching row in `nodes`."
+      ],
+      "id": "126a96c6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Join the rows of nodelist based on BPUIC.\n",
+        "linien = pd.merge(linien, nodes[[\"BPUIC\",\"STATION_NAME\"]], on = 'BPUIC', how = 'left')\n",
+        "\n",
+        "# How many entries have a missing value aka are not stations?\n",
+        "print(\"Number of non-stations:\", linien[\"STATION_NAME\"].isna().sum())\n",
+        "\n",
+        "# Drop all rows that are not stations.\n",
+        "linien = linien.dropna(subset = [\"STATION_NAME\"])\n",
+        "\n",
+        "print(\"Number of remaining rows:\", linien.shape[0])"
+      ],
+      "id": "f1906e35",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Next, we group the rows by `'Linie'` and sort them in ascending order by `'KM'` (where along the line is the \"Betriebspunkt\" located, in terms of kilometres) so that the stations for each line are sorted in the right order."
+      ],
+      "id": "079eacbd"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Function to sort entries within a group in ascending order of KM\n",
+        "def sort_data(group):\n",
+        "    return group.sort_values('KM', ascending = True)\n",
+        "\n",
+        "# Sort for each group\n",
+        "linien_sorted = linien.groupby('Linie', group_keys=False).apply(sort_data)\n",
+        "\n",
+        "# Let's have a look at Linie 290.\n",
+        "linien_sorted.loc[linien_sorted['Linie'] == 290]"
+      ],
+      "id": "ad3645f6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We see here for one example (Line 290) that the stations are now nicely sorted in ascending order of `'KM'`.\n",
+        "\n",
+        "Now, we can create a new column that always contains the station name of the next row using the handy `shift()` method. We then do the same with the `KM` column and compute the distance between any subsequent stations. We will use those distances later on as edge weights for this representation.\n",
+        "\n",
+        "The last row within a group will always have a missing value for those new columns as there is no next station at the end of a line. So, we drop the last row of each line."
+      ],
+      "id": "8b7f927a"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Create a new column that for each row contains the next stop within the group.\n",
+        "linien_sorted[\"NEXT_STATION\"] = linien_sorted.groupby(\"Linie\")[\"STATION_NAME\"].shift(-1)\n",
+        "\n",
+        "# Do the same for KM.\n",
+        "linien_sorted[\"NEXT_STATION_KM\"] = linien_sorted.groupby(\"Linie\")[\"KM\"].shift(-1)\n",
+        "\n",
+        "# Compute distance.\n",
+        "linien_sorted[\"DISTANCE\"] = linien_sorted[\"NEXT_STATION_KM\"] - linien_sorted[\"KM\"]\n",
+        "\n",
+        "# Drop all rows where 'NEXT_STATION' is missing\n",
+        "linien_sorted = linien_sorted.dropna(subset = [\"NEXT_STATION\"])"
+      ],
+      "id": "688e6b72",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We now extract the values of the columns `STATION_NAME` and `NEXT_STATION` and ignore the distances for now. We will use this to validate our approach. Importantly, we sort the node pairs in each edge in the same way as before (alphabetically)."
+      ],
+      "id": "da020e51"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Now let's extract the edges\n",
+        "linien_edges = list(zip(linien_sorted['STATION_NAME'], linien_sorted['NEXT_STATION']))\n",
+        "\n",
+        "# Make sure the tuples are arranged in the same way as above (and unique).\n",
+        "linien_edges = list(set((min(e[0], e[1]), max(e[0], e[1])) for e in linien_edges))"
+      ],
+      "id": "46e38c53",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "As for the validation, we first want to check whether there are edges in `linien_edges` that are neither a shortcut nor in the final edgelist from above."
+      ],
+      "id": "1ba18cc4"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Check which edges are in linien_edges but neither in final_edges nor in shortcut_edges_clean.\n",
+        "[x for x in linien_edges if x not in final_edges and x not in shortcut_edges_clean]"
+      ],
+      "id": "16486a82",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "There are some candidate edges but I checked all of them manually in the train schedule and none of them seem to have direct train connections. It could be that some of these are old train lines that are not active anymore.\n",
+        "\n",
+        "Are there any edges in `linien_edges` that were classified as shortcuts?"
+      ],
+      "id": "20430cb4"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Are there any edges that I classified as shortcuts?\n",
+        "[x for x in linien_edges if x in shortcut_edges_clean]"
+      ],
+      "id": "0f573fc4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Yes, but the three connections are in fact shortcuts. Between Niederbipp and Oensingen there is a small station called Niederbipp Industrie. Between Brig and Visp there is a small station called Eyholz. Between Chur and Landquart there are several smaller stations. Note, however, that it could be that even though the train tracks between Chur and Landquart actually pass those smaller stations there is no infrastructure for trains to actually stop.\n",
+        "\n",
+        "A manual check of the edges reveals that there are other shortcuts that our procedure was not able to identify. For example, the edge `(Bern, Zofingen)` cannot be identified because there is no other \"Fahrt\" that contains these two stations and stops somewhere in between. We manually remove such edges. In addition, we add some edges for which I know that there is actually infrastructure (tunnels, high-speed routes) that directly connects the two nodes involved."
+      ],
+      "id": "03b135d6"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Manually remove edges.\n",
+        "final_edges.remove(('Bern', 'Zofingen'))\n",
+        "final_edges.remove(('Bern Wankdorf', 'Zürich HB'))\n",
+        "final_edges.remove(('Morges', 'Yverdon-les-Bains'))\n",
+        "final_edges.remove(('Aarau', 'Sissach'))\n",
+        "final_edges.remove(('Bergün/Bravuogn', 'Pontresina'))\n",
+        "final_edges.remove(('Interlaken West', 'Spiez'))\n",
+        "final_edges.remove(('Biel/Bienne', 'Grenchen Nord'))\n",
+        "final_edges.remove(('Chambrelien', 'Neuchâtel'))\n",
+        "final_edges.remove(('Concise', 'Yverdon-les-Bains'))\n",
+        "final_edges.remove(('Etoy', 'Rolle'))\n",
+        "final_edges.remove(('Klosters Platz', 'Susch')) # Avoid several edges representing the Vereina tunnel\n",
+        "\n",
+        "# Manually add edges.\n",
+        "final_edges.append(('Biasca', 'Erstfeld')) # New Gotthard tunnel\n",
+        "final_edges.append(('Bern Wankdorf', 'Rothrist')) # Bahn-2000\n",
+        "final_edges.append(('Chambrelien', 'Corcelles-Peseux')) # Connector that was missing\n",
+        "final_edges.append(('Concise', 'Grandson')) # Connector that was missing\n",
+        "final_edges.append(('Immensee', 'Rotkreuz')) # Connector that was missing\n",
+        "final_edges.append(('Olten', 'Rothrist')) # Connector not going through Aarburg-Oftringen\n",
+        "final_edges.append(('Rothrist', 'Solothurn')) # Bahn-2000\n",
+        "final_edges.append(('Aarau', 'Däniken SO')) # Eppenberg tunnel\n",
+        "final_edges.append(('Liestal', 'Muttenz')) # Adler tunnel\n",
+        "final_edges.append(('Thalwil', 'Zürich HB')) # Zimmerberg tunnel\n",
+        "final_edges.append(('Zürich Altstetten', 'Zürich HB')) # Separate infrastructure connecting the two stations"
+      ],
+      "id": "925ae897",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Funny thing is that the two edges, `('Chambrelien', 'Corcelles-Peseux')` and `('Concise', 'Grandson')`, that our validation procedure proposed as missing edges did actually need to be added upon further inspection. They were missing connectors when I visually inspected the network.\n",
+        "\n",
+        "After these final modifications of the edgelist, the total number of edges is 1'709, since we add and remove exactly 11 edges (which is a coincidence).\n",
+        "\n",
+        "#### Edge weights\n",
+        "\n",
+        "As edge weights, we will compute the distances between stations. We will have exact distances for the lines maintained by SBB (we already computed them above based on the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/)). For all other edges, we will simply compute the direct distance based on the coordinates of the stations.\n",
+        "\n",
+        "In a first step, we augment every edge in our edgelist with the *direct* distance:"
+      ],
+      "id": "01315159"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# New column with coordinates in the same column.\n",
+        "nodes['coord'] = list(zip(nodes.LATITUDE, nodes.LONGITUDE))\n",
+        "\n",
+        "# Define a function to compute direct distance.\n",
+        "def compute_distance(station1, station2):\n",
+        "    return geopy.distance.geodesic(\n",
+        "        nodes.loc[nodes['STATION_NAME'] == station1, \"coord\"].item(), \n",
+        "        nodes.loc[nodes['STATION_NAME'] == station2, \"coord\"].item()).km\n",
+        "\n",
+        "# Compute direct distances between node pairs.\n",
+        "final_edges = [(e[0], e[1], compute_distance(e[0], e[1])) for e in final_edges]"
+      ],
+      "id": "e027c85c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Then, in a second step we modify every edge that appears in the validation data (based on the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/)) and fill in the *exact* distance. For this we transform the validation data into a dictionary for fast lookups. The `get()` method then allows for easy replacement of distances:"
+      ],
+      "id": "0339c26e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# List of edges including distances.\n",
+        "linien_edges = list(zip(linien_sorted['STATION_NAME'], linien_sorted['NEXT_STATION'], linien_sorted['DISTANCE']))\n",
+        "\n",
+        "# Make sure the tuples are arranged in the same way as above (and unique).\n",
+        "linien_edges = list(set((min(e[0], e[1]), max(e[0], e[1]), e[2]) for e in linien_edges))\n",
+        "\n",
+        "# Convert to a dict.\n",
+        "linien_edges_dict = {(e[0], e[1]): e[2] for e in linien_edges}\n",
+        "\n",
+        "# Add exact distance for edges that exist in dict with exact distance.\n",
+        "final_edges = [(n1, n2, dist, linien_edges_dict.get((n1, n2), np.nan)) for n1, n2, dist in final_edges]"
+      ],
+      "id": "b6e3dfed",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "#### Export the edgelist\n",
+        "\n",
+        "Finally, we can export the edges as before for the other representations. Note that before we export the data we correct one small mistake in the edge Baar Lindenpark - Zug. The exact distance derived from the dataset [Linie (Betriebspunkte)](https://data.sbb.ch/explore/dataset/linie-mit-betriebspunkten/information/) is way too large and thus we simply impute the geodesic distance for this one edge."
+      ],
+      "id": "ffc09c3d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# Create a node dict with BPUIC as values\n",
+        "node_dict = dict(zip(nodes.STATION_NAME, nodes.BPUIC))\n",
+        "\n",
+        "# Transform edge dict to nested list and replace all station names with their BPUIC.\n",
+        "# Also, round the distances to 4 decimal points.\n",
+        "edges = [[node_dict[e[0]], node_dict[e[1]], round(e[2], 4), round(e[3], 4)] for e in final_edges]\n",
+        "\n",
+        "# Create a dataframe\n",
+        "edges = pd.DataFrame(edges, columns = ['BPUIC1','BPUIC2','DISTANCE_GEODESIC','DISTANCE_EXACT'])\n",
+        "\n",
+        "# Correct mistake in edge between Baar Lindenpark and Zug.\n",
+        "edges.loc[(edges['BPUIC1'] == 8515993) & (edges['BPUIC2'] == 8502204), 'DISTANCE_EXACT'] = 1.0593\n",
+        "\n",
+        "# Have a look\n",
+        "edges.head()\n",
+        "\n",
+        "# Export edge list\n",
+        "# edges.to_csv(\"edgelist_SoSta.csv\", sep = ';', encoding = 'utf-8', index = False)"
+      ],
+      "id": "48db08ab",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "![The Swiss railway network with a geographic layout, Space-of-Stations representation (created using Gephi).](Network_SoSta.svg){width=\"850\"}\n",
+        "\n",
+        "You can download the result here: <a href=\"edgelist_SoSta.csv\" download>Edgelist space-of-stations (CSV)</a>.\n",
+        "\n",
+        "### References\n",
+        "\n",
+        "Kurant, M., & Thiran, P. (2006). Extraction and analysis of traffic and topologies of transportation networks. Physical Review E, 74(3), 036114. <https://doi.org/10.1103/PhysRevE.74.036114>\n",
+        "\n",
+        "*The title image has been created by Wikimedia user JoachimKohler-HB and is licensed under [Creative Commons](https://creativecommons.org/licenses/by-sa/4.0/deed.en).*"
+      ],
+      "id": "0a83aff8"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "C:\\Users\\martin.sterchi\\AppData\\Local\\anaconda3\\share\\jupyter\\kernels\\python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
