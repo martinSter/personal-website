@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.8.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,14 +69,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <meta name="quarto:offset" content="../../">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-587c61ba64f3a5504c4d52d930310e48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-e5767390d1d3429438c8d9915df9a25f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-0d8212d9889c0d938fe82bda74a7f3c2.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -238,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="load-and-preprocess-ist-daten">Load and preprocess “Ist-Daten”</h3>
 <p>Here, we will load and preprocess the “Ist-Daten” from which we can derive the edges of our network. First, I import some Python libraries and print their version number for better reproducibility of this code.</p>
 <div id="91f40988" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> Counter</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -247,7 +248,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Pandas version:"</span>, pd.__version__)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure there is no limit on the number of columns shown.</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>NumPy version: 1.26.4
 Pandas version: 2.1.4</code></pre>
@@ -255,21 +256,21 @@ Pandas version: 2.1.4</code></pre>
 </div>
 <p>Let’s now load the data. You can see in the filename that I downloaded the “Ist-Daten” from the SBB portal for March 5, 2025. You can get the data for any day you want <a href="https://data.opentransportdata.swiss/de/dataset/istdaten">here</a>.</p>
 <div id="72cbf448" class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'2025-03-05_istdaten.csv'</span>, sep<span class="op">=</span><span class="st">";"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">'2025-03-05_istdaten.csv'</span>, sep<span class="op">=</span><span class="st">";"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To get a feeling for the data, let’s check the number of rows and columns.</p>
 <div id="2cb07ba0" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows and columns</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows and columns</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(2510290, 21)</code></pre>
 </div>
 </div>
 <p>Ok, it’s actually a pretty big dataset: it has over 2.5 million rows. That makes sense as this file contains every stop of every vehicle involved in public transport on a given day. Thus, every row corresponds to a stop of a train, bus, or any other vehicle of public transport.</p>
 <div id="c612d916" class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing values per column</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df.isna().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing values per column</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>BETRIEBSTAG                  0
 FAHRT_BEZEICHNER             0
@@ -297,29 +298,29 @@ dtype: int64</code></pre>
 </div>
 <p>We can see that some columns contain many missing values. The only one I worry about for now is the column <code>PRODUKT_ID</code>. If you look through these rows (I don’t show that here), you can see that they should all be of type “Zug” (train). Thus, we impute accordingly:</p>
 <div id="0f64c84d" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute 'Zug'</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">"PRODUKT_ID"</span>].isna(), <span class="st">"PRODUKT_ID"</span>] <span class="op">=</span> <span class="st">'Zug'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute 'Zug'</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">"PRODUKT_ID"</span>].isna(), <span class="st">"PRODUKT_ID"</span>] <span class="op">=</span> <span class="st">'Zug'</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>There are quite a few date-timestamp columns that are not yet in the proper format. Thus, we now convert them to datetime formats:</p>
 <div id="4d7e3d44" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert BETRIEBSTAG to date format</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert BETRIEBSTAG to date format</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'BETRIEBSTAG'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'BETRIEBSTAG'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert ANKUNFTSZEIT, AN_PROGNOSE, ABFAHRTSZEIT, AB_PROGNOSE to datetime format</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'ANKUNFTSZEIT'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'ANKUNFTSZEIT'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M"</span>)</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AN_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AN_PROGNOSE'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M:%S"</span>)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'ABFAHRTSZEIT'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'ABFAHRTSZEIT'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M"</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AB_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AB_PROGNOSE'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M:%S"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'AB_PROGNOSE'</span>] <span class="op">=</span> pd.to_datetime(df[<span class="st">'AB_PROGNOSE'</span>], <span class="bu">format</span> <span class="op">=</span> <span class="st">"</span><span class="sc">%d</span><span class="st">.%m.%Y %H:%M:%S"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now is a good time to finally have a look at the dataframe:</p>
 <div id="b48354f7" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's look at first few rows</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's look at first few rows</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -348,7 +349,7 @@ dtype: int64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>2025-03-05</td>
 <td>80:800631:17230:000</td>
 <td>80:800631</td>
@@ -372,7 +373,7 @@ dtype: int64</code></pre>
 <td>False</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>2025-03-05</td>
 <td>80:800631:17233:000</td>
 <td>80:800631</td>
@@ -396,7 +397,7 @@ dtype: int64</code></pre>
 <td>False</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>2025-03-05</td>
 <td>80:800631:17234:000</td>
 <td>80:800631</td>
@@ -420,7 +421,7 @@ dtype: int64</code></pre>
 <td>False</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>2025-03-05</td>
 <td>80:800631:17235:000</td>
 <td>80:800631</td>
@@ -444,7 +445,7 @@ dtype: int64</code></pre>
 <td>False</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>2025-03-05</td>
 <td>80:800631:17236:000</td>
 <td>80:800631</td>
@@ -496,8 +497,8 @@ dtype: int64</code></pre>
 </ul>
 <p>Let’s now have a look at the values in the column <code>PRODUKT_ID</code>:</p>
 <div id="cc8c3ec4" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at PRODUKT_ID</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"PRODUKT_ID"</span>].value_counts()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at PRODUKT_ID</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"PRODUKT_ID"</span>].value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>PRODUKT_ID
 Bus            1965207
@@ -512,34 +513,34 @@ Name: count, dtype: int64</code></pre>
 </div>
 <p>We can see that trains are only the third most frequent category in this data. However, as mentioned before, we want to keep it simple and now reduce the dataset to only trains.</p>
 <div id="1510c29c" class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First we reduce to only trains</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'PRODUKT_ID'</span>] <span class="op">==</span> <span class="st">"Zug"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First we reduce to only trains</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'PRODUKT_ID'</span>] <span class="op">==</span> <span class="st">"Zug"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In a next step, we remove all rows where the corresponding train has been cancelled.</p>
 <div id="de258dbc" class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out all entries with FAELLT_AUS_TF == True</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'FAELLT_AUS_TF'</span>] <span class="op">==</span> <span class="va">False</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out all entries with FAELLT_AUS_TF == True</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'FAELLT_AUS_TF'</span>] <span class="op">==</span> <span class="va">False</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>When I was doing some analysis with a first version of that network, I noticed that it contains edges in both directions between Klosters Selfranga and Sagliains. Upon further inspection I found out that this corresponds to a car shuttle train. All such connections are marked with “ATZ” in the variable <code>LINIEN_TEXT</code> which probably stands for “Autozug”. We remove these connections:</p>
 <div id="00aeb158" class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out all entries with LINIEN_TEXT == "ATZ"</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'LINIEN_TEXT'</span>] <span class="op">!=</span> <span class="st">"ATZ"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out all entries with LINIEN_TEXT == "ATZ"</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df[<span class="st">'LINIEN_TEXT'</span>] <span class="op">!=</span> <span class="st">"ATZ"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Another problem I spotted was that certain stations are split up into two based on which company is running what part of the station. I actually computed geodesic distances between any pair of stations to identify the problematic ones. I decided to manually change three cases. In the following code chunk you can see that I merge Brig and Brig Bahnhofplatz, Lugano and Lugano FLP, as well as Locarno and Locarno FART.</p>
 <div id="e2c2e673" class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge stations in Brig, Lugano, Locarno</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge stations in Brig, Lugano, Locarno</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Brig Bahnhofplatz"</span>, <span class="st">"BPUIC"</span>] <span class="op">=</span> <span class="dv">8501609</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Lugano FLP"</span>, <span class="st">"BPUIC"</span>] <span class="op">=</span> <span class="dv">8505300</span></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Locarno FART"</span>, <span class="st">"BPUIC"</span>] <span class="op">=</span> <span class="dv">8505400</span></span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Brig Bahnhofplatz"</span>, <span class="st">"HALTESTELLEN_NAME"</span>] <span class="op">=</span> <span class="st">"Brig"</span></span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Lugano FLP"</span>, <span class="st">"HALTESTELLEN_NAME"</span>] <span class="op">=</span> <span class="st">"Lugano"</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Locarno FART"</span>, <span class="st">"HALTESTELLEN_NAME"</span>] <span class="op">=</span> <span class="st">"Locarno"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>] <span class="op">==</span> <span class="st">"Locarno FART"</span>, <span class="st">"HALTESTELLEN_NAME"</span>] <span class="op">=</span> <span class="st">"Locarno"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s explore the data a bit more before we move to the second dataset. Let’s check out the most frequent values that occur in the column <code>BETREIBER_NAME</code>:</p>
 <div id="c6337b86" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at BETREIBER_NAME</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"BETREIBER_NAME"</span>].value_counts().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at BETREIBER_NAME</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"BETREIBER_NAME"</span>].value_counts().head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>BETREIBER_NAME
 Schweizerische Bundesbahnen SBB    63850
@@ -552,8 +553,8 @@ Name: count, dtype: int64</code></pre>
 </div>
 <p>As expected, SBB is the company serving the largest number of stations. What about the column <code>VERKEHRSMITTEL_TEXT</code>?</p>
 <div id="8c13e97b" class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at VERKEHRSMITTEL_TEXT</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"VERKEHRSMITTEL_TEXT"</span>].value_counts().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at VERKEHRSMITTEL_TEXT</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"VERKEHRSMITTEL_TEXT"</span>].value_counts().head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>VERKEHRSMITTEL_TEXT
 S     103331
@@ -566,8 +567,8 @@ Name: count, dtype: int64</code></pre>
 </div>
 <p>We can see that the most frequent type of trains are S-Bahns (<code>S</code>). Finally, let’s check the most frequent train stations that occur in the data:</p>
 <div id="470ca6d7" class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at HALTESTELLEN_NAME</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"HALTESTELLEN_NAME"</span>].value_counts().head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at HALTESTELLEN_NAME</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"HALTESTELLEN_NAME"</span>].value_counts().head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>HALTESTELLEN_NAME
 Zürich HB          2239
@@ -584,19 +585,19 @@ Name: count, dtype: int64</code></pre>
 <h3 class="anchored" data-anchor-id="load-and-preprocess-dienststellen-daten">Load and preprocess “Dienststellen-Daten”</h3>
 <p>Fortunately, we can go through the second dataset a bit more quickly. We again start by loading it and checking the dimensions of the dataframe.</p>
 <div id="e74e361a" class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> pd.read_csv(<span class="st">'actual_date-swiss-only-service_point-2025-03-06.csv'</span>, sep <span class="op">=</span> <span class="st">";"</span>, low_memory <span class="op">=</span> <span class="va">False</span>)</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows and columns</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ds.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ds.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(55308, 55)</code></pre>
 </div>
 </div>
 <p>The data contains a column <code>validTo</code> that allows us to filter out all stations that are not valid anymore (closed down?). We check the values that appear in this column and see that all stations should be valid as of March 6, 2025. This is no surprise as we use the dataset of currently valid stations.</p>
 <div id="c7b4a774" class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 'validTo' values.</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>ds[<span class="st">'validTo'</span>].unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 'validTo' values.</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>ds[<span class="st">'validTo'</span>].unique()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>array(['9999-12-31', '2025-12-13', '2025-04-06', '2026-12-12',
        '2025-08-29', '2027-12-11', '2025-03-16', '2025-05-30',
@@ -608,24 +609,24 @@ Name: count, dtype: int64</code></pre>
 </div>
 <p>Let’s also quickly make sure that we have unique rows (based on ‘number’).</p>
 <div id="821ec43b" class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Is the number of unique 'number' (= BPUIC) values equal to the number of rows?</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(pd.unique(ds[<span class="st">'number'</span>])) <span class="op">==</span> ds.shape[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Is the number of unique 'number' (= BPUIC) values equal to the number of rows?</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(pd.unique(ds[<span class="st">'number'</span>])) <span class="op">==</span> ds.shape[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>True</code></pre>
 </div>
 </div>
 <p>Finally, we keep only the columns we need (identifier, official name, and geo coordinates).</p>
 <div id="8dc66c9c" class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the relevant columns</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the relevant columns</span></span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> ds[[<span class="st">"number"</span>,<span class="st">"designationOfficial"</span>,<span class="st">"cantonName"</span>,<span class="st">"municipalityName"</span>,<span class="st">"businessOrganisationDescriptionEn"</span>,<span class="st">"wgs84East"</span>,<span class="st">"wgs84North"</span>,<span class="st">"height"</span>]]</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first few rows</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>ds.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>ds.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -641,7 +642,7 @@ Name: count, dtype: int64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>1322001</td>
 <td>Antronapiana</td>
 <td>NaN</td>
@@ -652,7 +653,7 @@ Name: count, dtype: int64</code></pre>
 <td>0.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>1322002</td>
 <td>Anzola d'Ossola</td>
 <td>NaN</td>
@@ -663,7 +664,7 @@ Name: count, dtype: int64</code></pre>
 <td>0.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>1322003</td>
 <td>Baceno</td>
 <td>NaN</td>
@@ -674,7 +675,7 @@ Name: count, dtype: int64</code></pre>
 <td>0.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>1322012</td>
 <td>Castiglione</td>
 <td>NaN</td>
@@ -685,7 +686,7 @@ Name: count, dtype: int64</code></pre>
 <td>0.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>1322013</td>
 <td>Ceppo Morelli</td>
 <td>NaN</td>
@@ -706,43 +707,43 @@ Name: count, dtype: int64</code></pre>
 <h3 class="anchored" data-anchor-id="load-and-preprocess-average-traffic-data">Load and preprocess average traffic data</h3>
 <p>This part is also fairly easy. We load the data and check the dimensions, as always.</p>
 <div id="b6b3cf0f" class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the data</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>ds_freq <span class="op">=</span> pd.read_csv(<span class="st">'t01x-sbb-cff-ffs-frequentia-2023.csv'</span>, sep <span class="op">=</span> <span class="st">";"</span>, low_memory <span class="op">=</span> <span class="va">False</span>)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows and columns</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ds_freq.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(ds_freq.shape)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>(3479, 14)</code></pre>
 </div>
 </div>
 <p>If you actually have a look at the data, you see that many stations have several measurements made at different times (and the times of measurements are identified by <code>Jahr_Annee_Anno</code>). We only want to keep the most recent measurements for every station:</p>
 <div id="80b746ba" class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For every station, we only keep the most recent measurements.</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>ds_freq <span class="op">=</span> ds_freq.loc[ds_freq.groupby(<span class="st">'UIC'</span>)[<span class="st">'Jahr_Annee_Anno'</span>].idxmax()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For every station, we only keep the most recent measurements.</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>ds_freq <span class="op">=</span> ds_freq.loc[ds_freq.groupby(<span class="st">'UIC'</span>)[<span class="st">'Jahr_Annee_Anno'</span>].idxmax()]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Checking the data types of all columns reveals that there is still a problem with the measurement columns <code>DTV_TJM_TGM</code>, <code>DWV_TMJO_TFM</code>, and <code>DNWV_TMJNO_TMGNL</code>. They are currently of type <code>object</code> because they contain the thousand separator <code>’</code>. We thus remove all instances of this characters and transform these columns to integers.</p>
 <div id="55b1732f" class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data types of columns</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data types of columns</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>ds_freq.dtypes</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove thousand separator and make integers out of it.</span></span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>ds_freq[<span class="st">'DTV_TJM_TGM'</span>] <span class="op">=</span> ds_freq[<span class="st">'DTV_TJM_TGM'</span>].<span class="bu">str</span>.replace(<span class="st">'’'</span>, <span class="st">''</span>).astype(<span class="bu">int</span>)</span>
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>ds_freq[<span class="st">'DWV_TMJO_TFM'</span>] <span class="op">=</span> ds_freq[<span class="st">'DWV_TMJO_TFM'</span>].<span class="bu">str</span>.replace(<span class="st">'’'</span>, <span class="st">''</span>).astype(<span class="bu">int</span>)</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>ds_freq[<span class="st">'DNWV_TMJNO_TMGNL'</span>] <span class="op">=</span> ds_freq[<span class="st">'DNWV_TMJNO_TMGNL'</span>].<span class="bu">str</span>.replace(<span class="st">'’'</span>, <span class="st">''</span>).astype(<span class="bu">int</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>ds_freq[<span class="st">'DNWV_TMJNO_TMGNL'</span>] <span class="op">=</span> ds_freq[<span class="st">'DNWV_TMJNO_TMGNL'</span>].<span class="bu">str</span>.replace(<span class="st">'’'</span>, <span class="st">''</span>).astype(<span class="bu">int</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Finally, we keep only the relevant columns.</p>
 <div id="0aced18e" class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the relevant columns</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>ds_freq <span class="op">=</span> ds_freq[[<span class="st">"UIC"</span>,<span class="st">"DTV_TJM_TGM"</span>,<span class="st">"DWV_TMJO_TFM"</span>,<span class="st">"DNWV_TMJNO_TMGNL"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only the relevant columns</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>ds_freq <span class="op">=</span> ds_freq[[<span class="st">"UIC"</span>,<span class="st">"DTV_TJM_TGM"</span>,<span class="st">"DWV_TMJO_TFM"</span>,<span class="st">"DNWV_TMJNO_TMGNL"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="9523a8ec" class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first few rows</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>ds_freq.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first few rows</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>ds_freq.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="24">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -754,35 +755,35 @@ Name: count, dtype: int64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">411</td>
+<th data-quarto-table-cell-role="th">411</th>
 <td>8500010</td>
 <td>98600</td>
 <td>105900</td>
 <td>81900</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">423</td>
+<th data-quarto-table-cell-role="th">423</th>
 <td>8500016</td>
 <td>90</td>
 <td>100</td>
 <td>60</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2024</td>
+<th data-quarto-table-cell-role="th">2024</th>
 <td>8500020</td>
 <td>5700</td>
 <td>7000</td>
 <td>2800</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">2294</td>
+<th data-quarto-table-cell-role="th">2294</th>
 <td>8500021</td>
 <td>8500</td>
 <td>9900</td>
 <td>5200</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">1072</td>
+<th data-quarto-table-cell-role="th">1072</th>
 <td>8500022</td>
 <td>3600</td>
 <td>4100</td>
@@ -806,7 +807,7 @@ Name: count, dtype: int64</code></pre>
 <h3 class="anchored" data-anchor-id="combine-the-three-datasets">Combine the three datasets</h3>
 <p>We first merge the traffic data to the “Dienststellen-Daten”:</p>
 <div id="d47c3449" class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join to 'ds'</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Join to 'ds'</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> pd.merge(ds, ds_freq, left_on <span class="op">=</span> <span class="st">'number'</span>, right_on <span class="op">=</span> <span class="st">'UIC'</span>, how <span class="op">=</span> <span class="st">'left'</span>)</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop 'UIC'</span></span>
@@ -815,17 +816,17 @@ Name: count, dtype: int64</code></pre>
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Better column names</span></span>
 <span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>ds.columns <span class="op">=</span> [<span class="st">'BPUIC'</span>,<span class="st">'STATION_NAME'</span>,<span class="st">'CANTON'</span>,<span class="st">'MUNICIPALITY'</span>,<span class="st">'COMPANY'</span>,</span>
 <span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>              <span class="st">'LONGITUDE'</span>,<span class="st">'LATITUDE'</span>,<span class="st">'ELEVATION'</span>,<span class="st">'AVG_DAILY_TRAFFIC'</span>,</span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>              <span class="st">'AVG_DAILY_TRAFFIC_WEEKDAYS'</span>,<span class="st">'AVG_DAILY_TRAFFIC_WEEKENDS'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>              <span class="st">'AVG_DAILY_TRAFFIC_WEEKDAYS'</span>,<span class="st">'AVG_DAILY_TRAFFIC_WEEKENDS'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Then we merge the “Dienststellen-Daten” to the “Ist-Daten” via the <code>BPUIC</code> variable:</p>
 <div id="381bf8aa" class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Left-join with station names and coordinates</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.merge(df, ds, on <span class="op">=</span> <span class="st">'BPUIC'</span>, how <span class="op">=</span> <span class="st">'left'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Left-join with station names and coordinates</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.merge(df, ds, on <span class="op">=</span> <span class="st">'BPUIC'</span>, how <span class="op">=</span> <span class="st">'left'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Unfortunately, there are some rows (18) for which <code>HALTESTELLEN_NAME</code> is missing. But fortunately, we know which stations are affected based on the <code>STATION_NAME</code> column that we have just merged from <code>ds</code>.</p>
 <div id="56f99744" class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># There are 18 missing values for 'HALTESTELLEN_NAME' which we impute from 'STATION_NAME'.</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>].isna(), <span class="st">"HALTESTELLEN_NAME"</span>] <span class="op">=</span> df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>].isna(), <span class="st">"STATION_NAME"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># There are 18 missing values for 'HALTESTELLEN_NAME' which we impute from 'STATION_NAME'.</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>].isna(), <span class="st">"HALTESTELLEN_NAME"</span>] <span class="op">=</span> df.loc[df[<span class="st">'HALTESTELLEN_NAME'</span>].isna(), <span class="st">"STATION_NAME"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Now, we are finally ready to start extracting the network from this data!</p>
 </section>
@@ -833,12 +834,12 @@ Name: count, dtype: int64</code></pre>
 <h3 class="anchored" data-anchor-id="convert-it-to-a-network">Convert it to a network</h3>
 <p>As I mentioned several times, every row corresponds to a stop of a train at a train station. One train ride from some initial station to some end station (called “Fahrt” in German) then typically consists of several stops along the way. However, there are some “Fahrten” with only one entry. Presumably these are mostly foreign trains that have their final destination at some border station. I decided to remove those entries:</p>
 <div id="7f934160" class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First group by FAHRT_BEZEICHNER and then filter out all groups with only one entry</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co"># It's mostly trains that stop at a place at the border (I think)</span></span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>df_filtered <span class="op">=</span> df.groupby(<span class="st">'FAHRT_BEZEICHNER'</span>).<span class="bu">filter</span>(<span class="kw">lambda</span> g: <span class="bu">len</span>(g) <span class="op">&gt;</span> <span class="dv">1</span>)</span>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># How many rows do we loose with that?</span></span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape[<span class="dv">0</span>] <span class="op">-</span> df_filtered.shape[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(df.shape[<span class="dv">0</span>] <span class="op">-</span> df_filtered.shape[<span class="dv">0</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>420</code></pre>
 </div>
@@ -846,22 +847,22 @@ Name: count, dtype: int64</code></pre>
 <p>This preprocessing step removes 420 rows.</p>
 <p>Now we group the rows by <code>FAHRT_BEZEICHNER</code> so that each group is one “Fahrt”. In every group we sort the stops along the way in an ascending order of the departure time.</p>
 <div id="8836202b" class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to sort entries within a group in ascending order of ABFAHRTSZEIT</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to sort entries within a group in ascending order of ABFAHRTSZEIT</span></span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> sort_data(group):</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> group.sort_values(<span class="st">'ABFAHRTSZEIT'</span>, ascending <span class="op">=</span> <span class="va">True</span>)</span>
 <span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort for each group</span></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>df_sorted <span class="op">=</span> df_filtered.groupby(<span class="st">'FAHRT_BEZEICHNER'</span>, group_keys<span class="op">=</span><span class="va">True</span>).<span class="bu">apply</span>(sort_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>df_sorted <span class="op">=</span> df_filtered.groupby(<span class="st">'FAHRT_BEZEICHNER'</span>, group_keys<span class="op">=</span><span class="va">True</span>).<span class="bu">apply</span>(sort_data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s have a look at one “Fahrt” to get a better idea:</p>
 <div id="a02d3997" class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at one example Fahrt</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>df_sorted.loc[[<span class="st">'85:22:1083:000'</span>],[<span class="st">'BETREIBER_NAME'</span>,<span class="st">'LINIEN_TEXT'</span>,<span class="st">'HALTESTELLEN_NAME'</span>,<span class="st">'ABFAHRTSZEIT'</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at one example Fahrt</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>df_sorted.loc[[<span class="st">'85:22:1083:000'</span>],[<span class="st">'BETREIBER_NAME'</span>,<span class="st">'LINIEN_TEXT'</span>,<span class="st">'HALTESTELLEN_NAME'</span>,<span class="st">'ABFAHRTSZEIT'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="30">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -882,71 +883,71 @@ Name: count, dtype: int64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td rowspan="10" data-quarto-table-cell-role="th" data-valign="top">85:22:1083:000</td>
-<td data-quarto-table-cell-role="th">64346</td>
+<th rowspan="10" data-quarto-table-cell-role="th" data-valign="top">85:22:1083:000</th>
+<th data-quarto-table-cell-role="th">64346</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Gossau SG</td>
 <td>2025-03-05 08:21:00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">64347</td>
+<th data-quarto-table-cell-role="th">64347</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Herisau</td>
 <td>2025-03-05 08:28:00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">64348</td>
+<th data-quarto-table-cell-role="th">64348</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Herisau Wilen</td>
 <td>2025-03-05 08:30:00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">64349</td>
+<th data-quarto-table-cell-role="th">64349</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Waldstatt</td>
 <td>2025-03-05 08:34:00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">64350</td>
+<th data-quarto-table-cell-role="th">64350</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Zürchersmühle</td>
 <td>2025-03-05 08:39:00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">64351</td>
+<th data-quarto-table-cell-role="th">64351</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Urnäsch</td>
 <td>2025-03-05 08:43:00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">64352</td>
+<th data-quarto-table-cell-role="th">64352</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Jakobsbad</td>
 <td>2025-03-05 08:48:00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">64353</td>
+<th data-quarto-table-cell-role="th">64353</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Gonten</td>
 <td>2025-03-05 08:50:00</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">64354</td>
+<th data-quarto-table-cell-role="th">64354</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Gontenbad</td>
 <td>2025-03-05 08:52:00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">64355</td>
+<th data-quarto-table-cell-role="th">64355</th>
 <td>Appenzeller Bahnen (ab)</td>
 <td>S23</td>
 <td>Appenzell</td>
@@ -963,7 +964,7 @@ Name: count, dtype: int64</code></pre>
 <p><code>(previous station, current station, travel time between stations)</code>.</p>
 <p>The Python code for this looks as follows:</p>
 <div id="ed00516d" class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty list</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty list</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>edgelist <span class="op">=</span> []</span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Variables to store previous row and its index</span></span>
@@ -981,12 +982,12 @@ Name: count, dtype: int64</code></pre>
 <span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>                         (row[<span class="st">'ANKUNFTSZEIT'</span>] <span class="op">-</span> prev_row[<span class="st">'ABFAHRTSZEIT'</span>]).total_seconds() <span class="op">/</span> <span class="dv">60</span>))</span>
 <span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Set current row and row index to previous ones</span></span>
 <span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>    prev_idx <span class="op">=</span> i[<span class="dv">0</span>]</span>
-<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>    prev_row <span class="op">=</span> row</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>    prev_row <span class="op">=</span> row</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>To get a better idea, let’s have a look at the first list element:</p>
 <div id="e3cf0985" class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First list element</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>edgelist[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First list element</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>edgelist[<span class="dv">0</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="32">
 <pre><code>('Zürich HB', 'Basel SBB', 54.0)</code></pre>
 </div>
@@ -994,7 +995,7 @@ Name: count, dtype: int64</code></pre>
 <p>We are still not quite done yet. The problem is that the <code>edgelist</code> contains many duplicated entries as, for example, the stretch Zürich HB - Basel SBB is served by many different trains on a given day.</p>
 <p>What we want to do is to go through all possible edges and sum up the number of times they occur. In addition, we would like to average the travel time between a given pair of stations over all trips between the two stations. The following code does exactly that and saves the result in the form of a dictionary.</p>
 <div id="2103a484" class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty dict</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Empty dict</span></span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {}</span>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over elements in edgelist</span></span>
@@ -1007,12 +1008,12 @@ Name: count, dtype: int64</code></pre>
 <span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    edges[key] <span class="op">=</span> (prev[<span class="dv">0</span>] <span class="op">+</span> <span class="dv">1</span>, prev[<span class="dv">1</span>] <span class="op">+</span> i[<span class="dv">2</span>])</span>
 <span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Divide summed up travel times by number of trips</span></span>
-<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {k: (v[<span class="dv">0</span>], <span class="bu">round</span>(v[<span class="dv">1</span>]<span class="op">/</span>v[<span class="dv">0</span>], <span class="dv">2</span>)) <span class="cf">for</span> k, v <span class="kw">in</span> edges.items()}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>edges <span class="op">=</span> {k: (v[<span class="dv">0</span>], <span class="bu">round</span>(v[<span class="dv">1</span>]<span class="op">/</span>v[<span class="dv">0</span>], <span class="dv">2</span>)) <span class="cf">for</span> k, v <span class="kw">in</span> edges.items()}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Let’s look at the entry for the stretch between Zürich and Basel again:</p>
 <div id="f958fc0b" class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at some element in dict</span></span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>edges[(<span class="st">'Zürich HB'</span>, <span class="st">'Basel SBB'</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Look at some element in dict</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>edges[(<span class="st">'Zürich HB'</span>, <span class="st">'Basel SBB'</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="34">
 <pre><code>(36, 54.0)</code></pre>
 </div>
@@ -1020,22 +1021,22 @@ Name: count, dtype: int64</code></pre>
 <p>There are 36 trips between these two stations (in this direction) and they take 54 minutes on average.</p>
 <p>Another issue that I spotted when I was trying to visualize this network was two edges between Basel Bad Bf and Schaffhausen. When I consulted the SBB timetable I saw that these supposedly nonstop connections actually stop at quite a few stations in Germany. But because these stops are in Germany they do not appear in the data. As a conclusion of all this, I decided to remove these two edges:</p>
 <div id="f416a057" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the two edges between Basel Bad Bf and Schaffhausen</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the two edges between Basel Bad Bf and Schaffhausen</span></span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> edges[(<span class="st">'Basel Bad Bf'</span>, <span class="st">'Schaffhausen'</span>)]</span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> edges[(<span class="st">'Schaffhausen'</span>, <span class="st">'Basel Bad Bf'</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="kw">del</span> edges[(<span class="st">'Schaffhausen'</span>, <span class="st">'Basel Bad Bf'</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We are now ready to create the final node list (and export it). First, we reduce <code>ds</code> to the train stations that actually appear in the edges (it still contains many bus and tram stops and other things).</p>
 <div id="26f506ca" class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set of stations that appear in edgelist</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set of stations that appear in edgelist</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>stations_in_edgelist <span class="op">=</span> <span class="bu">set</span>(<span class="bu">sum</span>(<span class="bu">list</span>(edges.keys()), ()))</span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Reduces nodes dataframe to only places in edgelist</span></span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> ds[ds[<span class="st">'STATION_NAME'</span>].isin(stations_in_edgelist)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>nodes <span class="op">=</span> ds[ds[<span class="st">'STATION_NAME'</span>].isin(stations_in_edgelist)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Second, we quickly check the number of missing values again.</p>
 <div id="3c115ed6" class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing values per column</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>nodes.isna().<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing values per column</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>nodes.isna().<span class="bu">sum</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="37">
 <pre><code>BPUIC                           0
 STATION_NAME                    0
@@ -1053,21 +1054,21 @@ dtype: int64</code></pre>
 </div>
 <p>There are still some issues here. The one we can solve is the missing elevation. The station Tirano (in Italy) has no value for this column. We simply impute manually (Tirano’s elevation is approximately 441m).</p>
 <div id="e14dba50" class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute missing elevation for Tirano</span></span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>nodes.loc[nodes[<span class="st">'STATION_NAME'</span>] <span class="op">==</span> <span class="st">"Tirano"</span>, <span class="st">"ELEVATION"</span>] <span class="op">=</span> <span class="dv">441</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Impute missing elevation for Tirano</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>nodes.loc[nodes[<span class="st">'STATION_NAME'</span>] <span class="op">==</span> <span class="st">"Tirano"</span>, <span class="st">"ELEVATION"</span>] <span class="op">=</span> <span class="dv">441</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The missing values for <code>CANTON</code> and <code>MUNICIPALITY</code> concern municipalities abroad (in Germany and Italy mostly). The 500 missing values in the traffic columns are stations are run by smaller companies or stations abroad. There is nothing we can do about all these missing values.</p>
 <div id="7e0a9eaf" class="cell" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Have a look</span></span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>nodes.head()</span>
 <span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Export node list</span></span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="co"># nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="co"># nodes.sort_values("BPUIC").to_csv("nodelist.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="39">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1086,7 +1087,7 @@ dtype: int64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12683</td>
+<th data-quarto-table-cell-role="th">12683</th>
 <td>8500100</td>
 <td>Tavannes</td>
 <td>Bern</td>
@@ -1100,7 +1101,7 @@ dtype: int64</code></pre>
 <td>810.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">12684</td>
+<th data-quarto-table-cell-role="th">12684</th>
 <td>8500121</td>
 <td>Courfaivre</td>
 <td>Jura</td>
@@ -1114,7 +1115,7 @@ dtype: int64</code></pre>
 <td>280.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12685</td>
+<th data-quarto-table-cell-role="th">12685</th>
 <td>8500103</td>
 <td>Sorvilier</td>
 <td>Bern</td>
@@ -1128,7 +1129,7 @@ dtype: int64</code></pre>
 <td>49.0</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">12688</td>
+<th data-quarto-table-cell-role="th">12688</th>
 <td>8500120</td>
 <td>Courtételle</td>
 <td>Jura</td>
@@ -1142,7 +1143,7 @@ dtype: int64</code></pre>
 <td>550.0</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">12689</td>
+<th data-quarto-table-cell-role="th">12689</th>
 <td>8500102</td>
 <td>Malleray-Bévilard</td>
 <td>Bern</td>
@@ -1163,7 +1164,7 @@ dtype: int64</code></pre>
 </div>
 <p>Before we export the edges, we change the station names in the edgelist to the BPUIC to make the edges more compact. Then we transform the dictionary into a dataframe which can finally be exported.</p>
 <div id="f1586e2d" class="cell" data-execution_count="40">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with BPUIC as values</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a node dict with BPUIC as values</span></span>
 <span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>node_dict <span class="op">=</span> <span class="bu">dict</span>(<span class="bu">zip</span>(nodes.STATION_NAME, nodes.BPUIC))</span>
 <span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Transform edge dict to nested list and replace all station names with their BPUIC</span></span>
@@ -1176,12 +1177,12 @@ dtype: int64</code></pre>
 <span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>edges.head()</span>
 <span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Export edge list</span></span>
-<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a><span class="co"># edges.to_csv("edgelist_SoSto.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a><span class="co"># edges.to_csv("edgelist_SoSto.csv", sep = ';', encoding = 'utf-8', index = False)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-display" data-execution_count="40">
 <div>
 
 
-<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th"></th>
@@ -1193,35 +1194,35 @@ dtype: int64</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">0</td>
+<th data-quarto-table-cell-role="th">0</th>
 <td>8503000</td>
 <td>8500010</td>
 <td>36</td>
 <td>54.00</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">1</td>
+<th data-quarto-table-cell-role="th">1</th>
 <td>8500010</td>
 <td>8500090</td>
 <td>67</td>
 <td>6.07</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">2</td>
+<th data-quarto-table-cell-role="th">2</th>
 <td>8500090</td>
 <td>8500010</td>
 <td>67</td>
 <td>6.39</td>
 </tr>
 <tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
+<th data-quarto-table-cell-role="th">3</th>
 <td>8500010</td>
 <td>8503000</td>
 <td>39</td>
 <td>57.87</td>
 </tr>
 <tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
+<th data-quarto-table-cell-role="th">4</th>
 <td>8506286</td>
 <td>8506271</td>
 <td>34</td>
@@ -1291,13 +1292,14 @@ dtype: int64</code></pre>
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
