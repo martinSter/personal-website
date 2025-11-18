@@ -26,7 +26,7 @@ title: "Publications"
 
 ### Abstracts
 
--   Sterchi, M., Hilfiker, L. (2025). **Evaluating Graph Neural Networks for Epidemic Source Detection: A Benchmark Study** (Abstract). International School and Conference on Network Science, NetSci, (upcoming, June 2025). Poster Presentation.
+-   Sterchi, M., Hilfiker, L. (2025). **Evaluating Graph Neural Networks for Epidemic Source Detection: A Benchmark Study** (Abstract). International School and Conference on Network Science, NetSci 2025. Poster Presentation.
 
 -   Sterchi, M., Hilfiker, L., Grütter, R., Bernstein, A. (2023). **Active learning for epidemic source detection** (Extended Abstract). Book of Abstracts of the 12th International Conference on Complex Networks and their Applications, COMPLEX NETWORKS, 2023. Oral Presentation.
 
