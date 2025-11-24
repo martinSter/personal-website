@@ -21,4 +21,4 @@ We also plan to build on these datasets in our own future work. One direction we
 
 Full citation:
 
-Sterchi, M., Raubach, E., Hilfiker, L. (2025). **SwissRailNet: Four representations of a spatially embedded railway network dataset**. *Data in Brief*. <https://doi.org/10.1016/j.dib.2025.112266>
+Sterchi, M., Raubach, E., Hilfiker, L. (2025). **SwissRailNet: Four representations of a spatially embedded railway network dataset**. *Data in Brief*, 63, 112266. <https://doi.org/10.1016/j.dib.2025.112266>
