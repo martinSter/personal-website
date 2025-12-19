@@ -1,0 +1,20 @@
+---
+title: "New paper preprint"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2025-12-19
+categories: ["Publications"]
+image: preprint.png
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+A new paper from our group is now available as a preprint (see below). In this work, we provide a comprehensive review of Graph Neural Network (GNN) approaches to epidemic source detection and identify key limitations in existing methods. In addition, we introduce our own principled GNN architecture and demonstrate promising empirical results.
+
+The preprint has also been submitted to arXiv and is currently under processing. The arXiv link will be added here as soon as it becomes available.
+
+<embed src="GNN_Source_Detection_Sterchi_2025.pdf" width="700px" height="645px" />
