@@ -2,6 +2,10 @@
 title: "Publications"
 ---
 
+### Preprints
+
+-   Sterchi, M., Brack, N., & Hilfiker, L. (2025). **Graph neural networks for source detection: A review and benchmark study**. arXiv. <https://arxiv.org/abs/2512.20657>
+
 ### Journals
 
 -   Sterchi, M., Raubach, E., Hilfiker, L. (2025). **SwissRailNet: Four representations of a spatially embedded railway network dataset**. *Data in Brief*, 63, 112266. <https://doi.org/10.1016/j.dib.2025.112266>

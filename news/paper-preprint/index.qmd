@@ -15,6 +15,6 @@ google-scholar: false
 
 A new paper from our group is now available as a preprint (see below). In this work, we provide a comprehensive review of Graph Neural Network (GNN) approaches to epidemic source detection and identify key limitations in existing methods. In addition, we introduce our own principled GNN architecture and demonstrate promising empirical results.
 
-The preprint has also been submitted to arXiv and is currently under processing. The arXiv link will be added here as soon as it becomes available.
+The preprint is available on arXiv:
 
-<embed src="GNN_Source_Detection_Sterchi_2025.pdf" width="700px" height="645px" />
+Sterchi, M., Brack, N., & Hilfiker, L. (2025). Graph neural networks for source detection: A review and benchmark study. arXiv. <https://arxiv.org/abs/2512.20657>
