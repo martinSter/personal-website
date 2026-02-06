@@ -1,0 +1,30 @@
+---
+title: "Book on applied ML"
+author:
+  - name: Martin Sterchi
+    email: martin.sterchi@fhnw.ch
+date: 2026-02-06
+categories: ["Projects"]
+image: book.png
+format:
+  html:
+    df-print: paged
+    toc: true
+google-scholar: false
+---
+
+For a while now, I have been working on a little passion project of mine: my own textbook about applied Machine Learning (ML). A first version with a preface and two completed chapters is now [online](https://martinster.github.io/ml-book/) - yay!
+
+I have always liked reading ML textbooks by other people. Some of my favorites are the old and new versions of Christopher Bishop’s ML bible ([the new one](https://www.bishopbook.com/) he wrote together with his son Hugh!).
+
+A fantastic and pretty comprehensive work is the new sequel consisting of two books ([first book](https://probml.github.io/pml-book/book1.html) and [second book](https://probml.github.io/pml-book/book2.html)) by Kevin Murphy.
+
+Another great, and definitely more hands-on, [book](https://www.oreilly.com/library/view/hands-on-machine-learning/9781098125967/) is the one by Aurélien Géron.
+
+Anyways, I wanted to write my own version of a textbook that condenses the good material from these books and combines it with some of my own ideas. I see three reasons why my book may add something to the ML textbook landscape:
+
+* As a lecturer at a University of Applied Sciences, I have been working on projects with SMEs in Switzerland. Every time, I am somewhat surprised by the lack of mathematical and statistical skills in these companies. With my book, I would like to facilitate knowledge transfer into companies through my students.
+* My book is less technical than Bishop’s or Murphy’s books, but it does not omit the relevant math and statistics. I find it very dissatisfactory to see a formula without knowing where it comes from. Therefore, my book tries to find the right balance between intuitive understanding and derivations of the math behind the models. Judge for yourself how well I have done so far.
+* Finally, my book is written in German, while most of the classics are written in English. I do not want language barriers to prevent access to this important field and its related technologies.
+
+The book will grow over the next few months, if not years. If you have feedback and/or spot errors, feel free to let me know.
