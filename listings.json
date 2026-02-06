@@ -11,6 +11,7 @@
   {
     "listing": "/news/index.html",
     "items": [
+      "/news/ml_book/index.html",
       "/news/paper-preprint/index.html",
       "/news/data_in_brief/index.html",
       "/news/netsci25_poster/index.html",
