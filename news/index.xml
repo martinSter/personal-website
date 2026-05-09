@@ -9,8 +9,42 @@
 <link>https://martinsterchi.ch/news/</link>
 <atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.8.27</generator>
-<lastBuildDate>Fri, 06 Feb 2026 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.37</generator>
+<lastBuildDate>Sat, 09 May 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>Alumni Event for Data Science Students</title>
+  <dc:creator>Martin Sterchi</dc:creator>
+  <link>https://martinsterchi.ch/news/mdsevent/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>One of my favorite teaching obligations is the one in our Major titled <strong>Managerial Data Science</strong>, which I developed together with my colleague Fabian Heimsch in 2022 and have since continuously updated. Students at FHNW can choose it during their last year of their Bachelor programs (either in Business Administration or International Management). The Major accounts for 20 ECTS in total. In my 5-ECTS module, we learn the basics of Machine Learning.</p>
+<p>Currently, we are about to finish classes with the fourth generation of students in our Major. While previous generations have been excited to enter the job market after completing their Bachelors with our Major, things look a bit more complicated this year. The job market for knowledge work in general and Data Science jobs in particular is somewhat dry and companies seem to be hesitant to hire. While there seems to be some general consolidation going on, with companies trying to cut costs, the emergence of unforeseen AI-capabilities has led to a lot of uncertainty about how the future of Data Science jobs looks.</p>
+<p>This spring I decided that we need to provide our students a more clear perspective for what may be their next realistic career move. For this, we invited all Alumni from our Major that we were able to contact. On April 30 we were able to welcome about 20 Alumni, our current students as well as 10 students that are interested in the next run of the Major. After a small “tour d’horizon” of our Major, some of the Alumni presented their next career steps, elaborated on how the Major helped them in their career, and what skills or concepts were missing looking back. Moreover, they provided some insight in how AI has or will reshape their jobs.</p>
+<p><img src="https://martinsterchi.ch/news/mdsevent/event.jpeg" height="400"> Here are some of my take-aways from the Alumni’s experiences:</p>
+<ul>
+<li>The type of positions our graduates get is quite broad and goes beyond Business and Data Analytics and for example includes jobs in Project Management, Banking or Controlling.</li>
+<li>However, the most frequently mentioned role is still Business Analyst.</li>
+<li>An emerging category of jobs seems to be AI-based jobs such as AI Agent Engineer.</li>
+<li>Some of our former students have made successful transitions to Universities for their Masters.</li>
+<li>Even though most of the Alumni do not need to write much code anymore due to AI automation, they still appreciate having acquired coding skills during the Major.</li>
+<li>They say the Major has allowed them to acquire analytical thinking skills and a general understanding of what data are and in what flavors they come.</li>
+<li>A practical skill we do not cover enough in our Major is Business Intelligence. A lot of our Alumni’s daily bread and butter is using tools such as PowerBI.</li>
+<li>Fortunately, most of our Alumni do not seem to be worried about being replaced by AI.</li>
+</ul>
+<p>Overall, it was a very nice event that hopefully allowed our current and possible future students to get a good idea of job profiles that may open up for them.</p>
+<p>I strongly believe that AI will lead to a world in which people who can successfully navigate between the business/domain side and the technical/analytical side and facilitate the communication between the two will be in high demand.</p>
+
+
+
+ ]]></description>
+  <category>Events</category>
+  <guid>https://martinsterchi.ch/news/mdsevent/</guid>
+  <pubDate>Sat, 09 May 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://martinsterchi.ch/news/mdsevent/event.jpeg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Book on applied ML</title>
   <dc:creator>Martin Sterchi</dc:creator>
