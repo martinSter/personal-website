@@ -9,8 +9,50 @@
 <link>https://martinsterchi.ch/news/</link>
 <atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.9.37</generator>
-<lastBuildDate>Sat, 09 May 2026 00:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.38</generator>
+<lastBuildDate>Tue, 14 Jul 2026 00:00:00 GMT</lastBuildDate>
+<item>
+  <title>NetSci 2026</title>
+  <dc:creator>Martin Sterchi</dc:creator>
+  <link>https://martinsterchi.ch/news/netsci26/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Together with two colleagues (Lorenz and Nathan), we attended the main NetSci conference in June, which took place in Boston, USA. This was our second time, after first attending last year in Maastricht. This year we presented two posters and gave a lightning talk and a parallel session talk.</p>
+<p>My talk (the parallel session one) presented our work on using GNNs for epidemic source detection. Our goal is for the community to adopt this as a new benchmark task for evaluating GNN architectures and designs on static networks. The corresponding paper is available on <a href="https://arxiv.org/html/2512.20657v2">arXiv</a> and is currently under review with a CS journal.</p>
+<p>The lightning talk (presented by Lorenz), together with one of the posters, covered a new proper scoring rule for evaluating node selection tasks on graphs. The second poster, presented by Nathan, looked at scaling laws for source detection. Both works will soon be available on arXiv.</p>
+<p><img src="https://martinsterchi.ch/news/netsci26/me.jpg" height="600"></p>
+<p>Every good conference visit allows a little bit of time to explore the venue, which we did! Boston is an amazing city that is surprisingly walkable.</p>
+<p>Here are some impressions:</p>
+<div class="quarto-layout-panel" data-layout-ncol="2">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci26/Boston1.jpg" class="img-fluid"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci26/Boston2.jpg" class="img-fluid"></p>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci26/Boston4.jpg" class="img-fluid"></p>
+</div>
+<div class="quarto-layout-cell" style="flex-basis: 50.0%;justify-content: center;">
+<p><img src="https://martinsterchi.ch/news/netsci26/Boston5.jpg" class="img-fluid"></p>
+</div>
+</div>
+</div>
+
+
+
+ ]]></description>
+  <category>Conferences</category>
+  <guid>https://martinsterchi.ch/news/netsci26/</guid>
+  <pubDate>Tue, 14 Jul 2026 00:00:00 GMT</pubDate>
+  <media:content url="https://martinsterchi.ch/news/netsci26/Boston3.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Alumni Event for Data Science Students</title>
   <dc:creator>Martin Sterchi</dc:creator>
