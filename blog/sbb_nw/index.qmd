@@ -13,6 +13,8 @@ format:
 google-scholar: false
 ---
 
+*Update 28.10.2026: I found some issues in the network presented in this post. One that affects this representation is that the input data did not contain the line from Travers to Buttes in the canton of Neuchâtel. On the day the input data refers to, this line was served by buses instead of trains. I decided not to change the content and code of this post and instead refer you to my [GitHub repo](https://github.com/martinSter/swiss-railway-networks) with the most up-to-date code and final data.*
+
 *Update 10.03.2025: I updated the analysis in this blog so that it runs on more recent data. More precisely, I use the train traffic data from March 5, 2025 to construct the network. Moreover, I now properly reference the source data and I have added a bunch of additional node attributes. The most interesting new node attributes are average passenger frequency data for all stations.*
 
 For quite some time I have been wondering if there are some interesting Swiss data that would serve as the basis for some fun network analysis. As a fan of public transportation and a long-time owner of a Swiss train pass ("GA"), the answer should have been obvious much sooner: the **Swiss railway network**.
@@ -104,24 +106,24 @@ df.head()
 
 But what do all these columns mean? I have browsed the metadata a bit and found the following explanations (that I hopefully accurately reproduce in English):
 
--   `BETRIEBSTAG`: Simply the day on which the data were recorded.
--   `FAHRT_BEZEICHNER`: This is some elaborate identifier in the format \[UIC-Countrycode\]:\[GO-Number\]:\[VM-Number\]:\[Extended Reference\].
--   `BETREIBER_ID`: \[UIC-Countrycode\]:\[GO-Number\]. GO is short for "Geschäftsorganisation". For foreign organizations it is not a GO-Number but a TU-Number with TU meaning "Transportunternehmen". It is basically an ID for the company running that particular train.
--   `BETREIBER_ABK`: The abbreviation for the company running the train.
--   `BETREIBER_NAME`: The full name of the company running the train.
--   `PRODUKT_ID`: Type of public transport.
--   `LINIEN_ID`: The ID for the route of that train.
--   `LINIEN_TEXT`: The public ID for the route of that train.
--   `UMLAUF_ID`: An ID for a "Umlauf" which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.
--   `ZUSATZFAHRT_TF`: Is true if it is an extraordinary (not usually scheduled) trip.
--   `FAELLT_AUS_TF`: Is true if the trip is cancelled.
--   `BPUIC`: The ID of the station.
--   `HALTESTELLEN_NAME`: The name of the station.
--   `ANKUNFTSZEIT`: Planned time of arrival at the station.
--   `AN_PROGNOSE`: Prediction of time of arrival at the station.
--   `AN_PROGNOSE_STATUS`: Status of that prediction. Possible values are: "UNBEKANNT", "leer", "PROGNOSE", "GESCHAETZT", "REAL". If the value of that column is "REAL", it means that the predicted time of arrival is the time the train actually arrived at the station.
--   `ABFAHRTSZEIT`, `AB_PROGNOSE`, `AB_PROGNOSE_STATUS`: Same definitions as for arrival but here for departure from the station.
--   `DURCHFAHRT_TF`: Is true if the vehicle does not stop even if a stop was scheduled.
+- `BETRIEBSTAG`: Simply the day on which the data were recorded.
+- `FAHRT_BEZEICHNER`: This is some elaborate identifier in the format \[UIC-Countrycode\]:\[GO-Number\]:\[VM-Number\]:\[Extended Reference\].
+- `BETREIBER_ID`: \[UIC-Countrycode\]:\[GO-Number\]. GO is short for "Geschäftsorganisation". For foreign organizations it is not a GO-Number but a TU-Number with TU meaning "Transportunternehmen". It is basically an ID for the company running that particular train.
+- `BETREIBER_ABK`: The abbreviation for the company running the train.
+- `BETREIBER_NAME`: The full name of the company running the train.
+- `PRODUKT_ID`: Type of public transport.
+- `LINIEN_ID`: The ID for the route of that train.
+- `LINIEN_TEXT`: The public ID for the route of that train.
+- `UMLAUF_ID`: An ID for a "Umlauf" which describes the period starting with the vehicle leaving the garage and ending with the vehicle being deposited back in the garage.
+- `ZUSATZFAHRT_TF`: Is true if it is an extraordinary (not usually scheduled) trip.
+- `FAELLT_AUS_TF`: Is true if the trip is cancelled.
+- `BPUIC`: The ID of the station.
+- `HALTESTELLEN_NAME`: The name of the station.
+- `ANKUNFTSZEIT`: Planned time of arrival at the station.
+- `AN_PROGNOSE`: Prediction of time of arrival at the station.
+- `AN_PROGNOSE_STATUS`: Status of that prediction. Possible values are: "UNBEKANNT", "leer", "PROGNOSE", "GESCHAETZT", "REAL". If the value of that column is "REAL", it means that the predicted time of arrival is the time the train actually arrived at the station.
+- `ABFAHRTSZEIT`, `AB_PROGNOSE`, `AB_PROGNOSE_STATUS`: Same definitions as for arrival but here for departure from the station.
+- `DURCHFAHRT_TF`: Is true if the vehicle does not stop even if a stop was scheduled.
 
 Let's now have a look at the values in the column `PRODUKT_ID`:
 
@@ -268,9 +270,9 @@ ds_freq.head()
 
 But what exactly are these three measurement variables? The source dataset provides the following definitions:
 
--   `DTV_TJM_TGM`: "Average daily traffic (Monday to Sunday)."
--   `DWV_TMJO_TFM`: "Average traffic on weekdays (Monday to Friday)."
--   `DNWV_TMJNO_TMGNL`: "Average non-work day traffic (Saturdays, Sundays and public holidays)."
+- `DTV_TJM_TGM`: "Average daily traffic (Monday to Sunday)."
+- `DWV_TMJO_TFM`: "Average traffic on weekdays (Monday to Friday)."
+- `DNWV_TMJNO_TMGNL`: "Average non-work day traffic (Saturdays, Sundays and public holidays)."
 
 It is further mentioned that all passengers boarding and exiting the trains are counted. That also means that passengers who switch trains are counted twice. For larger stations, the data may not cover all trains arriving and departing at the corresponding station. For example, the numbers for Bern do not include the traffic generated by the regional train company RBS.
 

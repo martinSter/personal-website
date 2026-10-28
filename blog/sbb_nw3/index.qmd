@@ -13,6 +13,8 @@ format:
 google-scholar: false
 ---
 
+*Update 28.10.2026: I found some issues in the network presented in this post. One that affects the temporal representation is that the input data did not contain the line from Travers to Buttes in the canton of Neuchâtel. On the day the input data refers to, this line was served by buses instead of trains. I decided not to change the content and code of this post and instead refer you to my [GitHub repo](https://github.com/martinSter/swiss-railway-networks) with the most up-to-date code and final data.*
+
 After [Part 1](../sbb_nw/index.qmd) and [Part 2](../sbb_nw2/index.qmd), where I demonstrated how to create different versions of static networks, I now want to show how to construct a temporal network representation of the Swiss railway network. If you've followed along with the first two parts of this series, the code here should be easy to understand.
 
 The temporal network representation I develop here is based on the **space-of-changes** approach. In this representation, a *directed* edge connects each station to all subsequent stations for a given "Fahrt." Instead of aggregating edges between the same pairs of stations, we retain all edges at different points in time, storing both the start time of each edge, $t$, and the time required to traverse it, $\delta t$. This is just one possible way to represent temporal edges (see, for instance, the 2012 overview paper by [Petter Holme and Jari Saramäki](https://doi.org/10.1016/j.physrep.2012.03.001)).

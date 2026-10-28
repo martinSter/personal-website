@@ -13,6 +13,8 @@ format:
 google-scholar: false
 ---
 
+*Update 28.10.2026: I found some issues in the networks presented in this post. First, the input data did not contain the line from Travers to Buttes in the canton of Neuchâtel. On the day the input data refers to, this line was served by buses instead of trains. Second, the Italian town of Domodossola was not a node, so Preglia and Masera, which are linked through Domodossola, were not connected. Third, in the code presented here I incorrectly deleted the edge between Interlaken West and Spiez. I did this because I knew that there are stations in between. However, they have all been closed since 2020 or so. Finally, an edge should be added between Grenchen Nord and Lengnau BE, as they are clearly linked directly even though no train stops at both stations consecutively. I decided not to change the content and code of this post and instead refer you to my [GitHub repo](https://github.com/martinSter/swiss-railway-networks) with the most up-to-date code and final data.*
+
 In [Part 1](../sbb_nw/index.qmd) of this series on the Swiss train network, I demonstrated how to construct a directed network where nodes represent stations, and a directed edge exists whenever at least one nonstop train connection links two stations.
 
 For some time, I believed this was the most intuitive graph representation for this context. However, after reading an insightful 2006 paper by [Maciej Kurant and Patrick Thiran](https://arxiv.org/abs/physics/0510151), I discovered that public transport networks can be represented in (at least) three distinct ways. The graph representation I introduced in [Part 1](../sbb_nw/index.qmd) aligns with what they call the **space-of-stops** representation.
@@ -21,13 +23,13 @@ Yet, depending on the specific questions being asked, two other graph representa
 
 The third representation, **space-of-stations**, includes an undirected edge between two stations only if they are directly connected by railway tracks, with no other station in between. This approach offers a more infrastructure-focused perspective on the network.
 
-Crucially, all three representations share the same set of nodes—namely, all active train stations. What differs is how the edges are defined.
+Crucially, all three representations share the same set of nodes, namely, all active train stations. What differs is how the edges are defined.
 
 Kurant and Thiran (2006) also highlight how the shortest path length is interpreted differently in each representation:
 
--   *space-of-stops*: The number of train stops on a journey between two stations.
--   *space-of-changes*: The number of times a traveler must change trains between two stations.
--   *space-of-stations*: The number of stations passed through between two stations.
+- *space-of-stops*: The number of train stops on a journey between two stations.
+- *space-of-changes*: The number of times a traveler must change trains between two stations.
+- *space-of-stations*: The number of stations passed through between two stations.
 
 Lastly, they point out an important subgraph relationship among these representations: *space-of-stations* is a subgraph of *space-of-stops*, which in turn is a subgraph of *space-of-changes*.
 
@@ -302,9 +304,9 @@ Then, we iterate over all undirected, unique edges that we prepared above. For e
 
 1.  We get the `FAHRT_BEZEICHNER` strings for all "Fahrten" which both nodes of the edge are part of. For this we use the *inverted index*-style dictionary we created above.
 2.  Then we perform an inner loop over the "Fahrten" extracted in the first step.
-    -   We first extract the sequence of stations of a "Fahrt".
-    -   We use our custom function from above to check whether the two nodes are adjacent in the sequence of stations.
-    -   If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and move on to the next edge.
+    - We first extract the sequence of stations of a "Fahrt".
+    - We use our custom function from above to check whether the two nodes are adjacent in the sequence of stations.
+    - If they are not adjacent, i.e., the edge represents a shortcut, then we save that edge and break the inner loop and move on to the next edge.
 
 ```{python}
 # Empty list for shortcuts.
