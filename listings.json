@@ -1,5 +1,14 @@
 [
   {
+    "listing": "/blog/index.html",
+    "items": [
+      "/blog/sbb_nw3/index.html",
+      "/blog/sbb_nw2/index.html",
+      "/blog/kmeans_imgseg/index.html",
+      "/blog/sbb_nw/index.html"
+    ]
+  },
+  {
     "listing": "/news/index.html",
     "items": [
       "/news/netsci26/index.html",
@@ -11,15 +20,6 @@
       "/news/blog/index.html",
       "/news/netsci25/index.html",
       "/news/snf_epi/index.html"
-    ]
-  },
-  {
-    "listing": "/blog/index.html",
-    "items": [
-      "/blog/sbb_nw3/index.html",
-      "/blog/sbb_nw2/index.html",
-      "/blog/kmeans_imgseg/index.html",
-      "/blog/sbb_nw/index.html"
     ]
   }
 ]

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.19">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -41,10 +44,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-a8b43a1fa5b8cc27f37e51b082f7950e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-21e70b9ca92b90361206213bf4642d7d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -103,7 +106,7 @@ ul.task-list li input[type="checkbox"] {
   </script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -218,7 +221,7 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="TmV0d29ya3M=" data-listing-date-sort="1743465600000" data-listing-file-modified-sort="1784017626370" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="905">
+<div class="quarto-post image-right" data-index="0" data-categories="TmV0d29ya3M=" data-listing-date-sort="1743465600000" data-listing-file-modified-sort="1793200666740" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="989">
 <div class="thumbnail"><a href="../blog/sbb_nw3/index.html" class="no-external">
 
 <img loading="lazy" src="../blog/sbb_nw3/sbb_hb.jpg" class="thumbnail-image">
@@ -234,7 +237,7 @@ window.Quarto = {
 
 </div>
 <div class="delink listing-description"><a href="../blog/sbb_nw3/index.html" class="no-external">
-After Part 1 and Part 2, where I demonstrated how to create different versions of static networks, I now want to show how to construct a temporal network representation of…
+<em>Update 28.10.2026: I found some issues in the network presented in this post. One that affects the temporal representation is that the input data did not contain the line…</em>
 </a></div>
 </div>
 <div class="metadata">
@@ -248,7 +251,7 @@ Martin Sterchi
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="TmV0d29ya3M=" data-listing-date-sort="1743379200000" data-listing-file-modified-sort="1784017626272" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3823">
+<div class="quarto-post image-right" data-index="1" data-categories="TmV0d29ya3M=" data-listing-date-sort="1743379200000" data-listing-file-modified-sort="1793200666611" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3977">
 <div class="thumbnail"><a href="../blog/sbb_nw2/index.html" class="no-external">
 
 <img loading="lazy" src="../blog/sbb_nw2/sbb_hb.jpg" class="thumbnail-image">
@@ -264,7 +267,7 @@ Martin Sterchi
 
 </div>
 <div class="delink listing-description"><a href="../blog/sbb_nw2/index.html" class="no-external">
-In Part 1 of this series on the Swiss train network, I demonstrated how to construct a directed network where nodes represent stations, and a directed edge exists whenever…
+<em>Update 28.10.2026: I found some issues in the networks presented in this post. First, the input data did not contain the line from Travers to Buttes in the canton of…</em>
 </a></div>
 </div>
 <div class="metadata">
@@ -278,7 +281,7 @@ Martin Sterchi
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="RGF0YSUyMFNjaWVuY2U=" data-listing-date-sort="1742515200000" data-listing-file-modified-sort="1784017626261" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="731">
+<div class="quarto-post image-right" data-index="2" data-categories="RGF0YSUyMFNjaWVuY2U=" data-listing-date-sort="1742515200000" data-listing-file-modified-sort="1793200666596" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="731">
 <div class="thumbnail"><a href="../blog/kmeans_imgseg/index.html" class="no-external">
 
 <img loading="lazy" src="../blog/kmeans_imgseg/me.jpg" class="thumbnail-image">
@@ -308,7 +311,7 @@ Martin Sterchi
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="TmV0d29ya3M=" data-listing-date-sort="1740700800000" data-listing-file-modified-sort="1784017626261" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3129">
+<div class="quarto-post image-right" data-index="3" data-categories="TmV0d29ya3M=" data-listing-date-sort="1740700800000" data-listing-file-modified-sort="1793200666596" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3168">
 <div class="thumbnail"><a href="../blog/sbb_nw/index.html" class="no-external">
 
 <img loading="lazy" src="../blog/sbb_nw/sbb_hb.jpg" class="thumbnail-image">
@@ -324,7 +327,7 @@ Martin Sterchi
 
 </div>
 <div class="delink listing-description"><a href="../blog/sbb_nw/index.html" class="no-external">
-<em>Update 10.03.2025: I updated the analysis in this blog so that it runs on more recent data. More precisely, I use the train traffic data from March 5, 2025 to construct the…</em>
+<em>Update 28.10.2026: I found some issues in the network presented in this post. One that affects this representation is that the input data did not contain the line from…</em>
 </a></div>
 </div>
 <div class="metadata">
