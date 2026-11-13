@@ -5,6 +5,7 @@ title: "Publications"
 ### Preprints
 
 - Hilfiker, L., Cincera Brack, N., & Sterchi, M. (2026). **Strictly proper scoring rules for node selection tasks on graphs**. arXiv. <https://arxiv.org/abs/2611.03274>
+
 - Sterchi, M., Brack, N., & Hilfiker, L. (2025). **Graph neural networks for source detection: A review and benchmark study**. arXiv. <https://arxiv.org/abs/2512.20657>
 
 ### Books
