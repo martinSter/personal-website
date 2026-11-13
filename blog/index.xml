@@ -9,7 +9,7 @@
 <link>https://martinsterchi.ch/blog/</link>
 <atom:link href="https://martinsterchi.ch/blog/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.10.19</generator>
+<generator>quarto-1.11.9</generator>
 <lastBuildDate>Tue, 01 Apr 2025 00:00:00 GMT</lastBuildDate>
 <item>
   <title>SBB Network Analysis - Part 3</title>
@@ -541,7 +541,7 @@ font-style: inherit;"># edges.to_csv("edgelist_temporal.csv", sep = ';', encodin
   <category>Networks</category>
   <guid>https://martinsterchi.ch/blog/sbb_nw3/</guid>
   <pubDate>Tue, 01 Apr 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/blog/sbb_nw3/sbb_hb.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/blog/sbb_nw3/sbb_hb.jpg" medium="image" type="image/jpeg" height="90" width="144"/>
 </item>
 <item>
   <title>SBB Network Analysis - Part 2</title>
@@ -2635,7 +2635,7 @@ font-style: inherit;"># edges.to_csv("edgelist_SoSta.csv", sep = ';', encoding =
   <category>Networks</category>
   <guid>https://martinsterchi.ch/blog/sbb_nw2/</guid>
   <pubDate>Mon, 31 Mar 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/blog/sbb_nw2/sbb_hb.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/blog/sbb_nw2/sbb_hb.jpg" medium="image" type="image/jpeg" height="90" width="144"/>
 </item>
 <item>
   <title>k-Means for Image Segmentation</title>
@@ -3134,7 +3134,7 @@ font-style: inherit;">1</span>)</span>
   <category>Data Science</category>
   <guid>https://martinsterchi.ch/blog/kmeans_imgseg/</guid>
   <pubDate>Fri, 21 Mar 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/blog/kmeans_imgseg/me.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/blog/kmeans_imgseg/me.jpg" medium="image" type="image/jpeg" height="144" width="144"/>
 </item>
 <item>
   <title>SBB Network Analysis - Part 1</title>
@@ -4975,7 +4975,7 @@ font-style: inherit;"># edges.to_csv("edgelist_SoSto.csv", sep = ';', encoding =
   <category>Networks</category>
   <guid>https://martinsterchi.ch/blog/sbb_nw/</guid>
   <pubDate>Fri, 28 Feb 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/blog/sbb_nw/sbb_hb.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/blog/sbb_nw/sbb_hb.jpg" medium="image" type="image/jpeg" height="90" width="144"/>
 </item>
 </channel>
 </rss>

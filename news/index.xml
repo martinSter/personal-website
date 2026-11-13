@@ -9,7 +9,7 @@
 <link>https://martinsterchi.ch/news/</link>
 <atom:link href="https://martinsterchi.ch/news/index.xml" rel="self" type="application/rss+xml"/>
 <description></description>
-<generator>quarto-1.10.19</generator>
+<generator>quarto-1.11.9</generator>
 <lastBuildDate>Tue, 14 Jul 2026 00:00:00 GMT</lastBuildDate>
 <item>
   <title>NetSci 2026</title>
@@ -51,7 +51,7 @@
   <category>Conferences</category>
   <guid>https://martinsterchi.ch/news/netsci26/</guid>
   <pubDate>Tue, 14 Jul 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/news/netsci26/Boston3.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/news/netsci26/Boston3.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>Alumni Event for Data Science Students</title>
@@ -86,7 +86,7 @@
   <category>Events</category>
   <guid>https://martinsterchi.ch/news/mdsevent/</guid>
   <pubDate>Sat, 09 May 2026 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/news/mdsevent/event.jpeg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/news/mdsevent/event.jpeg" medium="image" type="image/jpeg" height="81" width="144"/>
 </item>
 <item>
   <title>Book on applied ML</title>
@@ -199,7 +199,7 @@
   <category>Conferences</category>
   <guid>https://martinsterchi.ch/news/netsci25_poster/</guid>
   <pubDate>Fri, 11 Jul 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/news/netsci25_poster/image.PNG" medium="image"/>
+  <media:content url="https://martinsterchi.ch/news/netsci25_poster/image.PNG" medium="image" height="93" width="144"/>
 </item>
 <item>
   <title>First blogpost</title>
@@ -222,7 +222,7 @@
   <category>Blog</category>
   <guid>https://martinsterchi.ch/news/blog/</guid>
   <pubDate>Fri, 28 Feb 2025 00:00:00 GMT</pubDate>
-  <media:content url="https://martinsterchi.ch/news/blog/Blog.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://martinsterchi.ch/news/blog/Blog.jpg" medium="image" type="image/jpeg" height="108" width="144"/>
 </item>
 <item>
   <title>NetSci 2025, here we come</title>
